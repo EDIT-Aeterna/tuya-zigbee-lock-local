@@ -1,5 +1,7 @@
 # TYZS3 → Zigbee2MQTT Lock Firmware
 
+[![Sponsor](https://img.shields.io/badge/Sponsor-%E2%9D%A4-ea4aaa?style=for-the-badge&logo=githubsponsors&logoColor=white)](https://github.com/sponsors/nickieftekhari-dotcom)
+
 Replacement firmware for the **TYZS3** (Silicon Labs **EFR32MG13P732**) Zigbee module used in
 residential smart locks, so the lock pairs and runs **directly on zigbee2mqtt** — fully local,
 with no proprietary gateway or cloud.
