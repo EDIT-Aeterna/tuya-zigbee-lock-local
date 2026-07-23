@@ -122,13 +122,10 @@ void tls_announce_online(tls_ctx_t *c);                         /* push "paired+
 void tls_request_product_info(tls_ctx_t *c);                    /* module->MCU 0x01 query (boot) */
 void tls_boot(tls_ctx_t *c);                                    /* mirror the stock module's opening moves */
 
-/* module->MCU: local = GMT + this. As of 2026-07-22 (Nicki) the lock runs on
- * TRUE UTC: z2m syncs correct UTC (genTime.time) and the hub stamps temp-code
- * windows in UTC, so the served "local" clock must equal UTC too. Keep this 0 --
- * a non-zero offset here re-introduces the old "lock is N hours ahead" skew and
- * forces a compensating fudge on the hub side. Timezone is a display concern the
- * app/hub own, not the lock. */
-#define TLS_DEFAULT_TZ_OFFSET 0
+/* module->MCU 0x24 reply: Standard = true UTC, Local = GMT + this. Set to UAE (+4h)
+ * 2026-07-23 (Nicki): the Standard field stays true UTC; the Local field carries UAE
+ * wall-clock (UTC+4) so the MCU adopts UAE rather than its factory China zone. */
+#define TLS_DEFAULT_TZ_OFFSET (4 * 3600)
 /* Push a remote-control DP down to the lock (e.g. hub asked to unlock). */
 void tls_send_dp(tls_ctx_t *c, uint8_t dp_id, tls_dp_type_t t, const uint8_t *val, uint16_t vlen);
 
