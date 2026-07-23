@@ -33,6 +33,8 @@ itself and forwards every datapoint over Zigbee EF00 to your own coordinator. No
   lock MCU  <—— UART (MCU serial) ——>  TYZS3 module (this firmware)  <—— Zigbee EF00 ——>  zigbee2mqtt
 ```
 
+The MCU-side serial exchange is documented in full in [`docs/PROTOCOL.md`](docs/PROTOCOL.md).
+
 ## Repository layout
 
 | Path | What |
@@ -40,7 +42,7 @@ itself and forwards every datapoint over Zigbee EF00 to your own coordinator. No
 | [`firmware/`](firmware/) | Module firmware: portable C core + the EFR32 application layer, a prebuilt image (`kagel-lock.hex`), and build notes. |
 | [`flasher/`](flasher/) | One-click Windows flashing tool (SWD via a Raspberry Pi Debug Probe / pyOCD), with an illustrated manual. |
 | [`zigbee2mqtt/`](zigbee2mqtt/) | The external converter that makes Zigbee2MQTT recognise the lock, plus install steps. |
-| [`docs/`](docs/) | Hardware wiring (SWD pinout) and the manual pyOCD flashing procedure. |
+| [`docs/`](docs/) | Hardware wiring (SWD pinout), the manual pyOCD flashing procedure, and the [MCU serial protocol reference](docs/PROTOCOL.md). |
 
 ## Quick start
 
