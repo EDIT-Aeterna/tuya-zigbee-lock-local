@@ -1,0 +1,8 @@
+# host-test build artifacts
+selftest
+*.o
+*.axf
+*.map
+# editor / OS
+.DS_Store
+*.swp
