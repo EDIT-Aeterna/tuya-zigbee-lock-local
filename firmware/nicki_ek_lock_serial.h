@@ -122,10 +122,12 @@ void tls_announce_online(tls_ctx_t *c);                         /* push "paired+
 void tls_request_product_info(tls_ctx_t *c);                    /* module->MCU 0x01 query (boot) */
 void tls_boot(tls_ctx_t *c);                                    /* mirror the stock module's opening moves */
 
-/* module->MCU 0x24 reply: Standard = true UTC, Local = GMT + this. Set to UAE (+4h)
- * 2026-07-23 (Nicki): the Standard field stays true UTC; the Local field carries UAE
- * wall-clock (UTC+4) so the MCU adopts UAE rather than its factory China zone. */
-#define TLS_DEFAULT_TZ_OFFSET (4 * 3600)
+/* module->MCU 0x24 reply: Standard = true UTC, Local = GMT + this. Set to 0 (GMT)
+ * 2026-07-23 (Nicki): the MCU runs on GMT/UTC, and the hub sends temp-code windows in
+ * UTC too, so the lock's clock and the windows share one frame. The MCU adopts this on
+ * a net-status bounce — at pairing, or when the hub fires the "push time" DP 200 just
+ * before writing a temp code. */
+#define TLS_DEFAULT_TZ_OFFSET 0
 /* Push a remote-control DP down to the lock (e.g. hub asked to unlock). */
 void tls_send_dp(tls_ctx_t *c, uint8_t dp_id, tls_dp_type_t t, const uint8_t *val, uint16_t vlen);
 

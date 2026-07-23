@@ -184,7 +184,9 @@ void lock_app_ef00_rx(lock_app_t *a, uint8_t cmd, const uint8_t *buf, size_t len
         uint8_t dp = p[0], type = p[1];
         uint16_t vlen = (uint16_t)((p[2] << 8) | p[3]);
         if ((size_t)4 + vlen > rem) break;
-        if (dp_write_allowed(dp, type))                   /* per-PID DP table */
+        if (dp == 200)                                    /* 200 = hub "push time" trigger, not a real lock DP */
+            lock_app_resync_time(a);                      /* bounce net-status -> MCU re-requests + re-adopts time now */
+        else if (dp_write_allowed(dp, type))              /* per-PID DP table */
             tls_send_dp(&a->tls, dp, (tls_dp_type_t)type, p + 4, vlen);
         p += 4 + vlen; rem -= 4 + vlen;
     }
