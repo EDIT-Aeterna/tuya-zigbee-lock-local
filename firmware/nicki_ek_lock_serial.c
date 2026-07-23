@@ -197,10 +197,23 @@ static void handle_frame(tls_ctx_t *c, const uint8_t *f, size_t flen)
     }
 
     case TLS_CMD_TIME_SYNC: {
-        /* MCU wants time. Answer 4B std GMT + 4B local GMT (big-endian). */
+        /* MCU wants time. Answer 4B std GMT + 4B local GMT (big-endian).
+         *
+         * The MCU does NOT simply stamp Local. It stamps by a fixed relation to BOTH
+         * fields, anchored on its factory China (+8h) default. Measured 2026-07-23
+         * (offsets from UTC, hours):
+         *   (Local +4, Std 0) -> +4    (Local 0, Std 0) -> +8 (China, Local==Std)
+         *   (Local  0, Std -1) -> +6   (Local 0, Std -4) -> 0 (UTC)  <= what we ship
+         * which fit  stamp = 8 - Local + 2*Standard. To land the stamp on true UTC we
+         * keep Local = UTC and back-shift STANDARD by tz_offset (= 14400 = 4h):
+         *   8 - 0 + 2*(-4h) = 0.  Global, date-correct, no per-region firmware.
+         * (tz_offset is calibrated to cancel China, NOT just a threshold nudge; a 1s
+         * gap is separately rounded to zero and also falls back to China.) */
         uint8_t t[8]; uint32_t g = c->hal.gmt_now ? c->hal.gmt_now() : 0;
-        uint32_t l = g + (c->hal.tz_offset ? (uint32_t)c->hal.tz_offset() : 0);
-        t[0]=(uint8_t)(g>>24); t[1]=(uint8_t)(g>>16); t[2]=(uint8_t)(g>>8); t[3]=(uint8_t)g;
+        uint32_t off = (c->hal.tz_offset ? (uint32_t)c->hal.tz_offset() : 0);
+        uint32_t std = g - off;   /* Standard = UTC - N  (defeats the equality check) */
+        uint32_t l   = g;         /* Local    = UTC      (what the MCU stamps == GMT) */
+        t[0]=(uint8_t)(std>>24); t[1]=(uint8_t)(std>>16); t[2]=(uint8_t)(std>>8); t[3]=(uint8_t)std;
         t[4]=(uint8_t)(l>>24); t[5]=(uint8_t)(l>>16); t[6]=(uint8_t)(l>>8); t[7]=(uint8_t)l;
         tls_send_frame(c, TLS_CMD_TIME_SYNC, t, 8);
         break;

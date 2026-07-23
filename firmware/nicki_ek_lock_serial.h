@@ -122,12 +122,25 @@ void tls_announce_online(tls_ctx_t *c);                         /* push "paired+
 void tls_request_product_info(tls_ctx_t *c);                    /* module->MCU 0x01 query (boot) */
 void tls_boot(tls_ctx_t *c);                                    /* mirror the stock module's opening moves */
 
-/* module->MCU 0x24 reply: Standard = true UTC, Local = GMT + this. Set to 0 (GMT)
- * 2026-07-23 (Nicki): the MCU runs on GMT/UTC, and the hub sends temp-code windows in
- * UTC too, so the lock's clock and the windows share one frame. The MCU adopts this on
- * a net-status bounce — at pairing, or when the hub fires the "push time" DP 200 just
- * before writing a temp code. */
-#define TLS_DEFAULT_TZ_OFFSET 0
+/* module->MCU 0x24 reply Standard back-shift, in seconds. The MCU runs on GMT/UTC
+ * globally: we serve Local = true UTC and Standard = UTC - this value.
+ *
+ * The MCU does NOT simply stamp Local -- it stamps by a fixed relation to BOTH
+ * fields, anchored on its factory China (+8h) default. Measured 2026-07-23 (offsets
+ * from UTC, hours):
+ *     (Local +4, Standard 0) -> +4      (Local 0, Standard 0) -> +8 (China)
+ *     (Local  0, Standard -1) -> +6     (Local 0, Standard -4) -> 0 (UTC) [target]
+ * These fit  stamp = 8 - Local + 2*Standard.  With Local = UTC (0), a Standard
+ * back-shift of 4h (this value) drives the stamp to exactly UTC: 8 - 0 + 2*(-4) = 0.
+ * So 14400 is CALIBRATED to cancel the China baseline, not merely a "clear the
+ * quantization threshold" nudge. (A 1s gap is separately rounded to zero -> China.)
+ *
+ * Result: one firmware worldwide, lock clock == UTC, correct date. The hub sends
+ * temp-code windows in UTC too, so the lock's clock and the windows share one frame
+ * regardless of where the product is sold. The MCU adopts this on a net-status
+ * bounce -- at pairing, or when the hub fires the "push time" DP 200 just before
+ * writing a temp code. */
+#define TLS_DEFAULT_TZ_OFFSET 14400
 /* Push a remote-control DP down to the lock (e.g. hub asked to unlock). */
 void tls_send_dp(tls_ctx_t *c, uint8_t dp_id, tls_dp_type_t t, const uint8_t *val, uint16_t vlen);
 
