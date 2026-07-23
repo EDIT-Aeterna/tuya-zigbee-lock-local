@@ -148,6 +148,7 @@ module.exports = [
             e.enum('alarm', ea.STATE, Object.values(alarmLookup)).withDescription('Lock alarm (DP9 alarm_lock)'),
             e.binary('remote_unlock_switch', ea.STATE_SET, 'ON', 'OFF').withDescription('Allow remote unlock (DP23)'),
             e.binary('remote_result', ea.STATE, true, false).withDescription('Result of last remote unlock (DP22)'),
+            e.binary('kagel_sync_time', ea.STATE_SET, 'ON', 'OFF').withDescription('Push current time to the lock MCU (DP 200 resync trigger)'),
             e.text('remote_unlock', ea.STATE_SET).withDescription('Remote unlock with password (DP21): set the 6-digit unlock password'),
             rawHexKey('remote_no_pd_setkey', 'Set key for password-free remote unlock (DP48): effect(1)+key_id(2)+from(4)+to(4)+max_uses(2)+key(8)'),
             rawHexKey('remote_no_dp_key', 'Password-free remote unlock (DP49): open_close(1)+key_id(2)+key(8)+method(1)'),
@@ -222,6 +223,11 @@ module.exports = [
                     from: rawHex.from,
                 }],
                 [23, 'remote_unlock_switch', {to: (v) => v === 'ON', from: (v) => (v ? 'ON' : 'OFF')}],
+                // DP 200 = "push time" trigger. Not a real lock DP: the module firmware
+                // intercepts it (lock_app_ef00_rx) and re-requests + re-adopts the current
+                // time from us instead of forwarding it to the MCU. The hub fires this right
+                // before writing a temp code so the lock's clock is fresh.
+                [200, 'kagel_sync_time', {to: (v) => v === 'ON'}],
                 [48, 'remote_no_pd_setkey', rawHex],
                 [49, 'remote_no_dp_key', rawHex],
                 // ---- temp-password management ----
