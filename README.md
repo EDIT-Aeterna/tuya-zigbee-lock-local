@@ -14,6 +14,10 @@ radio side it presents a plain Zigbee EF00 device that Zigbee2MQTT reads with a 
 The result: fingerprint / password / card / remote unlocks, battery, door and alarm all flow into
 Zigbee2MQTT locally, and one-tap remote unlock works from your own controller.
 
+<img src="flasher/Module.jpeg" alt="TYZS3 module with SWD leads soldered on for flashing" width="440">
+
+*The TYZS3 module (EFR32MG13), with SWD flying leads soldered on for flashing.*
+
 ## How it works
 
 A TYZS3-based lock is two chips talking over a UART:

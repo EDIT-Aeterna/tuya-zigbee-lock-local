@@ -14,6 +14,10 @@ RP2040 CMSIS-DAP) driven by pyOCD.
 - Pin row (count in from the TX pad on that edge): `16 = TX, 15 = RX, 14, 13, 12 = SWCLK, 11 = SWDIO`
 - Opposite row: `nRST = pin 1`, `VCC = pin 8`, `GND = pin 9`
 
+<img src="../flasher/Module.jpeg" alt="TYZS3 module with SWD leads soldered" width="420">
+
+*SWD leads soldered to the module: yellow = SWDIO (pin 11), orange = SWCLK (pin 12), black = GND (pin 9). The red JST on the carrier feeds 3.3 V.*
+
 ## Wiring: Debug Probe `DEBUG` port → TYZS3
 
 Use the **DEBUG** JST-SH port (not the UART one). Standard cable colours:
@@ -23,6 +27,10 @@ Use the **DEBUG** JST-SH port (not the UART one). Standard cable colours:
 | SWCLK | orange | pin 12 |
 | SWDIO | yellow | pin 11 |
 | GND   | black  | pin 9  |
+
+<img src="../flasher/debug.jpeg" alt="Raspberry Pi Debug Probe" width="420">
+
+*Flash from the probe's **DEBUG** port (not the UART one). Orange = SWCLK, yellow = SWDIO, black = GND.*
 
 ## Power and reset (the probe does neither)
 
