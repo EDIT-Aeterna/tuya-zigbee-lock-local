@@ -59,6 +59,11 @@ The firmware builds as a Zigbee SoC project in Simplicity Studio 5 against the G
 prebuilt `kagel-lock.hex` is included so you can flash without building — see
 [`firmware/BUILD.md`](firmware/BUILD.md) if you want to build it yourself.
 
+## Support
+
+If this project is useful to you, you can support its development through GitHub Sponsors:
+**[github.com/sponsors/nickieftekhari-dotcom](https://github.com/sponsors/nickieftekhari-dotcom)**
+
 ---
 
 © 2026 Nicki Eftekhari. All rights reserved.
