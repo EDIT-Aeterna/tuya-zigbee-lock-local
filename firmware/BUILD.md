@@ -48,3 +48,20 @@ to match your workspace.
 
 `efr32_app.c` runs the MCU link at **9600 8N1**, confirmed on real hardware. If a unit differs,
 change `LOCK_BAUD`.
+
+## Sleepy end device (battery) build
+
+The firmware now runs the module as a **sleepy end device** — the radio sleeps
+between polls instead of listening 24/7, which is the difference between weeks
+and many months on batteries. `kagel-lock.hex` here (and in `flasher/`) is this
+build, verified on hardware.
+
+Building it yourself requires, together (a partial conversion crashes mid-join):
+
+1. Device type **Sleepy End Device** in `config/zigbee_device_config.h`
+   (`SLI_ZIGBEE_PRIMARY_NETWORK_DEVICE_TYPE`).
+2. The **Pro Leaf Stack** component (`zigbee_pro_leaf_stack`) in place of
+   `zigbee_pro_stack`, which also defines `SL_ZIGBEE_LEAF_STACK` for all
+   sources. The router stack asserts (RAIL error 59) if run as a sleepy device.
+3. The SED polling block in `efr32_app.c` (in this repo): ~200ms fast poll
+   through joining + 60s settle (key exchange + interview), 2s long poll after.
