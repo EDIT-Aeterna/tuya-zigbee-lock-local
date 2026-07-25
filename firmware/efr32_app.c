@@ -20,6 +20,23 @@
 #include "lock_app.h"
 #include <string.h>
 
+/* ---- Sleepy-end-device polling (leaf stack) -------------------------------
+ * A SED's radio is OFF between transactions; it RECEIVES (interview reads, the
+ * mandatory TC-link-key update, remote unlock) only when it POLLS its parent.
+ * Without polls z2m adds the device, then the key update + interview time out
+ * and it is dropped -- "added but no function". Cadence: FAST (~5/s) while
+ * joining and for 60s after the join edge (carries key exchange + interview),
+ * then LONG every 2s (remote-unlock latency), none when there is no network.
+ * The 2s periodic sleeptimer only WAKES the CPU (flag from ISR context; stack
+ * calls are illegal there) -- the poll itself runs in the app tick. */
+extern EmberStatus emberPollForData(void);
+static volatile uint8_t s_poll_wake;
+static sl_sleeptimer_timer_handle_t s_poll_timer;
+static void poll_wake_cb(sl_sleeptimer_timer_handle_t *h, void *d) {
+    (void)h; (void)d;
+    s_poll_wake = 1;              /* wake only: the tick does the polling */
+}
+
 /* ---- board wiring: set from the TYZS3 datasheet (module UART pads) ---- */
 #define LOCK_USART        USART0
 #define LOCK_USART_CLOCK  cmuClock_USART0
@@ -437,6 +454,10 @@ void kagel_app_init(void) {
      * wake it (the fix for the "joins once at boot then stalls" add-device timeout). */
     sl_sleeptimer_start_periodic_timer_ms(&s_join_wake_timer, 6000,
                                            join_wake_cb, NULL, 0, 0);
+
+    /* Wake the loop every 2s for the SED long poll (see poll block in the tick). */
+    sl_sleeptimer_start_periodic_timer_ms(&s_poll_timer, 2000,
+                                           poll_wake_cb, NULL, 0, 0);
 }
 
 /* --- debug telemetry, read over SWD (resolve addresses from the .axf) --- */
@@ -457,6 +478,34 @@ void kagel_app_tick(void) {
     g_dbg_netstate = (uint8_t)emberAfNetworkState();
     g_dbg_online = (uint8_t)lock_app_is_online(&g_app);
     tls_pending_tick(&g_app.tls);   /* retry wakeup-verified command sends */
+
+    /* ── SED polling (rationale at poll_wake_cb above). State-gated: poll ONLY while
+     * JOINING (1) or JOINED (2) — polling with no parent hangs the MAC. FAST ~200ms
+     * while joining + 60s post-join (TC-key update + z2m interview), LONG 2s after
+     * (each s_poll_wake from the periodic timer), none unjoined. ── */
+    {
+        EmberNetworkStatus st = emberAfNetworkState();
+        if (st == EMBER_JOINING_NETWORK || st == EMBER_JOINED_NETWORK) {
+            static uint32_t s_joined_edge;             /* uptime secs of the join edge */
+            if (st == EMBER_JOINED_NETWORK) { if (!s_joined_edge) s_joined_edge = now_s(); }
+            else s_joined_edge = 0;
+            int fast = (st == EMBER_JOINING_NETWORK)
+                    || (s_joined_edge && (now_s() - s_joined_edge) < 60);
+            if (fast) {
+                static uint32_t s_next_fast;           /* sleeptimer ticks */
+                uint32_t nt = sl_sleeptimer_get_tick_count();
+                if ((int32_t)(nt - s_next_fast) >= 0) {
+                    s_next_fast = nt + sl_sleeptimer_ms_to_tick(200);
+                    emberPollForData();
+                }
+            } else if (s_poll_wake) {
+                s_poll_wake = 0;
+                emberPollForData();
+            }
+        } else {
+            s_poll_wake = 0;
+        }
+    }
 
     /* User pressed pair (MCU 0x03 sub=0x01): leave the network so we re-steer and
      * rejoin fresh — a device told to pair always re-pairs, whatever its state. */
