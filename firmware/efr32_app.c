@@ -37,6 +37,20 @@ static void poll_wake_cb(sl_sleeptimer_timer_handle_t *h, void *d) {
     s_poll_wake = 1;              /* wake only: the tick does the polling */
 }
 
+/* ---- Radio-deaf self-heal ------------------------------------------------
+ * Observed live (2026-07-25..27): after ~35min of SED radio-dozing the RECEIVER
+ * dies silently — polls stop being answered, and steering scans complete with
+ * ZERO beacons (a live hub 2m away, invisible, 21 scans straight). Nothing
+ * re-inits a wedged radio except a reboot, which fixes it instantly (proven:
+ * same firmware joined immediately after reset). Until the underlying RAIL/
+ * doze cause is fixed, the lock HEALS ITSELF: reboot on clear deaf signatures.
+ * NVM3 creds survive reboot -> a joined lock boots straight back JOINED with a
+ * fresh radio in ~2s. A lock must NEVER voluntarily leave its network. */
+extern void halReboot(void);
+extern volatile uint32_t g_dbg_done_count;    /* app.c: steering completions   */
+extern volatile uint8_t  g_dbg_done_status;   /* app.c: last steering status   */
+extern volatile uint8_t  g_dbg_done_beacons;  /* app.c: beacons heard in steer */
+
 /* ---- board wiring: set from the TYZS3 datasheet (module UART pads) ---- */
 #define LOCK_USART        USART0
 #define LOCK_USART_CLOCK  cmuClock_USART0
@@ -554,13 +568,35 @@ void kagel_app_tick(void) {
      * never fall through to steering, or a lock that merely lost its hub would offer
      * itself to any coordinator with an open permit window. Spaced 10s; the stack
      * reports the outcome via the usual stack-status path. */
-    if (emberAfNetworkState() == EMBER_JOINED_NETWORK_NO_PARENT) {
-        static uint32_t s_next_rejoin_ok;
-        uint32_t now = now_s();
-        if (now >= s_next_rejoin_ok) {
-            s_next_rejoin_ok = now + 10;
-            g_dbg_rejoins++;
-            emberFindAndRejoinNetwork(true, 0);   /* true = keep current network key */
+    {
+        static uint32_t s_np_since;   /* deaf-radio self-heal clock (see halReboot note) */
+        if (emberAfNetworkState() == EMBER_JOINED_NETWORK_NO_PARENT) {
+            static uint32_t s_next_rejoin_ok;
+            uint32_t now = now_s();
+            if (!s_np_since) s_np_since = now;
+            /* Rejoin needs a WORKING receiver. Parent unreachable 60s straight with
+             * rejoins running = wedged-deaf RX -> reboot heals it (creds survive). */
+            if (now - s_np_since >= 60) halReboot();
+            if (now >= s_next_rejoin_ok) {
+                s_next_rejoin_ok = now + 10;
+                g_dbg_rejoins++;
+                emberFindAndRejoinNetwork(true, 0);   /* true = keep current network key */
+            }
+        } else {
+            s_np_since = 0;
+        }
+    }
+
+    /* Deaf-scan self-heal: 3 consecutive steers hearing ZERO beacons = deaf RX.
+     * Reboot re-inits the radio so the user's NEXT pair press actually works
+     * (instead of needing a debugger reset, as on 2026-07-27). */
+    {
+        static uint32_t s_done_seen; static uint8_t s_deaf;
+        if (g_dbg_done_count != s_done_seen) {
+            s_done_seen = g_dbg_done_count;
+            if (g_dbg_done_status != 0 && g_dbg_done_beacons == 0) {
+                if (++s_deaf >= 3) halReboot();
+            } else s_deaf = 0;
         }
     }
 
@@ -601,17 +637,13 @@ void kagel_app_tick(void) {
             request_gentime();
         }
 
-        /* Stale-binding leave — LAST RESORT only. Fires only after MANY consecutive
-         * failed sends with ZERO successes in between (g_tx_fail resets to 0 on any
-         * success), i.e. a genuinely dead binding (force-removed / gone), not a
-         * marginal link (which lands the odd packet and resets). High threshold so a
-         * real-but-weak join is never torn down; the coordinator's own leave (a normal
-         * z2m remove) is the fast path. ~30 * 15s probe ≈ 7 min of total silence. */
-        if (g_tx_fail >= 30) {
-            g_tx_fail = 0;
-            emberLeaveNetwork();
-            g_retry_join = 1;
-        }
+        /* Send-failure self-heal — REBOOT, never leave. 30 consecutive failed sends
+         * with zero successes = dead RX (radio wedge) or a truly-gone binding; either
+         * way a reboot is the safe move: creds survive, we rejoin our OWN network with
+         * a fresh radio. The old emberLeaveNetwork() here turned a radio glitch into a
+         * PERMANENTLY dormant lock (left = creds wiped + window shut = offline until a
+         * physical press that also needs open permit-join; cost 2 dead days, 07-25..27). */
+        if (g_tx_fail >= 30) halReboot();
 
 
     }
