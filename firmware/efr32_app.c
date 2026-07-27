@@ -410,6 +410,7 @@ volatile uint8_t g_retry_join;
  * 0x86 = UNSUPPORTED_ATTRIBUTE (attr not declared in ZAP on this endpoint). */
 volatile uint8_t g_dbg_mfg_wr   = 0xEE;
 volatile uint8_t g_dbg_model_wr = 0xEE;
+volatile uint8_t g_dbg_pwr_wr   = 0xEE;   /* Basic powerSource write status (0x00=OK) */
 
 /* Periodic wake so join RETRIES actually run. While unjoined (NO_NETWORK) there is
  * no radio traffic to wake the power-managed super-loop, so the retry poll in
@@ -446,6 +447,13 @@ void kagel_app_init(void) {
     static const uint8_t s_model[] = {9,'L','C','K','-','B','I','4','0','0'};
     g_dbg_mfg_wr   = (uint8_t)emberAfWriteServerAttribute(KAGEL_ENDPOINT, 0x0000, 0x0004, (uint8_t *)s_mfg,   0x42);
     g_dbg_model_wr = (uint8_t)emberAfWriteServerAttribute(KAGEL_ENDPOINT, 0x0000, 0x0005, (uint8_t *)s_model, 0x42);
+    /* Basic attr 0x0007 powerSource = BATTERY (0x03, enum8). ZAP default is 0x00
+     * (Unknown) -> z2m never learned this is battery-powered, so its availability
+     * logic pinged it like a mains device. Now a sleepy device is correctly a
+     * battery device to the coordinator. (Cosmetic/availability only; unrelated to
+     * the deaf-radio wedge and to remote-unlock delivery.) */
+    static const uint8_t s_pwr = EMBER_ZCL_POWER_SOURCE_BATTERY;
+    g_dbg_pwr_wr = (uint8_t)emberAfWriteServerAttribute(KAGEL_ENDPOINT, 0x0000, 0x0007, (uint8_t *)&s_pwr, ZCL_ENUM8_ATTRIBUTE_TYPE);
 
     /* BOOT NEVER OPENS A PAIRING WINDOW. Only a deliberate user press (MCU 0x03
      * sub=0x01) does -- see hal_on_config.
