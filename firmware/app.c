@@ -21,6 +21,7 @@
 /* Kagel hub-lock control channel + EF00 remote-DP control (efr32_app.c). */
 extern void app_zb_fc00_rx(uint8_t cmd, const uint8_t *payload, uint16_t len);
 extern void app_zb_ef00_rx(uint8_t cmd, const uint8_t *payload, uint16_t len);
+extern void app_zb_ota_rx(uint8_t cmd, const uint8_t *payload, uint16_t len);   /* OTA cluster 0x0019 responses */
 /* Coordinator time (Zigbee Time cluster) -> lock MCU clock (efr32_app.c). */
 extern void app_on_gentime(uint32_t zigbee_utc);
 
@@ -115,6 +116,15 @@ bool emberAfPreCommandReceivedCallback(EmberAfClusterCommand *cmd)
     uint16_t plen = (cmd->bufLen > cmd->payloadStartIndex)
                     ? (uint16_t)(cmd->bufLen - cmd->payloadStartIndex) : 0;
     app_zb_ef00_rx(cmd->commandId, cmd->buffer + cmd->payloadStartIndex, plen);
+    return true;
+  }
+  /* OTA Upgrade cluster (0x0019) responses from z2m (the OTA server) → hand-rolled client. */
+  if (cmd != NULL && cmd->apsFrame != NULL
+      && cmd->apsFrame->clusterId == 0x0019
+      && cmd->clusterSpecific) {
+    uint16_t plen = (cmd->bufLen > cmd->payloadStartIndex)
+                    ? (uint16_t)(cmd->bufLen - cmd->payloadStartIndex) : 0;
+    app_zb_ota_rx(cmd->commandId, cmd->buffer + cmd->payloadStartIndex, plen);
     return true;
   }
   return false;

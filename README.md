@@ -42,7 +42,7 @@ The MCU-side serial exchange is documented in full in [`docs/PROTOCOL.md`](docs/
 | [`firmware/`](firmware/) | Module firmware: portable C core + the EFR32 application layer, a prebuilt image (`kagel-lock.hex`), and build notes. |
 | [`flasher/`](flasher/) | One-click Windows flashing tool (SWD via a Raspberry Pi Debug Probe / pyOCD), with an illustrated manual. |
 | [`zigbee2mqtt/`](zigbee2mqtt/) | The external converter that makes Zigbee2MQTT recognise the lock, plus install steps. |
-| [`docs/`](docs/) | Hardware wiring (SWD pinout), the manual pyOCD flashing procedure, and the [MCU serial protocol reference](docs/PROTOCOL.md). |
+| [`docs/`](docs/) | Hardware wiring (SWD pinout), the manual pyOCD flashing procedure, the [MCU serial protocol reference](docs/PROTOCOL.md), and the [over-the-air update guide](docs/OTA.md). |
 
 ## Quick start
 
@@ -64,6 +64,21 @@ The MCU-side serial exchange is documented in full in [`docs/PROTOCOL.md`](docs/
 The firmware builds as a Zigbee SoC project in Simplicity Studio 5 against the Gecko SDK. The
 prebuilt `kagel-lock.hex` is included so you can flash without building — see
 [`firmware/BUILD.md`](firmware/BUILD.md) if you want to build it yourself.
+
+## Over-the-air updates (OTA)
+
+Once the lock is assembled the SWD pads are sealed away, so the firmware ships a full
+**Zigbee OTA** path — no cable ever needed again:
+
+- a hand-rolled **OTA Upgrade cluster (0x0019)** client in the firmware, and
+- a **Gecko bootloader** (`firmware/kagel-lock-bootloader.s37`) that validates and flashes
+  the new image on reboot.
+
+Zigbee2MQTT serves the image (the converter has `ota: true`); the client downloads it into the
+bootloader slot and reboots into it. A bad or interrupted image is rejected and the lock stays
+on its current firmware, so an update can't brick it. Wrap a compressed image into a `.ota` with
+`firmware/make-ota.js`. Full write-up — how it works end to end, the apply detail, and how to cut
+a release — in [`docs/OTA.md`](docs/OTA.md).
 
 ---
 

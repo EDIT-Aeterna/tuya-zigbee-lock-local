@@ -134,6 +134,11 @@ module.exports = [
         model: 'LCK-BI400',
         vendor: 'SmartHomePlus',
         description: 'Smart Home Plus Zigbee door lock',
+        // OTA: z2m acts as the OTA server for our hand-rolled cluster-0x0019 client.
+        // `ota: true` enables OTA using z2m's override index (configuration.yaml:
+        // ota.zigbee_ota_override_index_location -> our ota-index.json). The hub can
+        // also force a check via DP205 (kagel_ota_check) below.
+        ota: true,
         fromZigbee: [fzFc00, fzUnlockId, nicki_ek.fz.datapoints],
         toZigbee: [tzFc00, nicki_ek.tz.datapoints],
         onEvent: nicki_ek.onEvent,
@@ -149,6 +154,7 @@ module.exports = [
             e.binary('remote_unlock_switch', ea.STATE_SET, 'ON', 'OFF').withDescription('Allow remote unlock (DP23)'),
             e.binary('remote_result', ea.STATE, true, false).withDescription('Result of last remote unlock (DP22)'),
             e.binary('kagel_sync_time', ea.STATE_SET, 'ON', 'OFF').withDescription('Push current time to the lock MCU (DP 200 resync trigger)'),
+            e.enum('kagel_power_mode', ea.STATE_SET, ['performance', 'balanced', 'saver']).withDescription('Sleepy-poll power mode (local DP202, NOT forwarded to the MCU): performance = 1s poll (snappiest remote unlock, most battery), balanced = 2s (default), saver = 6s poll (up to ~6s remote-unlock latency, longest battery). Saver is capped at 6s deliberately — a longer poll would exceed the coordinator indirect-message timeout (~7.68s) and drop remote commands. The firmware\'s EM2 dwell between polls is what makes this a real battery difference.'),
             e.text('remote_unlock', ea.STATE_SET).withDescription('Remote unlock with password (DP21): set the 6-digit unlock password'),
             rawHexKey('remote_no_pd_setkey', 'Set key for password-free remote unlock (DP48): effect(1)+key_id(2)+from(4)+to(4)+max_uses(2)+key(8)'),
             rawHexKey('remote_no_dp_key', 'Password-free remote unlock (DP49): open_close(1)+key_id(2)+key(8)+method(1)'),
@@ -169,6 +175,8 @@ module.exports = [
             rawHexKey('unlock_offline_clear_single', 'Clear one offline password (DP70)'),
             e.text('password_offline_time', ea.STATE).withDescription('Offline password validity window (DP91)'),
             e.text('lock_record', ea.STATE).withDescription('Raw unified lock record (DP92, hex)'),
+            e.text('firmware_version', ea.STATE).withDescription('Lock firmware version (reported over DP204 on join)'),
+            e.binary('kagel_ota_check', ea.STATE_SET, 'ON', 'OFF').withDescription('Trigger an OTA firmware check (DP205): the lock asks z2m for a newer image and downloads it'),
             // anti-clone claim channel (FC00) — hex payloads, driven by the hub/relay orchestrator
             e.text('kagel_claim', ea.SET).withDescription('Send relay-signed claim blob (131B hex) over FC00'),
             e.text('kagel_hub_response', ea.SET).withDescription('Send hub challenge-response (hub_id||nonce||mac hex)'),
@@ -228,6 +236,24 @@ module.exports = [
                 // time from us instead of forwarding it to the MCU. The hub fires this right
                 // before writing a temp code so the lock's clock is fresh.
                 [200, 'kagel_sync_time', {to: (v) => v === 'ON'}],
+                // DP 202 = sleepy-poll power mode. Like DP200 it's module-local: the
+                // firmware (app_zb_ef00_rx) intercepts it to reset the long-poll cadence
+                // and does NOT forward it to the MCU. Sent as a 1-byte RAW value (array
+                // return -> raw datapoint, exactly like rawHex) so the firmware reads
+                // p[4] = the mode byte deterministically — no enum/int datatype guessing.
+                [202, 'kagel_power_mode', {
+                    to: (v) => [({performance: 0, balanced: 1, saver: 2})[v] ?? 1],
+                    from: (v) => ({0: 'performance', 1: 'balanced', 2: 'saver'})[
+                        Buffer.isBuffer(v) ? v[0] : (Array.isArray(v) ? v[0] : v)] ?? 'balanced',
+                }],
+                // DP 204 = firmware version (module -> hub, string, reported once per join).
+                // Regen-free stand-in for genBasic swBuildId; the hub surfaces it as the
+                // device 'firmware' field. Report-only (no `to`).
+                [204, 'firmware_version', {from: (v) => (Buffer.isBuffer(v) ? v.toString('ascii') : String(v))}],
+                // DP 205 = hub-triggered OTA check (module-local, not forwarded to MCU): the
+                // firmware sends QueryNextImageRequest to z2m. z2m serves the image (ota:true +
+                // override index) and the client downloads it into the bootloader slot.
+                [205, 'kagel_ota_check', {to: (v) => v === 'ON'}],
                 [48, 'remote_no_pd_setkey', rawHex],
                 [49, 'remote_no_dp_key', rawHex],
                 // ---- temp-password management ----

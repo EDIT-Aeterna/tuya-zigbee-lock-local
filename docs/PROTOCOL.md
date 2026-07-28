@@ -1,7 +1,7 @@
 # MCU Serial Protocol
 
 This is the UART protocol spoken between the lock's **MCU** (motor, keypad, fingerprint) and the
-**Zigbee module** that sits on top of it. It's the standard Tuya-style module↔MCU serial protocol
+**Zigbee module** that sits on top of it. It's the standard vendor-style module↔MCU serial protocol
 (spec version `20260408`) that these modules use out of the box.
 
 This firmware implements the **module side** of it — `firmware/nicki_ek_lock_serial.c` is that
@@ -85,7 +85,7 @@ with others.
 
 > **The lock's behaviour lives entirely in DPs.** Unlock events, battery, door state, alarms,
 > temp-code create/delete, remote-unlock keys — all are product-specific DP IDs (defined on the
-> Tuya platform for that lock model), carried as ordinary DP messages. The serial protocol itself
+> vendor IoT platform for that lock model), carried as ordinary DP messages. The serial protocol itself
 > has **no** lock-specific commands.
 
 ---

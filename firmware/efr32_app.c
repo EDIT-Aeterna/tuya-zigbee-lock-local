@@ -15,6 +15,8 @@
 #include "em_cmu.h"
 #include "em_gpio.h"
 #include "em_usart.h"
+#include "em_core.h"
+#include "btl_interface.h"     /* OTA: Gecko bootloader storage-slot API */
 #include "sl_sleeptimer.h"
 #include "sl_power_manager.h"
 #include "lock_app.h"
@@ -61,6 +63,12 @@ extern volatile uint8_t  g_dbg_done_beacons;  /* app.c: beacons heard in steer *
 #define LOCK_UART_LOC_RX  0                  /* US0_RX LOC0 = PA1 (staggered table; verified) */
 #define LOCK_BAUD         115200             /* 115200 8N1 confirmed live on THIS MCU 2026-07-14 (NOT 9600) */
 
+/* Firmware version shown in the app/hub. genBasic swBuildId (0x4000) is NOT in our
+ * ZCL table and can't be added without a Studio regen (unavailable), so we report
+ * this over EF00 DP204 on each join; the converter maps it to the 'firmware' field.
+ * Bump on every flashed build; this is also the human string for the OTA release. */
+#define KAGEL_FW_VERSION  "1.0.0"
+
 #define KAGEL_ENDPOINT     1
 #define KAGEL_CLUSTER_EF00 0xEF00
 #define KAGEL_CLUSTER_FC00 0xFC00
@@ -75,6 +83,54 @@ static volatile uint16_t rx_head, rx_tail;
 volatile uint32_t g_dbg_uart_rx_bytes;   /* raw bytes received on PA1 from the MCU */
 volatile uint8_t  g_dbg_uart_last_byte;
 
+/* ── EM2 deep-sleep + hub-settable poll mode (EXPERIMENTAL — BENCH-VALIDATE first) ──
+ * At EM1 (today's proven default) the CPU floor ~1-2mA dominates -> "months" battery.
+ * The "years" win is letting the leaf stack reach EM2 (CPU+radio asleep, ~µA) between
+ * polls. Snag: in EM2 the USART is unclocked and deaf. Fix: a GPIO falling-edge IRQ on
+ * RX (PA1) wakes us from EM2 the instant the MCU starts sending; the MCU prefixes frames
+ * to a sleeping module with a ~7-byte 0x00 preamble (observed on the wire) that covers
+ * the wake + HFXO-restore so the real 55 aa frame lands intact. We hold EM1 during join,
+ * during/just-after any UART byte, while a DP send is pending, and while a pair window is
+ * open; only when settled-joined + idle do we release to EM2. Set KAGEL_EM2_DEEPSLEEP 0 to
+ * revert to pure EM1 (today's behavior). The deaf-radio self-heal is the backstop. */
+#define KAGEL_EM2_DEEPSLEEP  1
+#define KAGEL_UART_QUIET_MS  400u          /* stay in EM1 this long after the last UART edge */
+static volatile uint32_t g_poll_long_ms = 2000;   /* hub-settable: perf 1000 / balanced 2000 / saver 6000 (must stay < coordinator indirect TTL ~7.68s) */
+volatile uint8_t  g_dbg_poll_mode = 1;            /* SWD: 0=perf 1=balanced 2=saver */
+volatile uint32_t g_dbg_gpio_wakes, g_dbg_em1_holds, g_dbg_em1_rels;
+static volatile uint32_t s_uart_active_tick;      /* sleeptimer tick of the last RX/TX/edge */
+static volatile uint8_t  s_em1_held = 0;          /* 1 = EM1 floor currently held; init em1_hold() adds it */
+#define LOCK_RX_INTMASK  (1u << LOCK_RX_PIN)
+
+static void em1_hold(void) {          /* pin CPU at EM1 (USART live); disarm the EM2 wake */
+    CORE_DECLARE_IRQ_STATE; CORE_ENTER_ATOMIC();
+    if (!s_em1_held) { sl_power_manager_add_em_requirement(SL_POWER_MANAGER_EM1); s_em1_held = 1; g_dbg_em1_holds++;
+#if KAGEL_EM2_DEEPSLEEP
+        GPIO_IntDisable(LOCK_RX_INTMASK);
+#endif
+    }
+    CORE_EXIT_ATOMIC();
+}
+static void em1_release(void) {       /* arm the EM2 wake, then let PM drop to EM2 */
+    CORE_DECLARE_IRQ_STATE; CORE_ENTER_ATOMIC();
+    if (s_em1_held) {
+#if KAGEL_EM2_DEEPSLEEP
+        GPIO_IntClear(LOCK_RX_INTMASK); GPIO_IntEnable(LOCK_RX_INTMASK);
+#endif
+        sl_power_manager_remove_em_requirement(SL_POWER_MANAGER_EM1); s_em1_held = 0; g_dbg_em1_rels++;
+    }
+    CORE_EXIT_ATOMIC();
+}
+static inline void uart_touch(void) { s_uart_active_tick = sl_sleeptimer_get_tick_count(); em1_hold(); }
+
+/* PA1 (RX) falling edge = a UART start bit while we were asleep -> wake to EM1 so the
+ * USART samples the frame. Fires per-edge only while armed (i.e. only while in EM2). */
+void GPIO_ODD_IRQHandler(void) {
+    GPIO_IntClear(GPIO_IntGet());
+    g_dbg_gpio_wakes++;
+    uart_touch();
+}
+
 void USART0_RX_IRQHandler(void) {
     while (LOCK_USART->STATUS & USART_STATUS_RXDATAV) {
         uint8_t b = (uint8_t)USART_Rx(LOCK_USART);
@@ -82,6 +138,7 @@ void USART0_RX_IRQHandler(void) {
         g_dbg_uart_rx_bytes++;
         g_dbg_uart_last_byte = b;
     }
+    s_uart_active_tick = sl_sleeptimer_get_tick_count();   /* hold EM1 while a frame flows */
     USART_IntClear(LOCK_USART, USART_IF_RXDATAV);
 }
 
@@ -99,12 +156,20 @@ static void uart_init(void) {
     LOCK_USART->ROUTEPEN  = USART_ROUTEPEN_TXPEN | USART_ROUTEPEN_RXPEN;
     USART_IntEnable(LOCK_USART, USART_IF_RXDATAV);
     NVIC_EnableIRQ(USART0_RX_IRQn);
+#if KAGEL_EM2_DEEPSLEEP
+    /* EM2 wake source: PA1 falling edge (UART start bit). Pin stays routed to USART0 RX;
+     * the GPIO EXTI just gives an EM2-capable wake. Configured DISABLED — em1_release()
+     * arms it only when we actually drop to EM2, so we take no edge IRQs while awake. */
+    GPIO_ExtIntConfig(LOCK_UART_PORT, LOCK_RX_PIN, LOCK_RX_PIN, false, true, false);
+    NVIC_EnableIRQ(GPIO_ODD_IRQn);
+#endif
 }
 
 /* ============================ lock_app HAL ============================ */
 
 static void hal_uart_write(const uint8_t *buf, size_t n, void *u) {
     (void)u;
+    uart_touch();                       /* stay in EM1 through TX + the reply that follows */
     for (size_t i = 0; i < n; i++) USART_Tx(LOCK_USART, buf[i]);
 }
 
@@ -381,11 +446,243 @@ void app_zb_fc00_rx(uint8_t cmd, const uint8_t *payload, uint16_t len) {
     lock_app_zb_rx(&g_app, (lock_msg_t)cmd, payload, len);
 }
 
+void ota_client_start(void);   /* OTA (below): hub-triggered image check via EF00 DP205 */
+
 /* Called from app.c for cluster 0xEF00 (hub remote-DP control via z2m). */
 volatile uint32_t g_dbg_ef00_rx;   /* debug (SWD): incoming remote-DP commands */
 void app_zb_ef00_rx(uint8_t cmd, const uint8_t *payload, uint16_t len) {
     g_dbg_ef00_rx++;
+    /* Power/latency mode (local DP 202, NOT forwarded to the MCU): value 0/1/2 =
+     * performance / balanced / battery-saver -> long-poll cadence. The leaf stack's EM2
+     * dwell between polls is what makes this a real battery difference (not just latency).
+     * dp_write_allowed(202) is false so lock_app_ef00_rx drops it from the MCU stream. */
+    if ((cmd == 0x00 || cmd == 0x04) && len >= 6) {
+        const uint8_t *p = payload + 2; uint32_t rem = (uint32_t)len - 2;
+        while (rem >= 4) {
+            uint8_t dp = p[0]; uint32_t vl = ((uint32_t)p[2] << 8) | p[3];
+            if (4 + vl > rem) break;
+            if (dp == 205) {                         /* hub OTA-check trigger (local, not forwarded to MCU) */
+                ota_client_start();
+            }
+            if (dp == 202 && vl >= 1) {
+                uint8_t m = p[4];
+                g_dbg_poll_mode = m;
+                /* saver = 6s, NOT longer: the coordinator's indirect-message TTL
+                 * (ember default ~7.68s) drops a queued downstream command if we
+                 * don't poll within it. A 20s poll silently loses remote unlocks
+                 * (proven on the bench 2026-07-27). 6s stays under the TTL and still
+                 * captures nearly all the battery win (poll draw is µA-small vs MCU
+                 * standby). Keep this < the coordinator indirect timeout. */
+                g_poll_long_ms = (m == 0) ? 1000u : (m == 2) ? 6000u : 2000u;
+                sl_sleeptimer_restart_periodic_timer_ms(&s_poll_timer, g_poll_long_ms,
+                                                        poll_wake_cb, NULL, 0, 0);
+            }
+            p += 4 + vl; rem -= 4 + vl;
+        }
+    }
     lock_app_ef00_rx(&g_app, cmd, payload, len);
+}
+
+/* ============================ OTA client (ZCL cluster 0x0019) ============================
+ * Hand-rolled Zigbee OTA Upgrade CLIENT — the zigbee_ota_client component needs a Studio
+ * regen (unavailable), so we speak the cluster directly, same as our EF00/FC00 handlers.
+ * z2m is the OTA server. Flow: hub triggers a check (EF00 DP205) -> QueryNextImageRequest
+ * to the coordinator -> QueryNextImageResponse(SUCCESS,size,ver) -> erase slot 0 -> loop
+ * ImageBlockRequest/Response, each block written to the bootloader storage slot -> when
+ * complete, UpgradeEndRequest(SUCCESS) -> UpgradeEndResponse -> setImageToBootload +
+ * rebootAndInstall. The Gecko bootloader (separate 0xFE10000 region, LZ4) validates the
+ * GBL CRC on apply and keeps the old app if it's bad, so no client-side verify needed.
+ * SED: while a download is active we pin EM1 + poll fast (see the poll block). */
+#define OTA_CLUSTER              0x0019
+#define OTA_CMD_IMAGE_NOTIFY     0x00   /* server->client */
+#define OTA_CMD_QUERY_NEXT_REQ   0x01   /* client->server */
+#define OTA_CMD_QUERY_NEXT_RSP   0x02   /* server->client */
+#define OTA_CMD_BLOCK_REQ        0x03   /* client->server */
+#define OTA_CMD_BLOCK_RSP        0x05   /* server->client */
+#define OTA_CMD_UPGRADE_END_REQ  0x06   /* client->server */
+#define OTA_CMD_UPGRADE_END_RSP  0x07   /* server->client */
+#define OTA_ST_SUCCESS           0x00
+#define OTA_ST_WAIT_FOR_DATA     0x97
+#define OTA_ST_NO_IMAGE          0x98
+#define OTA_ST_ABORT             0x95
+/* mfg code + image type MUST match the .ota header + z2m's OTA index. currentFileVersion
+ * must be LOWER than the .ota's to be offered. Bump _U32 every release. */
+#define OTA_MFG_CODE             0x1002
+#define OTA_IMAGE_TYPE           0x0001
+#define KAGEL_FW_VERSION_U32     0x01000000u   /* v1.0.1 (matches KAGEL_FW_VERSION string) */
+#define OTA_SLOT                 0
+#define OTA_BLOCK_SIZE           64             /* bytes/block (fits one APS frame) */
+#define OTA_POLL_MS              100u           /* fast poll cadence while a download is active */
+
+enum { OTA_IDLE, OTA_QUERYING, OTA_DOWNLOADING, OTA_ENDING, OTA_DONE };
+volatile uint8_t  g_dbg_ota_state = OTA_IDLE;   /* SWD: mirrors g_ota_state */
+volatile uint32_t g_dbg_ota_offset, g_dbg_ota_size, g_dbg_ota_blocks, g_dbg_ota_err;
+volatile uint32_t g_dbg_slot_addr, g_dbg_slot_size, g_dbg_slot_rc = 0xEE;   /* bootloader slot0 geometry */
+static volatile uint8_t g_ota_state = OTA_IDLE;
+static uint32_t g_ota_offset, g_ota_size, g_ota_version, g_ota_tick;
+
+/* Flash writes on Series-1 must be word-aligned; z2m serves ~50-byte (unaligned)
+ * blocks, so writing each straight to flash silently corrupts the image (the GBL
+ * CRC then fails on apply and the bootloader reverts). Buffer blocks into a full
+ * flash page and only ever writeStorage full 2048-byte pages (+ a final padded
+ * flush). g_ota_pbase = flash offset of the page being filled. */
+static uint8_t  g_ota_page[2048] __attribute__((aligned(4)));
+static uint16_t g_ota_pfill;
+static uint32_t g_ota_pbase;
+/* z2m transfers the whole .ota (OTA header + upgrade-image sub-element + GBL); the
+ * bootloader slot must contain ONLY the GBL, at slot offset 0. So skip the first
+ * g_ota_gbl_start bytes (OTA headerLength @ .ota offset 6, +6 sub-element header). */
+static uint32_t g_ota_gbl_start = 62;
+volatile uint32_t g_dbg_ota_gblstart;   /* SWD */
+
+/* Append `n` bytes to the page buffer, flushing full pages to flash. Returns 0 on
+ * a write error. */
+static int ota_page_append(const uint8_t *src, uint16_t n) {
+    while (n) {
+        uint16_t space = (uint16_t)(sizeof(g_ota_page) - g_ota_pfill);
+        uint16_t k = (n < space) ? n : space;
+        memcpy(&g_ota_page[g_ota_pfill], src, k);
+        g_ota_pfill += k; src += k; n -= k;
+        if (g_ota_pfill == sizeof(g_ota_page)) {
+            if (bootloader_writeStorage(OTA_SLOT, g_ota_pbase, g_ota_page, sizeof(g_ota_page)) != BOOTLOADER_OK) return 0;
+            g_ota_pbase += sizeof(g_ota_page); g_ota_pfill = 0;
+        }
+    }
+    return 1;
+}
+/* Flush the final partial page, padded up to a flash word. */
+static int ota_page_flush_final(void) {
+    while (g_ota_pfill & 3u) g_ota_page[g_ota_pfill++] = 0xFF;
+    if (g_ota_pfill == 0) return 1;
+    return bootloader_writeStorage(OTA_SLOT, g_ota_pbase, g_ota_page, g_ota_pfill) == BOOTLOADER_OK;
+}
+
+int ota_active(void) { return g_ota_state == OTA_QUERYING || g_ota_state == OTA_DOWNLOADING; }
+
+/* client->server ZCL send (direction bit = client-to-server). */
+static void ota_send(uint8_t cmd, const uint8_t *pl, uint16_t n) {
+    emberAfFillExternalBuffer(ZCL_CLUSTER_SPECIFIC_COMMAND, OTA_CLUSTER, cmd, "b", pl, n);
+    emberAfSetCommandEndpoints(KAGEL_ENDPOINT, 1);
+    emberAfSendCommandUnicast(EMBER_OUTGOING_DIRECT, EMBER_ZIGBEE_COORDINATOR_ADDRESS);
+}
+static void put32(uint8_t *b, uint32_t v) { b[0]=(uint8_t)v; b[1]=(uint8_t)(v>>8); b[2]=(uint8_t)(v>>16); b[3]=(uint8_t)(v>>24); }
+static uint32_t get32(const uint8_t *b) { return (uint32_t)b[0] | ((uint32_t)b[1]<<8) | ((uint32_t)b[2]<<16) | ((uint32_t)b[3]<<24); }
+
+static void ota_query_next(void) {
+    uint8_t p[9];
+    p[0] = 0x00;                                      /* field control: no hw version */
+    p[1] = (uint8_t)OTA_MFG_CODE;   p[2] = (uint8_t)(OTA_MFG_CODE >> 8);
+    p[3] = (uint8_t)OTA_IMAGE_TYPE; p[4] = (uint8_t)(OTA_IMAGE_TYPE >> 8);
+    put32(&p[5], KAGEL_FW_VERSION_U32);
+    ota_send(OTA_CMD_QUERY_NEXT_REQ, p, 9);
+    g_ota_state = OTA_QUERYING;
+    g_ota_tick = sl_sleeptimer_get_tick_count();
+}
+static void ota_block_req(void) {
+    uint8_t p[14];
+    p[0] = 0x00;
+    p[1] = (uint8_t)OTA_MFG_CODE;   p[2] = (uint8_t)(OTA_MFG_CODE >> 8);
+    p[3] = (uint8_t)OTA_IMAGE_TYPE; p[4] = (uint8_t)(OTA_IMAGE_TYPE >> 8);
+    put32(&p[5], g_ota_version);
+    put32(&p[9], g_ota_offset);
+    p[13] = OTA_BLOCK_SIZE;
+    ota_send(OTA_CMD_BLOCK_REQ, p, 14);
+    g_ota_tick = sl_sleeptimer_get_tick_count();
+}
+static void ota_end_req(uint8_t status) {
+    uint8_t p[9];
+    p[0] = status;
+    p[1] = (uint8_t)OTA_MFG_CODE;   p[2] = (uint8_t)(OTA_MFG_CODE >> 8);
+    p[3] = (uint8_t)OTA_IMAGE_TYPE; p[4] = (uint8_t)(OTA_IMAGE_TYPE >> 8);
+    put32(&p[5], g_ota_version);
+    ota_send(OTA_CMD_UPGRADE_END_REQ, p, 9);
+}
+
+/* Hub-triggered OTA check (EF00 DP205). No-op if already running or not joined. */
+void ota_client_start(void) {
+    if (g_ota_state != OTA_IDLE && g_ota_state != OTA_DONE) return;
+    if (!net_is_joined()) return;
+    g_ota_offset = 0; g_ota_size = 0;
+    ota_query_next();
+}
+
+/* Incoming OTA response from z2m (routed from app.c app_zb_ota_rx). */
+void app_zb_ota_rx(uint8_t cmd, const uint8_t *p, uint16_t len) {
+    if (cmd == OTA_CMD_QUERY_NEXT_RSP) {
+        if (len < 1 || p[0] != OTA_ST_SUCCESS) { g_ota_state = OTA_IDLE; return; }  /* no image */
+        if (len < 13) { g_ota_state = OTA_IDLE; return; }                            /* status,mfg,type,ver,size */
+        g_ota_version = get32(&p[5]);
+        g_ota_size    = get32(&p[9]);
+        if (g_ota_size == 0) { g_ota_state = OTA_IDLE; return; }
+        if (bootloader_eraseStorageSlot(OTA_SLOT) != BOOTLOADER_OK) { g_dbg_ota_err++; g_ota_state = OTA_IDLE; return; }
+        g_ota_offset = 0; g_ota_pfill = 0; g_ota_pbase = 0; g_ota_gbl_start = 62; g_ota_state = OTA_DOWNLOADING;
+        ota_block_req();
+    } else if (cmd == OTA_CMD_BLOCK_RSP) {
+        if (g_ota_state != OTA_DOWNLOADING || len < 1) return;
+        if (p[0] == OTA_ST_WAIT_FOR_DATA) { g_ota_tick = sl_sleeptimer_get_tick_count(); return; }  /* server not ready; tick re-requests */
+        if (p[0] != OTA_ST_SUCCESS || len < 14) { g_dbg_ota_err++; g_ota_state = OTA_IDLE; return; }
+        /* status,mfg(2),type(2),ver(4),offset(4),dataSize(1),data(N) */
+        uint32_t off = get32(&p[9]);
+        uint8_t  ds  = p[13];
+        if (14 + (uint16_t)ds > len) { g_dbg_ota_err++; return; }
+        if (off != g_ota_offset) { ota_block_req(); return; }   /* out of order -> re-request current */
+        const uint8_t *bd = &p[14];
+        if (g_ota_offset == 0 && ds >= 8) {                     /* parse OTA headerLength -> GBL start */
+            g_ota_gbl_start = (uint32_t)((uint16_t)bd[6] | ((uint16_t)bd[7] << 8)) + 6u;
+            g_dbg_ota_gblstart = g_ota_gbl_start;
+        }
+        /* Write ONLY the GBL to the slot (skip the OTA header + sub-element header). */
+        if (g_ota_offset + ds > g_ota_gbl_start) {
+            uint16_t skip = (g_ota_offset < g_ota_gbl_start) ? (uint16_t)(g_ota_gbl_start - g_ota_offset) : 0;
+            if (!ota_page_append(bd + skip, (uint16_t)(ds - skip))) {
+                g_dbg_ota_err++; ota_end_req(OTA_ST_ABORT); g_ota_state = OTA_IDLE; return;
+            }
+        }
+        g_ota_offset += ds; g_dbg_ota_blocks++;
+        if (g_ota_offset >= g_ota_size) {                        /* download complete */
+            if (!ota_page_flush_final()) { g_dbg_ota_err++; ota_end_req(OTA_ST_ABORT); g_ota_state = OTA_IDLE; return; }
+            g_ota_state = OTA_ENDING;
+            ota_end_req(OTA_ST_SUCCESS);
+        } else {
+            ota_block_req();
+        }
+    } else if (cmd == OTA_CMD_UPGRADE_END_RSP) {
+        if (g_ota_state != OTA_ENDING) return;
+        /* Ignore upgradeTime -> install immediately. setImageToBootload marks slot 0;
+         * rebootAndInstall reboots into the bootloader which applies the GBL. */
+        g_ota_state = OTA_DONE;
+        if (bootloader_setImageToBootload(OTA_SLOT) == BOOTLOADER_OK) {
+            bootloader_rebootAndInstall();   /* does not return */
+        }
+        g_dbg_ota_err++; g_ota_state = OTA_IDLE;
+    } else if (cmd == OTA_CMD_IMAGE_NOTIFY) {
+        if (g_ota_state == OTA_IDLE) ota_query_next();
+    }
+}
+
+/* Drive timeout/retry; called every kagel_app_tick. */
+static void ota_client_tick(void) {
+    g_dbg_ota_state = g_ota_state; g_dbg_ota_offset = g_ota_offset; g_dbg_ota_size = g_ota_size;
+    /* Drive the poll TIMER fast during a download. The tick's own fast-poll can't beat
+     * the timer wake rate (we sleep to EM1 between wakes), so at the balanced 2s timer
+     * each block waited a full poll cycle (~3s) -> hours. Restart the timer to OTA_POLL_MS
+     * while active, restore g_poll_long_ms after. Edge-triggered on the active transition. */
+    static uint8_t s_ota_fastpoll;
+    uint8_t act = (uint8_t)ota_active();
+    if (act != s_ota_fastpoll) {
+        sl_sleeptimer_restart_periodic_timer_ms(&s_poll_timer, act ? OTA_POLL_MS : g_poll_long_ms,
+                                                poll_wake_cb, NULL, 0, 0);
+        s_ota_fastpoll = act;
+    }
+    if (!act) return;
+    uint32_t idle = sl_sleeptimer_get_tick_count() - g_ota_tick;
+    if (idle >= sl_sleeptimer_ms_to_tick(1500)) {           /* no response in 1.5s */
+        if (g_ota_state == OTA_DOWNLOADING) { ota_block_req(); }   /* re-request the current block */
+        else { g_ota_tick = sl_sleeptimer_get_tick_count(); }
+    }
+    if (sl_sleeptimer_get_tick_count() - g_ota_tick > sl_sleeptimer_ms_to_tick(60000)) {
+        g_dbg_ota_err++; g_ota_state = OTA_IDLE;             /* stuck -> give up */
+    }
 }
 
 /* ============================ lifecycle ============================ */
@@ -432,8 +729,10 @@ static void join_wake_cb(sl_sleeptimer_timer_handle_t *h, void *d) {
 }
 
 void kagel_app_init(void) {
-    /* Keep the CPU out of EM2 so the super-loop keeps running. */
-    sl_power_manager_add_em_requirement(SL_POWER_MANAGER_EM1);
+    /* Start holding the EM1 floor (USART always clocked). The tick releases it to EM2
+     * once settled-joined + idle (see the EM2 note up top); at KAGEL_EM2_DEEPSLEEP 0 it
+     * is never released -> pure EM1 = today's proven behavior. */
+    em1_hold();
 
     emberAfGetEui64(g_eui64);
     uart_init();
@@ -454,6 +753,10 @@ void kagel_app_init(void) {
      * the deaf-radio wedge and to remote-unlock delivery.) */
     static const uint8_t s_pwr = EMBER_ZCL_POWER_SOURCE_BATTERY;
     g_dbg_pwr_wr = (uint8_t)emberAfWriteServerAttribute(KAGEL_ENDPOINT, 0x0000, 0x0007, (uint8_t *)&s_pwr, ZCL_ENUM8_ATTRIBUTE_TYPE);
+
+    bootloader_init();   /* OTA: bring up the Gecko bootloader storage interface */
+    { BootloaderStorageSlot_t si; g_dbg_slot_rc = (uint32_t)bootloader_getStorageSlotInfo(OTA_SLOT, &si);
+      if (g_dbg_slot_rc == 0) { g_dbg_slot_addr = si.address; g_dbg_slot_size = si.length; } }
 
     /* BOOT NEVER OPENS A PAIRING WINDOW. Only a deliberate user press (MCU 0x03
      * sub=0x01) does -- see hal_on_config.
@@ -500,6 +803,7 @@ void kagel_app_tick(void) {
     g_dbg_netstate = (uint8_t)emberAfNetworkState();
     g_dbg_online = (uint8_t)lock_app_is_online(&g_app);
     tls_pending_tick(&g_app.tls);   /* retry wakeup-verified command sends */
+    ota_client_tick();              /* OTA download timeout/retry driver */
 
     /* ── SED polling (rationale at poll_wake_cb above). State-gated: poll ONLY while
      * JOINING (1) or JOINED (2) — polling with no parent hangs the MAC. FAST ~200ms
@@ -507,26 +811,41 @@ void kagel_app_tick(void) {
      * (each s_poll_wake from the periodic timer), none unjoined. ── */
     {
         EmberNetworkStatus st = emberAfNetworkState();
+        static uint32_t s_joined_edge;                 /* uptime secs of the join edge */
+        int settled = 0;
         if (st == EMBER_JOINING_NETWORK || st == EMBER_JOINED_NETWORK) {
-            static uint32_t s_joined_edge;             /* uptime secs of the join edge */
             if (st == EMBER_JOINED_NETWORK) { if (!s_joined_edge) s_joined_edge = now_s(); }
             else s_joined_edge = 0;
             int fast = (st == EMBER_JOINING_NETWORK)
-                    || (s_joined_edge && (now_s() - s_joined_edge) < 60);
-            if (fast) {
+                    || (s_joined_edge && (now_s() - s_joined_edge) < 60)
+                    || ota_active();   /* OTA download: poll fast + stay at EM1 (settled=false) */
+            settled = (st == EMBER_JOINED_NETWORK) && !fast;
+            if (fast && !ota_active()) {
                 static uint32_t s_next_fast;           /* sleeptimer ticks */
                 uint32_t nt = sl_sleeptimer_get_tick_count();
                 if ((int32_t)(nt - s_next_fast) >= 0) {
                     s_next_fast = nt + sl_sleeptimer_ms_to_tick(200);
                     emberPollForData();
                 }
-            } else if (s_poll_wake) {
+            } else if (s_poll_wake) {   /* OTA download polls here at the OTA_POLL_MS timer rate */
                 s_poll_wake = 0;
                 emberPollForData();
             }
         } else {
+            s_joined_edge = 0;
             s_poll_wake = 0;
         }
+#if KAGEL_EM2_DEEPSLEEP
+        /* Deep-sleep gate: drop to EM2 only when settled-joined AND the UART is quiet AND
+         * nothing is pending; hold EM1 through join, the 60s settle, UART bytes, a pending
+         * DP send, or an open pair window (all need a live receiver / fast tick). */
+        uint32_t uidle = sl_sleeptimer_get_tick_count() - s_uart_active_tick;
+        int uart_quiet = uidle >= sl_sleeptimer_ms_to_tick(KAGEL_UART_QUIET_MS);
+        if (settled && uart_quiet && rx_tail == rx_head && !g_app.tls.pend_active && !pair_window_open_now())
+            em1_release();
+        else
+            em1_hold();
+#endif
     }
 
     /* User pressed pair (MCU 0x03 sub=0x01): leave the network so we re-steer and
@@ -634,6 +953,12 @@ void kagel_app_tick(void) {
             s_announced = 1;
             lock_app_announce_online(&g_app);
             g_dbg_announce_calls++;
+            /* Report firmware version once per join (EF00 DP204, string) so the hub
+             * can surface it as the device 'firmware' — regen-free stand-in for the
+             * genBasic swBuildId attribute we can't add without Studio generation. */
+            { static const char s_fwver[] = KAGEL_FW_VERSION;
+              hal_zb_ef00_report(204, 0x03, (const uint8_t *)s_fwver,
+                                 (uint16_t)(sizeof(s_fwver) - 1), 0, NULL); }
         }
 
         /* Read genTime from the coordinator until we have a clock, then refresh
