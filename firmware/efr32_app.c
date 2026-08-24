@@ -67,7 +67,7 @@ extern volatile uint8_t  g_dbg_done_beacons;  /* app.c: beacons heard in steer *
  * ZCL table and can't be added without a Studio regen (unavailable), so we report
  * this over EF00 DP204 on each join; the converter maps it to the 'firmware' field.
  * Bump on every flashed build; this is also the human string for the OTA release. */
-#define KAGEL_FW_VERSION  "1.0.0"
+#define KAGEL_FW_VERSION  "1.0.2"
 
 #define KAGEL_ENDPOINT     1
 #define KAGEL_CLUSTER_EF00 0xEF00
@@ -280,6 +280,16 @@ volatile uint32_t g_dbg_cmd08;      /* 0x08 offline-password verify requests    
 volatile uint32_t g_dbg_cmd05;      /* 0x05 DP report (status push)             */
 volatile uint32_t g_dbg_cmd23;      /* 0x23 record report (unlock events)       */
 volatile uint8_t  g_dbg_last_cmd;
+/* The serial traffic that had no counter and no reader. These are reported over
+ * the air (DP206) because the ring above is SWD-only and an assembled lock has
+ * no pads: every question about what the MCU actually sends has had to be
+ * inferred, and inference is what cost us the enrolment stall. */
+volatile uint32_t g_dbg_cmd06;      /* 0x06 proactive DP report (was DROPPED)   */
+volatile uint32_t g_dbg_cmd2c;      /* 0x2C proactive DP report, no linkage     */
+volatile uint32_t g_dbg_cmd20;      /* 0x20 query network status (was IGNORED)  */
+volatile uint32_t g_dbg_cmd25;      /* 0x25 check gateway status (was IGNORED)  */
+volatile uint32_t g_dbg_unhandled;  /* commands still without an answer         */
+volatile uint8_t  g_dbg_unhandled_cmd; /* the newest of them                    */
 static void hal_on_frame(uint8_t cmd, const uint8_t *data, uint16_t dlen, void *u) {
     (void)data; (void)dlen; (void)u;
     g_dbg_cmd_ring[g_dbg_cmd_idx & 15] = cmd;
@@ -289,6 +299,45 @@ static void hal_on_frame(uint8_t cmd, const uint8_t *data, uint16_t dlen, void *
     else if (cmd == 0x08) g_dbg_cmd08++;
     else if (cmd == 0x05) g_dbg_cmd05++;
     else if (cmd == 0x23) g_dbg_cmd23++;
+    else if (cmd == 0x06) g_dbg_cmd06++;
+    else if (cmd == 0x2c) g_dbg_cmd2c++;
+    else if (cmd == 0x20) g_dbg_cmd20++;
+    else if (cmd == 0x25) g_dbg_cmd25++;
+}
+static void hal_on_unhandled(uint8_t cmd, void *u) {
+    (void)u;
+    g_dbg_unhandled++;
+    g_dbg_unhandled_cmd = cmd;
+}
+
+/* Serial-traffic tally, DP206, 10 bytes:
+ *   cmd06(2) cmd2c(2) cmd20(1) cmd25(1) unhandled(2) last_unhandled(1) flags(1)
+ * Counts are saturating -- a tally that wraps is worse than one that pegs.
+ * Reported on the join edge and then only when it CHANGES, rate-limited: this
+ * is a battery lock, and a diagnostic that costs battery gets turned off and
+ * stops diagnosing. */
+static void report_serial_stats(void) {
+    static uint8_t last[10];
+    static uint32_t next_ok;
+    uint32_t now = (uint32_t)(sl_sleeptimer_get_tick_count64()
+                   / sl_sleeptimer_get_timer_frequency());
+    #define SAT16(v) ((uint16_t)((v) > 0xFFFF ? 0xFFFF : (v)))
+    #define SAT8(v)  ((uint8_t)((v) > 0xFF ? 0xFF : (v)))
+    uint8_t b[10];
+    b[0] = (uint8_t)(SAT16(g_dbg_cmd06) >> 8); b[1] = (uint8_t)SAT16(g_dbg_cmd06);
+    b[2] = (uint8_t)(SAT16(g_dbg_cmd2c) >> 8); b[3] = (uint8_t)SAT16(g_dbg_cmd2c);
+    b[4] = SAT8(g_dbg_cmd20);
+    b[5] = SAT8(g_dbg_cmd25);
+    b[6] = (uint8_t)(SAT16(g_dbg_unhandled) >> 8); b[7] = (uint8_t)SAT16(g_dbg_unhandled);
+    b[8] = g_dbg_unhandled_cmd;
+    b[9] = 0x01;   /* format version, so a reader can tell this layout apart */
+    #undef SAT16
+    #undef SAT8
+    if (memcmp(b, last, sizeof b) == 0) return;   /* nothing new to say */
+    if (now < next_ok) return;                    /* ...and not too often */
+    next_ok = now + 60;
+    memcpy(last, b, sizeof b);
+    hal_zb_ef00_report(206, 0x00, b, sizeof b, 0, NULL);
 }
 
 /* User put the lock in pairing / factory-reset (MCU 0x03). Leave the Zigbee
@@ -509,7 +558,12 @@ void app_zb_ef00_rx(uint8_t cmd, const uint8_t *payload, uint16_t len) {
  * must be LOWER than the .ota's to be offered. Bump _U32 every release. */
 #define OTA_MFG_CODE             0x1002
 #define OTA_IMAGE_TYPE           0x0001
-#define KAGEL_FW_VERSION_U32     0x01000000u   /* v1.0.1 (matches KAGEL_FW_VERSION string) */
+/* Must be STRICTLY higher than anything in the field or the OTA server never
+ * offers the image. A bench lock was driven to 1.0.1 (0x01000001) during the
+ * OTA proving run and one production lock still reports it, so 1.0.0 and 1.0.1
+ * are both burnt. The old comment here claimed v1.0.1 beside the value for
+ * 1.0.0, which is exactly how a release gets cut that the fleet ignores. */
+#define KAGEL_FW_VERSION_U32     0x01000002u   /* v1.0.2, matches KAGEL_FW_VERSION */
 #define OTA_SLOT                 0
 #define OTA_BLOCK_SIZE           64             /* bytes/block (fits one APS frame) */
 #define OTA_POLL_MS              100u           /* fast poll cadence while a download is active */
@@ -692,6 +746,7 @@ static const lock_app_hal_t APP_HAL = {
     .uart_write     = hal_uart_write,
     .gmt_now        = hal_gmt_now,
     .on_frame       = hal_on_frame,
+    .on_unhandled   = hal_on_unhandled,
     .on_config      = hal_on_config,
     .is_joined      = hal_is_joined,
     .user           = NULL,
@@ -959,7 +1014,13 @@ void kagel_app_tick(void) {
             { static const char s_fwver[] = KAGEL_FW_VERSION;
               hal_zb_ef00_report(204, 0x03, (const uint8_t *)s_fwver,
                                  (uint16_t)(sizeof(s_fwver) - 1), 0, NULL); }
+            /* ...and what the MCU has been saying that we could not answer. */
+            report_serial_stats();
         }
+
+        /* Surface the serial tally when it moves. Self-rate-limited; costs
+         * nothing on a lock whose MCU is behaving. */
+        report_serial_stats();
 
         /* Read genTime from the coordinator until we have a clock, then refresh
          * daily for drift. Cheap unicast read; app_on_gentime applies the reply. */

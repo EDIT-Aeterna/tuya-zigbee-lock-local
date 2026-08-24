@@ -30,10 +30,24 @@ typedef enum {
     TLS_CMD_CONFIGURE     = 0x03,     /* reset / pair / factory */
     TLS_CMD_SEND          = 0x04,     /* module->MCU remote control (DP payload) */
     TLS_CMD_REPORT        = 0x05,     /* MCU->module DP status push */
-    TLS_CMD_NET_NOTIFY    = 0x06,     /* async net-status broadcast */
+    /* 0x06 is how WE tell the MCU its network status (tls_report_net_status).
+     * The generic spec calls 0x06 a proactive DP report in the MCU->module
+     * direction, but on this MCU the id is already spoken for outbound, so an
+     * INCOMING 0x06 is ambiguous -- plausibly its ack of our notification, in
+     * which case answering it would start the same ping-pong the wakeup echo
+     * causes. Counted, deliberately not answered, until the tally says which
+     * it is. */
+    TLS_CMD_NET_NOTIFY    = 0x06,
     TLS_CMD_DYN_PW        = 0x07,     /* dynamic password verify (needs SecKey) */
     TLS_CMD_OFFLINE_PW    = 0x08,     /* offline password verify (needs SecKey) */
+    TLS_CMD_QUERY_NET     = 0x20,     /* MCU asks for the network status byte   */
     TLS_CMD_RECORD        = 0x23,     /* DP report w/ timestamp (unlock events) */
+    TLS_CMD_GW_STATUS     = 0x25,     /* MCU asks whether the gateway is there   */
+    TLS_CMD_NET_CONFIG    = 0x26,     /* MCU pushes network parameters           */
+    TLS_CMD_WAKE_WAIT     = 0x2B,     /* MCU sets the wake wait time             */
+    TLS_CMD_REPORT_NOLINK = 0x2C,     /* proactive DP report, linkage suppressed */
+    /* 0x2C has no outbound use here, so it is unambiguous -- but it is only
+     * worth answering once the tally shows the MCU sends it. */
     TLS_CMD_TIME_SYNC     = 0x24,     /* MCU->module time request */
 } tls_cmd_t;
 
@@ -84,6 +98,10 @@ typedef struct {
      * commands the lock MCU issues (e.g. 0x07 dyn-pw / 0x08 offline-pw verify)
      * during a password attempt -- ground truth instead of inference. */
     void     (*on_frame)(uint8_t cmd, const uint8_t *data, uint16_t dlen, void *user);
+    /* A command from the MCU that this layer has no answer for. Optional; the
+     * app uses it to surface a count over the air, because the debug ring is
+     * SWD-only and an assembled lock has no pads left. */
+    void     (*on_unhandled)(uint8_t cmd, void *user);
     /* MCU requested (re)pairing / factory-reset via 0x03 configure (user put the
      * lock in pairing). sub = the config data byte (0xFF if none). The integrator
      * should LEAVE the Zigbee network and re-steer so the module rejoins the open

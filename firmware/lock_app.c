@@ -33,6 +33,10 @@ static void core_on_frame(uint8_t cmd, const uint8_t *data, uint16_t dlen, void 
     lock_app_t *a = app_of(user);
     if (a && a->hal.on_frame) a->hal.on_frame(cmd, data, dlen, a->hal.user);
 }
+static void core_on_unhandled(uint8_t cmd, void *user) {
+    lock_app_t *a = app_of(user);
+    if (a && a->hal.on_unhandled) a->hal.on_unhandled(cmd, a->hal.user);
+}
 static void core_on_config(uint8_t sub, void *user) {
     lock_app_t *a = app_of(user);
     if (a && a->hal.on_config) a->hal.on_config(sub, a->hal.user);
@@ -100,6 +104,7 @@ void lock_app_init(lock_app_t *a, const lock_app_hal_t *hal) {
     th.on_dp_report = core_on_dp;
     th.is_online    = core_is_online;
     th.on_frame     = core_on_frame;
+    th.on_unhandled = core_on_unhandled;
     th.on_config    = core_on_config;
     th.user         = a;
     tls_init(&a->tls, &th);

@@ -249,6 +249,29 @@ static void handle_frame(tls_ctx_t *c, const uint8_t *f, size_t flen)
         break;
     }
 
+    case TLS_CMD_QUERY_NET:
+        /* "What is the network status?" -- one byte, same table as 0x02. */
+        tls_report_net_status(c, tls_gate(c));
+        break;
+
+    case TLS_CMD_GW_STATUS: {
+        /* "Is the gateway there?" 0x00 offline / 0x01 online / 0x02 timeout.
+         * The MCU is built to be TOLD the gateway is unreachable; silence is
+         * not one of the answers it knows how to handle. */
+        uint8_t b = (tls_gate(c) == TLS_NET_GW_AND_SERVER) ? 0x01 : 0x00;
+        tls_send_frame(c, TLS_CMD_GW_STATUS, &b, 1);
+        break;
+    }
+
+    case TLS_CMD_NET_CONFIG:
+    case TLS_CMD_WAKE_WAIT: {
+        /* We keep our own radio parameters, but the MCU expects a result byte
+         * and will sit waiting for one. Answer "ok" rather than nothing. */
+        uint8_t b = 0x01;
+        tls_send_frame(c, (tls_cmd_t)cmd, &b, 1);
+        break;
+    }
+
     case TLS_CMD_DYN_PW:
     case TLS_CMD_OFFLINE_PW:
         /* v1: SecKey crypto not implemented -> report "no SecKey" (0x02). */
@@ -256,7 +279,10 @@ static void handle_frame(tls_ctx_t *c, const uint8_t *f, size_t flen)
         break;
 
     default:
-        /* Unknown/unhandled (0x03 configure, OTA 0x0A-0x0D, 0x09 test): ignore for now. */
+        /* Still unhandled (OTA 0x0A-0x0D, 0x09 test). Counted and reported by
+         * the app so the next gap is MEASURED instead of inferred -- the ring
+         * and counters were SWD-only, and these locks are assembled shut. */
+        if (c->hal.on_unhandled) c->hal.on_unhandled(cmd, c->hal.user);
         break;
     }
 }

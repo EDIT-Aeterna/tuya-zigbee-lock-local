@@ -46,6 +46,7 @@ typedef struct {
     uint32_t (*gmt_now)(void *user);
     /* Debug (optional): every serial frame the MCU sends, before dispatch. */
     void (*on_frame)(uint8_t cmd, const uint8_t *data, uint16_t dlen, void *user);
+    void (*on_unhandled)(uint8_t cmd, void *user);
     /* MCU requested (re)pairing/factory-reset (0x03). Integrator leaves the Zigbee
      * network and re-steers so the module rejoins an open permit window. */
     void (*on_config)(uint8_t sub, void *user);
