@@ -1,0 +1,10 @@
+{
+  "id": "dynamic-password-official-request",
+  "evidence_profile": "GENERIC_TUYA",
+  "direction": "mcu_to_module",
+  "raw_hex": "55 AA 03 00 00 07 00 1D 5B BC 3A 41 33 37 32 32 34 32 30 31 02 06 30 31 32 33 34 35 08 31 32 33 34 35 36 37 38 30",
+  "source": {"kind": "official_generic_protocol", "ref": "local official MCU docking PDF p19"},
+  "expected": {"valid_frame": true, "version": 3, "seq": 0, "command": 7, "data_len": 29},
+  "confidence": "confirmed",
+  "known_issue": "This is an official protocol example, not a TYZS5 capture."
+}

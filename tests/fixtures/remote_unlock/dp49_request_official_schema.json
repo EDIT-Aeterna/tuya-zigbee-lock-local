@@ -1,0 +1,10 @@
+{
+  "id": "dp49-request-schema-derived",
+  "evidence_profile": "GENERIC_TUYA",
+  "direction": "module_to_mcu",
+  "raw_hex": "55 AA 03 01 00 04 00 13 31 00 00 0F 01 00 07 31 32 33 34 35 36 37 38 00 00 00 02 08",
+  "source": {"kind": "official_web", "ref": "https://developer.tuya.com/cn/docs/iot/zigbee-doorlock-dp?id=K9fembhbeab0p"},
+  "expected": {"valid_frame": true, "version": 3, "seq": 256, "command": 4, "data_len": 19, "dp": {"id": 49, "type": 0, "length": 15}},
+  "confidence": "confirmed_schema_synthetic_frame",
+  "known_issue": "The DP49 request schema is official; this is not a TYZS5 capture."
+}

@@ -1,0 +1,10 @@
+{
+  "id": "official-time-sync-response",
+  "evidence_profile": "GENERIC_TUYA",
+  "direction": "module_to_mcu",
+  "raw_hex": "55 AA 03 00 39 24 00 08 00 00 0D 2B 00 00 7D AB C7",
+  "source": {"kind": "official_generic_protocol", "ref": "local official MCU docking PDF p28"},
+  "expected": {"valid_frame": true, "version": 3, "seq": 57, "command": 36, "data_len": 8, "checksum": 199},
+  "confidence": "confirmed",
+  "known_issue": "This is an official example; the target's timezone/DST and complete exchange remain unobserved."
+}

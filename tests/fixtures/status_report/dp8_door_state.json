@@ -1,0 +1,10 @@
+{
+  "id": "dp8-door-state-report",
+  "evidence_profile": "GENERIC_TUYA",
+  "direction": "mcu_to_module",
+  "raw_hex": "55 AA 03 03 00 05 00 05 08 01 00 01 01 1A",
+  "source": {"kind": "official_generic_protocol", "ref": "local official MCU docking PDF p17 plus official DP table"},
+  "expected": {"valid_frame": true, "version": 3, "seq": 768, "command": 5, "data_len": 5, "dp": {"id": 8, "type": 1, "length": 1}},
+  "confidence": "confirmed_schema_synthetic_frame",
+  "known_issue": "The DP8 value is synthetic; no target status capture was supplied."
+}

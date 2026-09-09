@@ -1,0 +1,10 @@
+{
+  "id": "srptwvak-cold-boot-product-info",
+  "evidence_profile": "TARGET_SRPTWVAK",
+  "direction": "both",
+  "raw_hex": "55 AA 03 00 02 01 00 00 05",
+  "source": {"kind": "target_capture", "ref": "DHO924 target golden audit"},
+  "expected": {"valid_frame": true, "version": 3, "seq": 2, "command": 1, "data_len": 0},
+  "confidence": "target_golden",
+  "known_issue": "Response sequence 0x3377 is intentionally not treated as a global echo rule."
+}

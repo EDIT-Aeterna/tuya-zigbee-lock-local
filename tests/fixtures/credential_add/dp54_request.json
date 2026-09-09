@@ -1,0 +1,10 @@
+{
+  "id": "dp54-add-request",
+  "evidence_profile": "GENERIC_TUYA",
+  "direction": "module_to_mcu",
+  "raw_hex": "55 AA 03 02 00 04 00 0B 36 00 00 07 02 00 01 00 7B 03 E7 B8",
+  "source": {"kind": "official_web", "ref": "https://developer.tuya.com/cn/docs/iot/zigbee-doorlock-dp?id=K9fembhbeab0p"},
+  "expected": {"valid_frame": true, "version": 3, "seq": 512, "command": 4, "data_len": 11, "dp": {"id": 54, "type": 0, "length": 7}},
+  "confidence": "confirmed_schema_synthetic_frame",
+  "known_issue": "The DP54 fields are official; member and hardware IDs are synthetic."
+}

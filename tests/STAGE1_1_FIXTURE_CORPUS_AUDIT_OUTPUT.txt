@@ -1,0 +1,23 @@
+Command:
+python stage11_fixture_corpus_audit.py --repo .
+
+== Required TARGET_SRPTWVAK corpus ==
+PASS cold_boot_product_info_request
+PASS cold_boot_product_info_response
+PASS cold_boot_net_notify
+PASS cold_boot_net_notify_ack
+PASS time_sync_request
+PASS time_sync_response_utc8
+PASS dp54_password_start
+PASS dp54_report_start
+PASS dp54_report_progress
+PASS dp54_report_complete
+PASS dp49_request
+PASS dp49_response
+PASS normal_password_record
+PASS card_record
+PASS dp24_temp
+PASS dp24_periodic
+PASS dp24_one_time
+
+AUDIT RESULT: 0 fixture-corpus failure(s)

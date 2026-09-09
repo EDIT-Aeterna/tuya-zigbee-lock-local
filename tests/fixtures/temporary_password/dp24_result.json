@@ -1,0 +1,10 @@
+{
+  "id": "dp24-result",
+  "evidence_profile": "GENERIC_TUYA",
+  "direction": "mcu_to_module",
+  "raw_hex": "55 AA 03 01 01 05 00 0B 18 00 00 07 12 34 56 78 00 00 02 49",
+  "source": {"kind": "official_web", "ref": "https://developer.tuya.com/cn/docs/iot/zigbee-doorlock-dp?id=K9fembhbeab0p"},
+  "expected": {"valid_frame": true, "version": 3, "seq": 257, "command": 5, "data_len": 11, "dp": {"id": 24, "type": 0, "length": 7}},
+  "confidence": "confirmed_schema_synthetic_frame",
+  "known_issue": "The result status is synthetic and is not a target execution result."
+}

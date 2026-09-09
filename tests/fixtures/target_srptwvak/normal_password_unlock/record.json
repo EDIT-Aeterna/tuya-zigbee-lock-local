@@ -1,0 +1,10 @@
+{
+  "id": "srptwvak-normal-password-record",
+  "evidence_profile": "TARGET_SRPTWVAK",
+  "direction": "mcu_to_module",
+  "raw_hex": "55 AA 03 00 16 23 00 0D 01 6A 9F C8 6B 02 02 00 04 00 00 00 0E 9B",
+  "source": {"kind": "target_capture", "ref": "DHO924 target golden audit"},
+  "expected": {"valid_frame": true, "version": 3, "seq": 22, "command": 35, "data_len": 13, "dp": {"offset": 5, "id": 2, "type": 2, "length": 4}},
+  "confidence": "target_golden",
+  "known_issue": null
+}

@@ -1,0 +1,10 @@
+{
+  "id": "bad-length",
+  "evidence_profile": "GENERIC_TUYA",
+  "direction": "mcu_to_module",
+  "raw_hex": "55 AA 03 00 00 01 00 01 03",
+  "source": {"kind": "derived_from_official_generic_protocol", "ref": "product-info header with one-byte length but no data"},
+  "expected": {"valid_frame": false},
+  "confidence": "confirmed_malformed",
+  "known_issue": "Declared data length is inconsistent with the supplied frame length."
+}

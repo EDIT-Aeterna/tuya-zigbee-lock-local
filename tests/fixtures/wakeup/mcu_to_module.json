@@ -1,0 +1,10 @@
+{
+  "id": "wakeup-mcu-to-module",
+  "evidence_profile": "GENERIC_TUYA",
+  "direction": "mcu_to_module",
+  "raw_hex": "00 00 00 00 00 00 00 55 AA 03 00 00 00 00 00 02",
+  "source": {"kind": "official_generic_protocol", "ref": "local official MCU docking PDF p12"},
+  "expected": {"valid_frame": true, "frame_offset": 7, "version": 3, "seq": 0, "command": 0, "data_len": 0, "checksum": 2},
+  "confidence": "confirmed",
+  "known_issue": null
+}

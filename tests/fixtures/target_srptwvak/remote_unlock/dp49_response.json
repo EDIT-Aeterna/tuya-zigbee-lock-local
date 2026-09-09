@@ -1,0 +1,10 @@
+{
+  "id": "srptwvak-dp49-response",
+  "evidence_profile": "TARGET_SRPTWVAK",
+  "direction": "mcu_to_module",
+  "raw_hex": "55 AA 03 00 0A 05 00 07 31 00 00 03 00 00 01 4D",
+  "source": {"kind": "target_capture", "ref": "DHO924 target golden audit"},
+  "expected": {"valid_frame": true, "version": 3, "seq": 10, "command": 5, "data_len": 7, "dp": {"id": 49, "type": 0, "length": 3}},
+  "confidence": "target_golden",
+  "known_issue": "Response value is status/key-id bytes; key-id semantics remain target evidence only."
+}

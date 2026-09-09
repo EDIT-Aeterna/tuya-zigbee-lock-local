@@ -1,0 +1,10 @@
+{
+  "id": "truncated-record",
+  "evidence_profile": "GENERIC_TUYA",
+  "direction": "mcu_to_module",
+  "raw_hex": "55 AA 03 00 00 23 00 0D 01 5B F6 67 B1 01 02 00 04 00 00 00 0B",
+  "source": {"kind": "derived_from_official_generic_protocol", "ref": "official DP1 record with checksum removed"},
+  "expected": {"valid_frame": false},
+  "confidence": "confirmed_malformed",
+  "known_issue": "Checksum byte intentionally omitted."
+}

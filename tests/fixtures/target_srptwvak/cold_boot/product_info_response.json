@@ -1,0 +1,10 @@
+{
+  "id": "srptwvak-product-info-response",
+  "evidence_profile": "TARGET_SRPTWVAK",
+  "direction": "mcu_to_module",
+  "raw_hex": "55 AA 03 33 77 01 00 1D 7B 22 70 22 3A 22 73 72 70 74 77 76 61 6B 22 2C 22 76 22 3A 22 31 2E 30 2E 38 22 7D 01 D0",
+  "source": {"kind": "target_capture", "ref": "DHO924 target golden audit"},
+  "expected": {"valid_frame": true, "version": 3, "seq": 13175, "command": 1, "data_len": 29},
+  "confidence": "target_golden",
+  "known_issue": "PID=srptwvak, v=1.0.8, OTA flag=1; request sequence was 0x0002, response sequence is 0x3377."
+}

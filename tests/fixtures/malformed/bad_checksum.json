@@ -1,0 +1,10 @@
+{
+  "id": "bad-checksum",
+  "evidence_profile": "GENERIC_TUYA",
+  "direction": "mcu_to_module",
+  "raw_hex": "55 AA 03 03 00 05 00 05 08 01 00 01 01 1B",
+  "source": {"kind": "derived_from_official_generic_protocol", "ref": "DP8 status frame with checksum corrupted"},
+  "expected": {"valid_frame": false},
+  "confidence": "confirmed_malformed",
+  "known_issue": "Final checksum differs from the recomputed value 0x1A."
+}

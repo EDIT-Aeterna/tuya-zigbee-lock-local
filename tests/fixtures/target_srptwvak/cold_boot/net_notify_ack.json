@@ -1,0 +1,10 @@
+{
+  "id": "srptwvak-net-notify-ack",
+  "evidence_profile": "TARGET_SRPTWVAK",
+  "direction": "mcu_to_module",
+  "raw_hex": "55 AA 03 00 01 06 00 01 10 1A",
+  "source": {"kind": "target_capture", "ref": "DHO924 target golden audit"},
+  "expected": {"valid_frame": true, "version": 3, "seq": 1, "command": 6, "data_len": 1},
+  "confidence": "target_golden",
+  "known_issue": "same-sequence 0x06 transfer-success ACK; module-side parser consumes it silently."
+}

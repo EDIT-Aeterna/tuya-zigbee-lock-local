@@ -1,0 +1,10 @@
+{
+  "id": "srptwvak-time-sync-response-utc8",
+  "evidence_profile": "TARGET_SRPTWVAK",
+  "direction": "module_to_mcu",
+  "raw_hex": "55 AA 03 00 02 24 00 08 6A A1 42 85 6A A1 B3 05 C5",
+  "source": {"kind": "target_capture", "ref": "DHO924 target golden audit"},
+  "expected": {"valid_frame": true, "version": 3, "seq": 2, "command": 36, "data_len": 8},
+  "confidence": "target_golden",
+  "known_issue": "GMT=0x6AA14285; LOCAL=0x6AA1B305; LOCAL-GMT=28800 seconds; mainland China UTC+8, no DST."
+}

@@ -1,0 +1,10 @@
+{
+  "id": "official-dp1-unlock-record",
+  "evidence_profile": "GENERIC_TUYA",
+  "direction": "mcu_to_module",
+  "raw_hex": "55 AA 03 00 00 23 00 0D 01 5B F6 67 B1 01 02 00 04 00 00 00 0B AE",
+  "source": {"kind": "official_generic_protocol", "ref": "local official MCU docking PDF p27"},
+  "expected": {"valid_frame": true, "version": 3, "seq": 0, "command": 35, "data_len": 13, "dp": {"offset": 5, "id": 1, "type": 2, "length": 4}},
+  "confidence": "confirmed",
+  "known_issue": null
+}

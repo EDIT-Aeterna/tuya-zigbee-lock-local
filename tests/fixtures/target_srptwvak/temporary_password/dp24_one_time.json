@@ -1,0 +1,10 @@
+{
+  "id": "srptwvak-dp24-one-time",
+  "evidence_profile": "TARGET_SRPTWVAK",
+  "direction": "module_to_mcu",
+  "raw_hex": "55 AA 03 00 1F 04 00 1F 18 00 00 1B 03 E3 00 01 00 00 6A 9F DA 3F 6A A1 2B BF 00 00 00 00 00 00 01 35 38 31 39 39 33 B9",
+  "source": {"kind": "target_capture", "ref": "DHO924 target golden audit"},
+  "expected": {"valid_frame": true, "version": 3, "seq": 31, "command": 4, "data_len": 31, "dp": {"id": 24, "type": 0, "length": 27}},
+  "confidence": "target_golden",
+  "known_issue": "one_time=1 is observed; password policy remains target-specific."
+}

@@ -1,0 +1,6 @@
+Command:
+gcc -std=c99 -Wall -Wextra -Werror stage11_lock_app_time_integration_test.c firmware/lock_app.c firmware/nicki_ek_lock_serial.c -I firmware -o /tmp/stage11_lock_app_time_test
+/tmp/stage11_lock_app_time_test
+
+compile_rc=0
+PASS lock_app production time integration: exact target 0x24 UTC+8 response

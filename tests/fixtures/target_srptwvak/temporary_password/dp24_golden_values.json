@@ -1,0 +1,10 @@
+{
+  "id": "srptwvak-dp24-target-values",
+  "evidence_profile": "TARGET_SRPTWVAK",
+  "direction": "module_to_mcu",
+  "raw_hex": "55 AA 03 00 15 04 00 1F 18 00 00 1B 03 E5 00 01 00 00 6A 9F B5 4F 6A A1 06 CF 00 00 00 00 00 00 01 34 37 35 37 36 38 89",
+  "source": {"kind": "target_capture", "ref": "DHO924 target golden audit"},
+  "expected": {"valid_frame": true, "version": 3, "seq": 21, "command": 4, "data_len": 31, "dp": {"id": 24, "type": 0, "length": 27}},
+  "confidence": "target_golden",
+  "known_issue": "Six bytes between end timestamp and one-time flag remain unknown/reserved."
+}

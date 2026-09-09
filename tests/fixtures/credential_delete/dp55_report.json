@@ -1,0 +1,10 @@
+{
+  "id": "dp55-delete-report",
+  "evidence_profile": "GENERIC_TUYA",
+  "direction": "mcu_to_module",
+  "raw_hex": "55 AA 03 02 01 05 00 0D 37 00 00 09 00 00 00 00 7B 03 E7 01 FF BC",
+  "source": {"kind": "official_web", "ref": "https://developer.tuya.com/cn/docs/iot/zigbee-doorlock-dp?id=K9fembhbeab0p"},
+  "expected": {"valid_frame": true, "version": 3, "seq": 513, "command": 5, "data_len": 13, "dp": {"id": 55, "type": 0, "length": 9}},
+  "confidence": "confirmed_schema_synthetic_frame",
+  "known_issue": "The delete result is schema-derived synthetic data."
+}

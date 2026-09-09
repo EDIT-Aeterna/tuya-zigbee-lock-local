@@ -1,0 +1,10 @@
+{
+  "id": "srptwvak-dp24-periodic",
+  "evidence_profile": "TARGET_SRPTWVAK",
+  "direction": "module_to_mcu",
+  "raw_hex": "55 AA 03 00 1C 04 00 1F 18 00 00 1B 03 E6 00 01 00 00 6A A0 31 24 6A A1 82 A4 00 00 00 00 00 00 00 31 32 33 31 32 33 1A",
+  "source": {"kind": "target_capture", "ref": "DHO924 target golden audit"},
+  "expected": {"valid_frame": true, "version": 3, "seq": 28, "command": 4, "data_len": 31, "dp": {"id": 24, "type": 0, "length": 27}},
+  "confidence": "target_golden",
+  "known_issue": "Periodic password has one_time=0; field semantics remain limited to observed layout."
+}

@@ -1,0 +1,10 @@
+{
+  "id": "srptwvak-time-sync-utc8",
+  "evidence_profile": "TARGET_SRPTWVAK",
+  "direction": "both",
+  "raw_hex": "55 AA 03 00 02 24 00 00 28",
+  "source": {"kind": "target_capture", "ref": "DHO924 target golden audit"},
+  "expected": {"valid_frame": true, "version": 3, "seq": 2, "command": 36, "data_len": 0},
+  "confidence": "target_golden",
+  "known_issue": "Combined exchange; response is validated separately by reviewer audit."
+}

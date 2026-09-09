@@ -1,0 +1,10 @@
+{
+  "id": "dp49-response-uncertain-sample",
+  "evidence_profile": "TARGET_SRPTWVAK",
+  "direction": "mcu_to_module",
+  "raw_hex": "55 AA 03 00 0B 05 00 07 31 00 00 02 00 00 01 4E",
+  "source": {"kind": "stage1_taskbook", "ref": "uncertain sample supplied with Stage 1 task"},
+  "expected": {"valid_frame": false, "expected_checksum": 77},
+  "confidence": "uncertain",
+  "known_issue": "The supplied final byte is 0x4E; recomputation gives 0x4D. The sample also needs confirmation at the DP-unit level."
+}

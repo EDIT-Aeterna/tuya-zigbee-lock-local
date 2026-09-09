@@ -41,7 +41,8 @@ static void core_on_config(uint8_t sub, void *user) {
     lock_app_t *a = app_of(user);
     if (a && a->hal.on_config) a->hal.on_config(sub, a->hal.user);
 }
-static int32_t core_tz(void) { return TLS_DEFAULT_TZ_OFFSET; }
+/* TARGET_SRPTWVAK deployment: mainland China, UTC+8, no DST. */
+static int32_t core_tz(void) { return 28800; }
 
 /* ANTI-CLONE REMOVED 2026-07-15 (Nicki): the lock is an OPEN, standard Zigbee
  * device. Kagel flashes the firmware itself, so there is no Kagel-claim gate --
@@ -207,7 +208,7 @@ int lock_app_create_temp_pw(lock_app_t *a, uint16_t pw_id, uint32_t valid_from,
     uint32_t now   = core_gmt();
     uint32_t start = now + valid_from;
     uint32_t end   = start + valid_secs;
-    uint8_t  val[21 + TLS_TEMP_PW_MAX];
+    uint8_t  val[27];
     uint16_t n = tls_build_temp_pw(val, pw_id, a->txn, start, end, onetime, pw, pwlen);
     if (!n) return 0;                                 /* pwlen out of range */
     a->txn++;                                         /* matches capture 0000->0001 */

@@ -1,0 +1,10 @@
+{
+  "id": "srptwvak-card-record",
+  "evidence_profile": "TARGET_SRPTWVAK",
+  "direction": "mcu_to_module",
+  "raw_hex": "55 AA 03 00 22 23 00 0D 01 6A 9F D2 6A 05 02 00 04 00 00 00 0E B3",
+  "source": {"kind": "target_capture", "ref": "DHO924 target golden audit"},
+  "expected": {"valid_frame": true, "version": 3, "seq": 34, "command": 35, "data_len": 13, "dp": {"offset": 5, "id": 5, "type": 2, "length": 4}},
+  "confidence": "target_golden",
+  "known_issue": null
+}

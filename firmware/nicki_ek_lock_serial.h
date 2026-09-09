@@ -20,7 +20,11 @@
 #define TLS_HDR1 0xAA
 #define TLS_VERSION 0x03
 #define TLS_MAX_DATA 256              /* residential lock caps DP report well under this */
-#define TLS_FRAME_OVERHEAD 8          /* hdr(2)+ver(1)+seq(2)+cmd(1)+len(2) ... +csum(1)=8 total non-data */
+#define TLS_FRAME_HEADER_LEN 8        /* hdr(2)+ver(1)+seq(2)+cmd(1)+len(2) */
+#define TLS_FRAME_OVERHEAD 9          /* frame header plus the trailing checksum */
+#define TLS_WAKE_PREAMBLE_LEN 7       /* zero bytes before every wake frame */
+#define TLS_WAKE_SEQ_MODULE 0x55AA    /* module -> MCU wake */
+#define TLS_WAKE_SEQ_MCU    0x0000    /* MCU -> module wake */
 
 /* Command bytes (K9bjcnh616mg5) */
 typedef enum {
@@ -78,6 +82,97 @@ typedef struct {
     uint16_t len;
     const uint8_t *value;            /* points into the parsed frame buffer */
 } tls_dp_t;
+
+typedef struct {
+    uint8_t  version;
+    uint16_t seq;
+    uint8_t  cmd;
+    uint16_t data_len;
+    const uint8_t *data;              /* points into the supplied frame */
+} tls_frame_t;
+
+/* The official 0x07 request contains no secret material in this core. The
+ * pointers below refer to the request buffer and are only for validation and
+ * inspection by the application or host tests. */
+typedef struct {
+    uint32_t gmt;
+    const uint8_t *password;          /* exactly 8 ASCII digits */
+    uint8_t admin_count;
+    const uint8_t *admins;            /* length-prefixed ASCII groups */
+    uint16_t admins_len;
+} tls_dynamic_password_t;
+
+/* Proven SDK wrapper for RAW password-operation reports. The six-byte prefix
+ * remains opaque; the final byte is the SDK's operation status byte. */
+typedef struct {
+    const uint8_t *echo;
+    uint16_t echo_len;
+    uint8_t status;
+} tls_raw_operation_result_t;
+
+/* Official Tuya residential-lock RAW layouts. The pointers refer to the
+ * caller's buffer and are valid only while that buffer remains unchanged. */
+typedef struct {
+    uint16_t tuya_seq;
+    uint16_t server_seq;
+    uint16_t manufacturer_id;
+    uint32_t start_gmt;
+    uint32_t end_gmt;
+    uint8_t one_time;
+    const uint8_t *password;          /* six ASCII digits */
+} tls_temp_password_create_t;
+
+typedef struct {
+    uint16_t tuya_seq;
+    uint16_t server_seq;
+    uint16_t manufacturer_id;
+} tls_temp_password_ref_t;
+
+typedef struct {
+    tls_temp_password_ref_t ref;
+    uint8_t status;
+} tls_temp_password_result_t;
+
+typedef struct {
+    uint8_t enabled;
+    uint16_t key_id;
+    uint32_t start_gmt;
+    uint32_t end_gmt;
+    uint16_t use_count;
+    const uint8_t *key;
+} tls_no_password_key_set_t;
+
+typedef struct {
+    uint8_t open;
+    uint16_t key_id;
+    const uint8_t *key;
+    uint32_t unlock_method;
+} tls_no_password_unlock_t;
+
+typedef struct {
+    uint8_t status;
+    uint16_t key_id;
+} tls_no_password_result_t;
+
+typedef struct {
+    uint8_t type;
+    uint8_t stage;
+    uint8_t administrator;
+    uint16_t member_id;
+    uint16_t hardware_id;
+    uint8_t enrollment_index;
+    uint8_t result;
+} tls_credential_add_t;
+
+typedef struct {
+    uint8_t type;
+    uint8_t stage;
+    uint8_t administrator;
+    uint16_t member_id;
+    uint16_t hardware_id;
+    uint8_t delete_method;
+    uint8_t result;
+} tls_credential_delete_t;
 
 /* ---- HAL hooks the integrator supplies (EFR32 / Telink / host-test) ---- */
 typedef struct {
@@ -140,36 +235,11 @@ void tls_announce_online(tls_ctx_t *c);                         /* push "paired+
 void tls_request_product_info(tls_ctx_t *c);                    /* module->MCU 0x01 query (boot) */
 void tls_boot(tls_ctx_t *c);                                    /* mirror the stock module's opening moves */
 
-/* module->MCU 0x24 reply Standard back-shift, in seconds. The MCU runs on GMT/UTC
- * globally: we serve Local = true UTC and Standard = UTC - this value.
- *
- * The MCU does NOT simply stamp Local -- it stamps by a fixed relation to BOTH
- * fields, anchored on its factory China (+8h) default. Measured 2026-07-23 (offsets
- * from UTC, hours):
- *     (Local +4, Standard 0) -> +4      (Local 0, Standard 0) -> +8 (China)
- *     (Local  0, Standard -1) -> +6     (Local 0, Standard -4) -> 0 (UTC) [target]
- * These fit  stamp = 8 - Local + 2*Standard.  With Local = UTC (0), a Standard
- * back-shift of 4h (this value) drives the stamp to exactly UTC: 8 - 0 + 2*(-4) = 0.
- * So 14400 is CALIBRATED to cancel the China baseline, not merely a "clear the
- * quantization threshold" nudge. (A 1s gap is separately rounded to zero -> China.)
- *
- * Result: one firmware worldwide, lock clock == UTC, correct date. The hub sends
- * temp-code windows in UTC too, so the lock's clock and the windows share one frame
- * regardless of where the product is sold. The MCU adopts this on a net-status
- * bounce -- at pairing, or when the hub fires the "push time" DP 200 just before
- * writing a temp code. */
-#define TLS_DEFAULT_TZ_OFFSET 14400
 /* Push a remote-control DP down to the lock (e.g. hub asked to unlock). */
 void tls_send_dp(tls_ctx_t *c, uint8_t dp_id, tls_dp_type_t t, const uint8_t *val, uint16_t vlen);
 
-/* Build a DP24 password_creat RAW value (GROUND-TRUTH capture 2026-07-15, on the
- * genuine module->MCU line — supersedes the earlier DP54 theory). Layout:
- *   pw_id(2 BE) | 00 01 | txn(2 BE) | start(4 BE) | end(4 BE) | onetime(1) |
- *   reserved 00 x6 | pw(ASCII, pwlen)
- * start/end are GMT unix seconds and MUST be measured against the lock's OWN
- * 0x24 clock (mismatch there is why temp codes silently failed before). Writes
- * 21+pwlen bytes to out and returns that length; 0 if out==NULL or pwlen is
- * outside 1..TLS_TEMP_PW_MAX. Send the result via tls_send_dp(c,24,TLS_DP_RAW,..). */
+/* TARGET_SRPTWVAK DP24 builder. The generic 21-byte DP24 schema remains a
+ * separate evidence profile and is parsed by tls_parse_temp_password_create(). */
 #define TLS_TEMP_PW_MAX 16
 uint16_t tls_build_temp_pw(uint8_t *out, uint16_t pw_id, uint16_t txn,
                            uint32_t start, uint32_t end, uint8_t onetime,
@@ -177,7 +247,38 @@ uint16_t tls_build_temp_pw(uint8_t *out, uint16_t pw_id, uint16_t txn,
 
 /* Low-level utils (exposed for host tests) */
 uint8_t tls_checksum(const uint8_t *frame, size_t len_without_csum);
+/* Decode one complete frame, including version, exact length and checksum. */
+bool tls_decode_frame(const uint8_t *frame, size_t len, tls_frame_t *out);
 /* Parse DP units out of a data payload; returns count, fills up to max. */
 size_t tls_parse_dps(const uint8_t *data, uint16_t len, tls_dp_t *out, size_t max);
+/* Strict variant: rejects truncated units, trailing bytes, and a too-small out array. */
+bool tls_parse_dps_exact(const uint8_t *data, uint16_t len, tls_dp_t *out,
+                         size_t max, size_t *count);
+/* Validate and expose the official 0x07 dynamic-password request. */
+bool tls_parse_dynamic_password(const uint8_t *data, uint16_t len,
+                                tls_dynamic_password_t *out);
+/* Decode the SDK's 7-byte RAW operation-result wrapper for DP24..33 and DP39. */
+bool tls_parse_raw_operation_result(uint8_t dp_id, const uint8_t *data,
+                                    uint16_t len, tls_raw_operation_result_t *out);
+/* DP24/26 create-or-update request (21 bytes) and DP25/27/28/39 reference
+ * request (6 bytes), plus their common seven-byte report layout. */
+bool tls_parse_temp_password_create(const uint8_t *data, uint16_t len,
+                                    tls_temp_password_create_t *out);
+bool tls_parse_temp_password_ref(uint8_t dp_id, const uint8_t *data,
+                                 uint16_t len, tls_temp_password_ref_t *out);
+bool tls_parse_temp_password_result(uint8_t dp_id, const uint8_t *data,
+                                    uint16_t len, tls_temp_password_result_t *out);
+/* DP48 and DP49 official key-management layouts. */
+bool tls_parse_no_password_key_set(const uint8_t *data, uint16_t len,
+                                   tls_no_password_key_set_t *out);
+bool tls_parse_no_password_unlock(const uint8_t *data, uint16_t len,
+                                  tls_no_password_unlock_t *out);
+bool tls_parse_no_password_result(uint8_t dp_id, const uint8_t *data,
+                                  uint16_t len, tls_no_password_result_t *out);
+/* DP54/55 add/delete request and MCU report layouts. */
+bool tls_parse_credential_add(uint8_t dp_id, const uint8_t *data,
+                              uint16_t len, tls_credential_add_t *out);
+bool tls_parse_credential_delete(uint8_t dp_id, const uint8_t *data,
+                                 uint16_t len, tls_credential_delete_t *out);
 
 #endif /* NICKI_EK_LOCK_SERIAL_H */
