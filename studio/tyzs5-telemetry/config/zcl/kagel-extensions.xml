@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+<configurator>
+  <domain name="Ember"/>
+
+  <cluster>
+    <name>Kagel EF00 Telemetry</name>
+    <domain>Ember</domain>
+    <description>Kagel lock MCU telemetry and legacy inbound command descriptor.</description>
+    <code>0xEF00</code>
+    <define>KAGEL_EF00_CLUSTER</define>
+    <client init="false" tick="false">true</client>
+    <server init="false" tick="false">true</server>
+    <command source="client" code="0x00" name="DataRequest" optional="false">
+      <description>Legacy inbound remote datapoint request.</description>
+    </command>
+    <command source="server" code="0x01" name="DataReport" optional="false">
+      <description>Outbound lock MCU telemetry report.</description>
+    </command>
+    <command source="client" code="0x04" name="SendData" optional="false">
+      <description>Legacy inbound remote datapoint command.</description>
+    </command>
+  </cluster>
+
+  <cluster manufacturerCode="0x1049">
+    <name>Kagel FC00 Legacy</name>
+    <domain>Ember</domain>
+    <description>Legacy Kagel vendor command receiver; telemetry-only firmware consumes it.</description>
+    <code>0xFC00</code>
+    <define>KAGEL_FC00_CLUSTER</define>
+    <client init="false" tick="false">true</client>
+    <server init="false" tick="false">true</server>
+    <command source="client" code="0x07" name="RemoteDp" optional="false">
+      <description>Legacy vendor remote datapoint command.</description>
+    </command>
+    <command source="client" code="0x08" name="CreateTempPassword" optional="false">
+      <description>Legacy vendor temporary-password command.</description>
+    </command>
+  </cluster>
+</configurator>

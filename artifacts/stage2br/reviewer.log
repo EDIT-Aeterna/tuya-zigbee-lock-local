@@ -1,0 +1,46 @@
+== Stage 1.1 core presence ==
+PASS firmware/nicki_ek_lock_serial.c
+PASS firmware/nicki_ek_lock_serial.h
+PASS firmware/lock_app.c
+PASS firmware/lock_app.h
+
+== Target MCU / UART / Zigbee identity ==
+PASS EFR32MG13P732F512GM48: 16 hit(s)
+PASS USART0: 7 hit(s)
+PASS PA0: 4 hit(s)
+PASS PA1: 4 hit(s)
+PASS 115200: 6 hit(s)
+PASS identity SmartHomePlus
+PASS identity LCK-BI400
+
+== EF00 / FC00 transport ==
+PASS EF00 evidence present
+PASS FC00 evidence present
+
+== Sleepy End Device / steering evidence ==
+PASS/INFO Sleepy
+PASS/INFO Pro Leaf
+PASS/INFO Network Steering
+
+== Telemetry-only safety profile ==
+PASS telemetry-only explicitly enabled
+
+== Time-sync target integration ==
+FAIL legacy 14400 remains somewhere in merged project/source text
+PASS target UTC+8 / 28800 evidence present
+
+== DP24 target-order static check ==
+PASS no legacy flag-before-extra6 DP24 pattern detected
+
+== HEX audit ==
+HEX studio\tyzs5-telemetry\build\debug\kagel_tyzs5_srptwvak_clean.hex: bytes=164448 bad_records=0 range=0..164447
+PASS main-flash upper bound 0x0002825F
+
+== Source-tree artifact hygiene ==
+PASS no object/ELF artifacts in firmware/docs/tests
+
+== Summary ==
+Project: D:\project\tyzs5-lock-port\Door-Lock-TY0A01-with-TYZS3-to-Z2M-firmware\studio\tyzs5-telemetry
+Failures: 1
+Failure keys: legacy_14400
+INFO runtime Zigbee/UART behavior still requires later hardware validation.

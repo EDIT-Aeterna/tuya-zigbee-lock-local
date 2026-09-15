@@ -1,5 +1,26 @@
 # TYZS5 Port Status
 
+## Current Stage 2E-B status (2026-09-10)
+
+DP21 + narrow DP48 provisioning + narrow DP49 password-free unlock offline build and the current Stage 2E-B reviewer audit passed. The unchanged supplied EF00 test has one out-of-bounds method mutation; this is documented in `PHASE2EB_DP49_CONTROL_REPORT.md`. No hardware was connected or flashed.
+
+## Previous Stage 2E-A status (2026-09-10)
+
+DP21 + narrow DP48 provisioning offline build passed the Stage 2E-A reviewer
+and EF00 integration test. DP49 and all other control DPs remain blocked; OTA
+write/install remains disabled. See `PHASE2EA_DP48_PROVISION_REPORT.md`.
+
+## Current Stage 2B-R status (2026-09-09)
+
+Donor merge and two offline clean builds succeeded; Stage 1.1 regression and
+adapter/safety checks PASS. Reviewer Stage 2B-R script exits 1 because its
+whole-tree old-offset search matches frozen historical PASS logs. This is a
+review blocker, not a production time-offset regression. See
+PHASE2BR_DONOR_MERGE_REPORT.md and artifacts/stage2br/reviewer.log.
+Stage 1.1 frozen commit: f01156f7ded3226def1300a87b6310993eaed7b9.
+No target connection or flashing. No Stage 2C. The sections below are the
+historical Stage 1.1 record; their git status describes that earlier stage.
+
 Stage: 1.1 - srptwvak target evidence closure
 
 Status: PASS for the Stage 1.1 target golden audit and offline verification. Remaining opaque

@@ -1,6 +1,9 @@
-# TYZS3 → Zigbee2MQTT Lock Firmware
+# TYZS5 srptwvak Stage 2G → Zigbee2MQTT Lock Firmware
 
-Replacement firmware for the **TYZS3** (Silicon Labs **EFR32MG13P732**) Zigbee module used in
+Target: TYZS5 / EFR32MG13P732F512GM48 / PID `srptwvak` / Stage 2G.
+The canonical flash image is `studio/tyzs5-telemetry/build/debug/kagel_tyzs5_srptwvak_clean.hex`.
+
+Replacement firmware for the **TYZS5** (Silicon Labs **EFR32MG13P732**) Zigbee module used in
 residential smart locks, so the lock pairs and runs **directly on zigbee2mqtt** — fully local,
 with no proprietary gateway or cloud.
 
@@ -47,9 +50,9 @@ The MCU-side serial exchange is documented in full in [`docs/PROTOCOL.md`](docs/
 ## Quick start
 
 1. **Wire** the module to a Raspberry Pi Debug Probe over SWD — see [`docs/HARDWARE.md`](docs/HARDWARE.md).
-2. **Flash** `firmware/kagel-lock.hex` — run `flasher/KagelLockFlasher.exe`, or follow
-   [`docs/FLASHING.md`](docs/FLASHING.md) for the manual pyOCD commands.
-3. **Install the converter** into Zigbee2MQTT — see [`zigbee2mqtt/README.md`](zigbee2mqtt/README.md).
+2. **Flash only** the canonical Stage 2G Studio HEX named above, following
+   [`docs/FLASHING.md`](docs/FLASHING.md).
+3. Install the separately maintained reviewer-approved converter; the bundled converter is reference/legacy only.
 4. **Pair** the lock (open permit-join) — it joins as a Kagel lock and its datapoints appear in Z2M.
 
 ## What you need
@@ -65,16 +68,16 @@ The firmware builds as a Zigbee SoC project in Simplicity Studio 5 against the G
 prebuilt `kagel-lock.hex` is included so you can flash without building — see
 [`firmware/BUILD.md`](firmware/BUILD.md) if you want to build it yourself.
 
-## Over-the-air updates (OTA)
+## Over-the-air updates (OTA disabled)
 
-Once the lock is assembled the SWD pads are sealed away, so the firmware ships a full
-**Zigbee OTA** path — no cable ever needed again:
+OTA/bootloader layout remains unresolved and disabled in this release. The firmware does not ship a usable
+No OTA path is enabled.
 
-- a hand-rolled **OTA Upgrade cluster (0x0019)** client in the firmware, and
+- no usable OTA Upgrade cluster client in this release, and
 - a **Gecko bootloader** (`firmware/kagel-lock-bootloader.s37`) that validates and flashes
   the new image on reboot.
 
-Zigbee2MQTT serves the image (the converter has `ota: true`); the client downloads it into the
+The legacy OTA documentation is reference-only; the client does not download images into the
 bootloader slot and reboots into it. A bad or interrupted image is rejected and the lock stays
 on its current firmware, so an update can't brick it. Wrap a compressed image into a `.ota` with
 `firmware/make-ota.js`. Full write-up — how it works end to end, the apply detail, and how to cut

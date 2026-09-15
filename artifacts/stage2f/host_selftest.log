@@ -1,0 +1,51 @@
+ok  : product-info checksum
+ok  : network query checksum
+ok  : configure checksum
+ok  : time-sync request checksum
+ok  : official record checksum
+ok  : uncertain DP49 sample expected checksum is 0x4D
+ok  : decode valid frame with exact length and checksum
+ok  : decoded frame fields
+ok  : reject corrupt checksum
+ok  : reject unsupported version
+ok  : reject truncated frame
+ok  : reject header length mismatch
+ok  : parse one DP unit
+ok  : DP1 enum value
+ok  : strict parser accepts two complete DP units
+ok  : strict parser rejects truncated DP unit
+ok  : DP24 official 21-byte create layout
+ok  : DP25 six-byte reference layout
+ok  : DP24 seven-byte result and SDK RAW wrapper
+ok  : DP48 key-set layout
+ok  : DP49 15-byte key unlock layout
+ok  : DP49 rejects incomplete raw value
+ok  : DP49 three-byte result layout
+ok  : DP54 seven-byte add request
+ok  : DP54 nine-byte add report
+ok  : DP55 eight-byte delete request
+ok  : DP55 nine-byte delete report
+ok  : TARGET_SRPTWVAK DP24 27-byte builder order
+ok  : official dynamic-password request
+ok  : dynamic-password rejects non-digit password
+ok  : dynamic-password rejects short request
+ok  : partial frame -> same-sequence network reply
+ok  : time-sync -> standard GMT and local timestamp
+ok  : 0x23 record uses fixed five-byte time prefix
+ok  : valid record gets transfer-success ACK
+ok  : valid DP report gets same-sequence ACK
+ok  : configure ACK preserves MCU sequence
+ok  : configure then sends online notification
+ok  : same-sequence 0x06/0x10 ACK is consumed silently
+ok  : 0x08 valid GMT plus seven-digit structure -> no-SecKey
+ok  : 0x08 short password structure -> length error
+ok  : bad checksum is dropped and following frame recovers
+ok  : byte-by-byte frame reassembly
+ok  : zero wake preamble does not create a phantom frame
+ok  : outbound DP sends three documented wake attempts
+ok  : wake attempt has seven-zero preamble and fixed sequence
+ok  : wake attempt has seven-zero preamble and fixed sequence
+ok  : wake attempt has seven-zero preamble and fixed sequence
+ok  : MCU wake ACK releases pending 0x04 command
+
+ALL PASS (0 failures)

@@ -1,0 +1,68 @@
+/* kagel_profile.h -- explicit build-time safety/profile selection. */
+#ifndef KAGEL_PROFILE_H
+#define KAGEL_PROFILE_H
+
+#include <stdint.h>
+
+/* The legacy/default profile remains full-control TYZS3 behavior. Select the
+ * TYZS5 first-hardware profile with:
+ *   -DKAGEL_PROFILE=KAGEL_PROFILE_TYZS5_SRPTWVAK
+ * KAGEL_TELEMETRY_ONLY=1 is accepted as an equivalent build flag. */
+#define KAGEL_PROFILE_TYZS3_FULL_CONTROL 0
+#define KAGEL_PROFILE_TYZS5_SRPTWVAK      1
+
+#if defined(KAGEL_REQUIRE_EXPLICIT_PROFILE) && KAGEL_REQUIRE_EXPLICIT_PROFILE \
+    && !defined(KAGEL_PROFILE)
+# error "This target requires an explicit KAGEL_PROFILE"
+#endif
+
+#if defined(KAGEL_REQUIRE_TYZS5_PROFILE) && KAGEL_REQUIRE_TYZS5_PROFILE
+# if !defined(KAGEL_PROFILE)
+#  error "This target requires KAGEL_PROFILE_TYZS5_SRPTWVAK"
+# elif KAGEL_PROFILE != KAGEL_PROFILE_TYZS5_SRPTWVAK
+#  error "This target only permits KAGEL_PROFILE_TYZS5_SRPTWVAK"
+# endif
+#endif
+
+#if !defined(KAGEL_PROFILE)
+# if defined(KAGEL_TELEMETRY_ONLY) && KAGEL_TELEMETRY_ONLY
+#  define KAGEL_PROFILE KAGEL_PROFILE_TYZS5_SRPTWVAK
+# else
+#  define KAGEL_PROFILE KAGEL_PROFILE_TYZS3_FULL_CONTROL
+# endif
+#endif
+
+#if KAGEL_PROFILE != KAGEL_PROFILE_TYZS3_FULL_CONTROL && \
+    KAGEL_PROFILE != KAGEL_PROFILE_TYZS5_SRPTWVAK
+# error "Unsupported KAGEL_PROFILE"
+#endif
+
+#if KAGEL_PROFILE == KAGEL_PROFILE_TYZS5_SRPTWVAK
+# if defined(KAGEL_TELEMETRY_ONLY) && !KAGEL_TELEMETRY_ONLY
+#  error "TYZS5 profile must be telemetry-only"
+# endif
+# if !defined(KAGEL_TELEMETRY_ONLY)
+#  define KAGEL_TELEMETRY_ONLY 1
+# endif
+#else
+# if defined(KAGEL_TELEMETRY_ONLY) && KAGEL_TELEMETRY_ONLY
+#  error "TYZS3 full-control profile cannot be telemetry-only"
+# endif
+# if !defined(KAGEL_TELEMETRY_ONLY)
+#  define KAGEL_TELEMETRY_ONLY 0
+# endif
+#endif
+
+#if KAGEL_PROFILE == KAGEL_PROFILE_TYZS5_SRPTWVAK
+# define KAGEL_BUILD_IDENTITY "KAGEL-TYZS5-SRPTWVAK-STAGE2G"
+#else
+# define KAGEL_BUILD_IDENTITY "KAGEL-TYZS3-FULL-CONTROL"
+#endif
+
+/* DP205 is a local module-OTA trigger, not lock-MCU telemetry. */
+static inline int kagel_profile_allows_module_ota_trigger(uint8_t dp_id)
+{
+    return !KAGEL_TELEMETRY_ONLY && dp_id == 205;
+}
+
+#endif /* KAGEL_PROFILE_H */

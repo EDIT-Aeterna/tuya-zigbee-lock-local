@@ -1,0 +1,42 @@
+PASS absent linked control/write entry: lock_app_ef00_rx
+PASS absent linked control/write entry: lock_app_zb_rx
+PASS absent linked control/write entry: lock_app_create_temp_pw
+PASS absent linked control/write entry: bootloader_writeStorage
+PASS absent linked control/write entry: bootloader_eraseStorageSlot
+PASS absent linked control/write entry: bootloader_setImageToBootload
+PASS absent linked control/write entry: bootloader_rebootAndInstall
+PASS live target entry: kagel_app_init
+PASS live target entry: kagel_app_tick
+PASS live target entry: USART0_RX_IRQHandler
+PASS live target entry: hal_zb_ef00_report
+PASS generated compiler profile and single frozen source path
+PASS frozen core unchanged: firmware/nicki_ek_lock_serial.c
+PASS frozen core unchanged: firmware/nicki_ek_lock_serial.h
+PASS frozen core unchanged: firmware/lock_app.c
+PASS frozen core unchanged: firmware/lock_app.h
+PASS all inbound control DPs (21/24/25/48/49/54/55) have no linked forwarding entry
+warning: in the working copy of 'docs/PORT_STATUS.md', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'firmware/efr32_app.c', LF will be replaced by CRLF the next time Git touches it
+## port/tyzs5-stage2br-telemetry
+ M docs/PORT_STATUS.md
+ M firmware/efr32_app.c
+?? artifacts/
+?? docs/PHASE2BR_DONOR_MERGE_REPORT.md
+?? docs/STAGE2BR_SOURCE_OWNERSHIP.md
+?? docs/STAGE2BR_TELEMETRY_MATRIX.md
+?? firmware/kagel_profile.h
+?? firmware/kagel_rx_timeout.h
+?? firmware/target_tyzs5_adapter.h
+?? studio/
+?? tests/stage2br_adapter_test.c
+?? tools/
+f01156f (HEAD -> port/tyzs5-stage2br-telemetry) Freeze reviewed Stage 1.1 protocol and evidence
+3822b19 (origin/main, port/tyzs5-lock, main) firmware 1.0.2: answer the MCU's queries, and count what we still cannot
+ea128f1 Add over-the-air update (OTA) support; drop vendor Tuya references
+4ce0757 firmware: advertise Basic powerSource = BATTERY
+9423882 firmware: radio-deaf self-heal — reboot out of wedges, never leave the network
+warning: in the working copy of 'docs/PORT_STATUS.md', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'firmware/efr32_app.c', LF will be replaced by CRLF the next time Git touches it
+ docs/PORT_STATUS.md  |  11 +++
+ firmware/efr32_app.c | 191 ++++++++++++++++++++++++++++++++++++++++++---------
+ 2 files changed, 168 insertions(+), 34 deletions(-)

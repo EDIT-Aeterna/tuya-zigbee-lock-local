@@ -1,0 +1,42 @@
+== Target golden UART frames ==
+PASS dp49_req_target_13b: seq=0x000A cmd=0x04 data_len=17 checksum=0x09
+PASS dp49_cmd_ack: seq=0x000A cmd=0x04 data_len=1 checksum=0x11
+PASS dp49_rsp_target_3b: seq=0x000A cmd=0x05 data_len=7 checksum=0x4D
+PASS dp49_rsp_ack: seq=0x000A cmd=0x05 data_len=1 checksum=0x22
+PASS dp54_password_start: seq=0x0010 cmd=0x04 data_len=11 checksum=0x4B
+PASS dp54_password_start_ack: seq=0x0010 cmd=0x04 data_len=1 checksum=0x17
+PASS dp54_report_start: seq=0x0011 cmd=0x05 data_len=13 checksum=0x7A
+PASS dp54_report_progress: seq=0x0013 cmd=0x05 data_len=13 checksum=0x78
+PASS dp54_report_complete: seq=0x0014 cmd=0x05 data_len=13 checksum=0x7C
+PASS time_sync_req: seq=0x0002 cmd=0x24 data_len=0 checksum=0x28
+PASS time_sync_rsp_utc8: seq=0x0002 cmd=0x24 data_len=8 checksum=0xC5
+PASS product_info_req: seq=0x0002 cmd=0x01 data_len=0 checksum=0x05
+PASS product_info_rsp_target: seq=0x3377 cmd=0x01 data_len=29 checksum=0xD0
+PASS net_notify: seq=0x0001 cmd=0x06 data_len=1 checksum=0x0B
+PASS net_notify_ack: seq=0x0001 cmd=0x06 data_len=1 checksum=0x1A
+PASS dp24_target_temp: seq=0x0015 cmd=0x04 data_len=31 checksum=0x89
+PASS dp24_target_periodic: seq=0x001C cmd=0x04 data_len=31 checksum=0x1A
+PASS dp24_target_one_time: seq=0x001F cmd=0x04 data_len=31 checksum=0xB9
+PASS normal_password_record: seq=0x0016 cmd=0x23 data_len=13 checksum=0x9B
+PASS card_record: seq=0x0022 cmd=0x23 data_len=13 checksum=0xB3
+
+== Target-specific assertions ==
+PASS target DP49 request: RAW length=13; trailing 2 bytes preserved as opaque target data
+PASS target DP49 response: RAW length=3, value=00 00 01
+PASS target DP54 password-start request: 01 00 01 0001 03E7
+PASS target DP54 reports: first field raw=03; stage sequence 00 -> FC -> FF; hardware ID=0010
+INFO do not relabel report byte[0]=03 as fingerprint for this target without further evidence
+PASS target time-sync: local-GMT=28800s = UTC+8
+PASS target product info: response seq=0x3377, PID=srptwvak, v=1.0.8, OTA flag=1
+INFO target 0x01 response does NOT echo request sequence 0x0002
+PASS target DP24 x3: RAW length=27 and order is end -> unknown6 -> one_time -> password
+INFO generic Tuya DP24 21-byte layout must remain a separate evidence profile
+PASS target normal-password and card unlock records are available; do not mark them capture-missing
+
+== Repository static audit ==
+PASS legacy +14400 production-provider pattern not found
+PASS/INFO tls_build_temp_pw does not match the known flag-before-extra6 bug pattern
+PASS inbound TLS_CMD_NET_NOTIFY handler exists
+PASS stale DP24 comment removed/updated
+
+AUDIT RESULT: 0 failure/blocker(s)

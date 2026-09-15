@@ -19,7 +19,11 @@
 #include "btl_interface.h"     /* OTA: Gecko bootloader storage-slot API */
 #include "sl_sleeptimer.h"
 #include "sl_power_manager.h"
+#include "kagel_profile.h"
+#include "kagel_rx_timeout.h"
 #include "lock_app.h"
+#include "kagel_control_gate.h"
+#include "target_tyzs5_adapter.h"
 #include <string.h>
 
 /* ---- Sleepy-end-device polling (leaf stack) -------------------------------
@@ -75,13 +79,27 @@ extern volatile uint8_t  g_dbg_done_beacons;  /* app.c: beacons heard in steer *
 static uint8_t     g_eui64[8];
 static lock_app_t  g_app;
 
+/* Retained build identity for SWD/map inspection of the selected profile. */
+#if defined(__GNUC__)
+const char g_kagel_build_identity[] __attribute__((used)) = KAGEL_BUILD_IDENTITY;
+#else
+const char g_kagel_build_identity[] = KAGEL_BUILD_IDENTITY;
+#endif
+volatile const char * volatile g_kagel_build_identity_ref;
+
 /* ---- USART RX ring (ISR-filled, drained in kagel_app_tick) ---- */
 static volatile uint8_t  rxbuf[256];
+static volatile uint32_t rx_tickbuf[256];
 static volatile uint16_t rx_head, rx_tail;
 
 /* Debug (SWD): is the module hearing the lock MCU over UART? */
 volatile uint32_t g_dbg_uart_rx_bytes;   /* raw bytes received on PA1 from the MCU */
+volatile uint32_t g_dbg_uart_rx_irqs;    /* USART0 RX IRQ entries */
 volatile uint8_t  g_dbg_uart_last_byte;
+volatile uint32_t g_dbg_uart_last_rx_tick;
+volatile uint8_t  g_dbg_uart_first_after_gpio_wake = 0xFF;
+volatile uint32_t g_dbg_uart_first_zero_after_gpio_wake;
+volatile uint32_t g_dbg_uart_first_55_after_gpio_wake;
 
 /* ── EM2 deep-sleep + hub-settable poll mode (EXPERIMENTAL — BENCH-VALIDATE first) ──
  * At EM1 (today's proven default) the CPU floor ~1-2mA dominates -> "months" battery.
@@ -95,10 +113,33 @@ volatile uint8_t  g_dbg_uart_last_byte;
  * revert to pure EM1 (today's behavior). The deaf-radio self-heal is the backstop. */
 #define KAGEL_EM2_DEEPSLEEP  1
 #define KAGEL_UART_QUIET_MS  400u          /* stay in EM1 this long after the last UART edge */
+#define KAGEL_UART_RX_INTERBYTE_TIMEOUT_MS 20u /* parser gap; separate from EM1 quiet time */
 static volatile uint32_t g_poll_long_ms = 2000;   /* hub-settable: perf 1000 / balanced 2000 / saver 6000 (must stay < coordinator indirect TTL ~7.68s) */
 volatile uint8_t  g_dbg_poll_mode = 1;            /* SWD: 0=perf 1=balanced 2=saver */
 volatile uint32_t g_dbg_gpio_wakes, g_dbg_em1_holds, g_dbg_em1_rels;
+volatile uint32_t g_dbg_uart_rx_timeouts;
+volatile uint32_t g_dbg_uart_valid_frames;
+volatile uint32_t g_dbg_uart_bad_checksum;
+volatile uint32_t g_dbg_uart_bad_version;
+volatile uint32_t g_dbg_uart_oversized_length;
+volatile uint32_t g_dbg_uart_parser_resets;
+volatile uint32_t g_dbg_uart_rx_ring_overruns;
+volatile uint32_t g_dbg_uart_wake_requests;
+volatile uint32_t g_dbg_uart_wake_acks;
+volatile uint32_t g_dbg_uart_network_status_queries;
+volatile uint32_t g_dbg_uart_network_status_query_responses;
+volatile uint32_t g_dbg_uart_module_wake_requests;
+volatile uint32_t g_dbg_uart_module_wake_acks;
+volatile uint32_t g_dbg_uart_module_wake_retries;
+volatile uint32_t g_dbg_uart_module_wake_failures;
+volatile uint32_t g_dbg_uart_record_ack_success;
+volatile uint32_t g_dbg_uart_record_ack_fail;
 static volatile uint32_t s_uart_active_tick;      /* sleeptimer tick of the last RX/TX/edge */
+static volatile uint8_t s_gpio_wake_first_byte_pending;
+static volatile uint8_t s_gpio_wake_first_nonzero_pending;
+static volatile uint8_t s_rx_ring_overflowed;
+static uint32_t s_parser_last_rx_tick;
+static uint8_t s_parser_have_rx_tick;
 static volatile uint8_t  s_em1_held = 0;          /* 1 = EM1 floor currently held; init em1_hold() adds it */
 #define LOCK_RX_INTMASK  (1u << LOCK_RX_PIN)
 
@@ -128,15 +169,42 @@ static inline void uart_touch(void) { s_uart_active_tick = sl_sleeptimer_get_tic
 void GPIO_ODD_IRQHandler(void) {
     GPIO_IntClear(GPIO_IntGet());
     g_dbg_gpio_wakes++;
+    s_gpio_wake_first_byte_pending = 1;
+    s_gpio_wake_first_nonzero_pending = 1;
     uart_touch();
 }
 
 void USART0_RX_IRQHandler(void) {
+    g_dbg_uart_rx_irqs++;
     while (LOCK_USART->STATUS & USART_STATUS_RXDATAV) {
         uint8_t b = (uint8_t)USART_Rx(LOCK_USART);
-        rxbuf[rx_head++ & 0xFF] = b;
+        uint32_t tick = sl_sleeptimer_get_tick_count();
+        uint16_t head = rx_head;
         g_dbg_uart_rx_bytes++;
         g_dbg_uart_last_byte = b;
+        g_dbg_uart_last_rx_tick = tick;
+        if (s_gpio_wake_first_byte_pending) {
+            s_gpio_wake_first_byte_pending = 0;
+            g_dbg_uart_first_after_gpio_wake = b;
+            if (b == 0x00) g_dbg_uart_first_zero_after_gpio_wake++;
+        }
+        if (s_gpio_wake_first_nonzero_pending && b != 0x00) {
+            s_gpio_wake_first_nonzero_pending = 0;
+            if (b == TLS_HDR0) g_dbg_uart_first_55_after_gpio_wake++;
+        }
+        if ((uint16_t)(head - rx_tail) >= (uint16_t)sizeof rxbuf) {
+            /* Preserve unread bytes. The main loop will discard the queued
+             * partial stream and reset only the parser before resuming. */
+            g_dbg_uart_rx_ring_overruns++;
+            s_rx_ring_overflowed = 1;
+            continue;
+        }
+        {
+            uint16_t slot = (uint16_t)(head & 0xFFu);
+            rxbuf[slot] = b;
+            rx_tickbuf[slot] = tick;
+            rx_head = (uint16_t)(head + 1u);
+        }
     }
     s_uart_active_tick = sl_sleeptimer_get_tick_count();   /* hold EM1 while a frame flows */
     USART_IntClear(LOCK_USART, USART_IF_RXDATAV);
@@ -173,6 +241,46 @@ static void hal_uart_write(const uint8_t *buf, size_t n, void *u) {
     for (size_t i = 0; i < n; i++) USART_Tx(LOCK_USART, buf[i]);
 }
 
+/* Parser timeout is deliberately separate from s_uart_active_tick: the latter
+ * controls the EM1 quiet period, while this state only follows parser input. */
+static uint32_t rx_interbyte_timeout_ticks(void) {
+    uint32_t ticks = sl_sleeptimer_ms_to_tick(KAGEL_UART_RX_INTERBYTE_TIMEOUT_MS);
+    return ticks ? ticks : 1u;
+}
+
+static void serial_rx_timeout_if_due(uint32_t now_tick) {
+    if (g_app.tls.rx_len == 0 || !s_parser_have_rx_tick) return;
+    if (!kagel_rx_timeout_due(now_tick, s_parser_last_rx_tick,
+                              rx_interbyte_timeout_ticks())) return;
+    target_tyzs5_rx_timeout(&g_app.tls);
+    g_dbg_uart_rx_timeouts++;
+    g_dbg_uart_parser_resets++;
+    s_parser_have_rx_tick = 0;
+}
+
+static void serial_rx_feed_byte(uint8_t b, uint32_t tick) {
+    serial_rx_timeout_if_due(tick);
+    lock_app_uart_rx(&g_app, &b, 1);
+    s_parser_last_rx_tick = tick;
+    s_parser_have_rx_tick = 1;
+}
+
+static void serial_rx_timeout_idle_check(void) {
+    serial_rx_timeout_if_due(sl_sleeptimer_get_tick_count());
+}
+
+static void serial_rx_ring_recover_if_needed(void) {
+    CORE_DECLARE_IRQ_STATE;
+    if (!s_rx_ring_overflowed) return;
+    CORE_ENTER_ATOMIC();
+    rx_tail = rx_head;
+    s_rx_ring_overflowed = 0;
+    CORE_EXIT_ATOMIC();
+    target_tyzs5_rx_timeout(&g_app.tls);
+    g_dbg_uart_parser_resets++;
+    s_parser_have_rx_tick = 0;
+}
+
 /* Time: seeded from the coordinator's genTime, free-runs on sleeptimer. */
 static uint32_t g_gmt_base, g_gmt_base_tick;
 /* Debug (SWD): what we SERVE the MCU on 0x24, and how often it asks. */
@@ -199,7 +307,9 @@ void app_set_gmt(uint32_t gmt) {
  * ONLY from our 0x24 replies. Until this landed the module answered 0x24 with 0
  * (1970) -> every time-bounded feature failed. We read genTime from the
  * coordinator after join and feed it to the MCU. */
+#ifndef ZCL_TIME_CLUSTER_ID
 #define ZCL_TIME_CLUSTER_ID   0x000A
+#endif
 #define ZCL_TIME_ATTR_TIME    0x0000     /* UTCTime, secs since 2000-01-01 */
 #define ZIGBEE_TO_UNIX_EPOCH  946684800u /* 2000-01-01 -> 1970-01-01 in secs  */
 
@@ -263,9 +373,7 @@ static void hal_zb_ef00_report(uint8_t dp_id, uint8_t type, const uint8_t *val,
       g_dbg_last_dp_val = v; }
     uint8_t p[6 + 256];
     if (len > 256) return;
-    p[0] = 0x00; p[1] = g_transid++; p[2] = dp_id; p[3] = type;
-    p[4] = (uint8_t)(len >> 8); p[5] = (uint8_t)len;
-    if (len) memcpy(&p[6], val, len);
+    if (!kagel_ef00_encode_dp(p, sizeof p, g_transid++, dp_id, type, val, len)) return;
     send_cluster(KAGEL_CLUSTER_EF00, 0x01 /* dataReport */, p, (uint16_t)(6 + len));
 }
 
@@ -292,6 +400,7 @@ volatile uint32_t g_dbg_unhandled;  /* commands still without an answer         
 volatile uint8_t  g_dbg_unhandled_cmd; /* the newest of them                    */
 static void hal_on_frame(uint8_t cmd, const uint8_t *data, uint16_t dlen, void *u) {
     (void)data; (void)dlen; (void)u;
+    g_dbg_uart_valid_frames++;
     g_dbg_cmd_ring[g_dbg_cmd_idx & 15] = cmd;
     g_dbg_cmd_idx++;
     g_dbg_last_cmd = cmd;
@@ -304,6 +413,7 @@ static void hal_on_frame(uint8_t cmd, const uint8_t *data, uint16_t dlen, void *
     else if (cmd == 0x20) g_dbg_cmd20++;
     else if (cmd == 0x25) g_dbg_cmd25++;
 }
+/* Donor diagnostic-only callbacks are not part of the frozen HAL API. */
 static void hal_on_unhandled(uint8_t cmd, void *u) {
     (void)u;
     g_dbg_unhandled++;
@@ -347,10 +457,10 @@ static void report_serial_stats(void) {
  * main-loop tick, not this serial-callback context. */
 volatile uint32_t g_dbg_config_reqs;
 volatile uint32_t g_dbg_pair_leaves;      /* # of user-pair leaves honored (SWD) */
-volatile uint32_t g_dbg_pair_press;       /* # of pair-ceremony frames (sub 0x01/0x02) */
+volatile uint32_t g_dbg_pair_press;       /* # of reset/pair ceremony frames (sub 0x00..0x02) */
 volatile uint8_t  g_pairing;              /* forces OFFLINE to the MCU during a re-pair */
 volatile uint8_t  g_pair_left;            /* the pairing leave has actually happened */
-static volatile uint8_t g_do_leave_pair;  /* set by 0x03 sub=0x01, acted in tick */
+static volatile uint8_t g_do_leave_pair;  /* set by 0x03 sub=0x00/0x01, acted in tick */
 static uint32_t         g_last_pair_leave;
 extern volatile uint8_t g_link_ok;        /* confirmed contact this session (app.c) */
 
@@ -413,32 +523,13 @@ void kagel_pair_window_close(void) {
 static void hal_on_config(uint8_t sub, void *u) {
     (void)u;
     g_dbg_config_reqs++;
-    /* GROUND TRUTH (dual-line capture 2026-07-16). A press is a two-frame ceremony,
-     * MCU->module:  sub=0x02 (reset notify)  THEN  sub=0x01 (start pairing).
-     * 0x03 appears ONLY at a press -- never spuriously, never at rest.
-     * sub=0x00 is NOT a press: it is OUR OWN ack (nicki_ek_lock_serial.c sends cmd 0x03
-     * payload ok=0x00 module->MCU). The old "sub=0x00 = press" note read that ack off
-     * the wrong line, so this hook never fired at all.
-     *
-     * REPORT vs LEAVE are deliberately separated -- conflating them caused BOTH of the
-     * symptoms seen on 2026-07-16:
-     *  - REPORT offline on the WHOLE ceremony (0x02 and 0x01). 0x02 lands FIRST, and
-     *    answering it with the stale online is the instant false "pairing successful";
-     *    keying on 0x01 alone was one frame too late.
-     *  - LEAVE only on 0x01, so a reset-notify alone can't drop a healthy network
-     *    (the 3a8bbe8 self-pairing regression came from leaving on every 0x03).
-     * The debounce must NOT gate g_pairing: a user pressing pair twice in quick
-     * succession previously got no OFFLINE at all, so the MCU timed out -> "pairing
-     * failed" while the module rejoined behind its back. It is now 3s -- just enough
-     * to coalesce duplicate 0x01s inside ONE ceremony, never long enough to swallow a
-     * second deliberate press (a 20s debounce did exactly that). EVERY genuine press
-     * must leave: skipping the leave while still joined let the tick clear g_pairing
-     * on the next pass -> instant ONLINE -> the false ack all over again.
-     * Boot-settle (>10s) keeps a power-on config from self-pairing. */
-    if (sub != 0x01 && sub != 0x02) return;
+    /* The MCU sends 0x00 for local delete/reset, 0x01 to start pairing, and
+     * 0x02 as a factory-reset notification. All three are valid inbound
+     * notifications; only 0x00 and 0x01 request a network leave. */
+    if (sub != 0x00 && sub != 0x01 && sub != 0x02) return;
     g_dbg_pair_press++;
     uint32_t now = now_s();
-    if (now < 10) return;                                   /* ignore boot-time config */
+    if (now < 10 && sub != 0x00) return;                    /* no boot-time pairing */
     if (sub == 0x01) pair_window_open();  /* §6.4: 0x01 = start network configuration */
     g_pairing = 1;                       /* every ceremony frame -> answer OFFLINE */
     /* Contact is no longer "confirmed" for THIS ceremony: drop g_link_ok so the tick's
@@ -447,7 +538,7 @@ static void hal_on_config(uint8_t sub, void *u) {
      * same tick and the latch is wiped a millisecond after we set it. */
     g_link_ok = 0;
     g_pair_left = 0;
-    if (sub != 0x01) return;             /* reset-notify: report only, never leave */
+    if (sub == 0x02) return;             /* reset-notify: report only, never leave */
     if (g_last_pair_leave && (now - g_last_pair_leave) < 3) return;  /* coalesce dupes */
     g_last_pair_leave = now;
     g_do_leave_pair = 1;
@@ -492,7 +583,11 @@ static int hal_is_joined(void *u) {
 volatile uint32_t g_dbg_fc00_rx;
 void app_zb_fc00_rx(uint8_t cmd, const uint8_t *payload, uint16_t len) {
     g_dbg_fc00_rx++;
+#if KAGEL_TELEMETRY_ONLY
+    (void)cmd; (void)payload; (void)len;
+#else
     lock_app_zb_rx(&g_app, (lock_msg_t)cmd, payload, len);
+#endif
 }
 
 void ota_client_start(void);   /* OTA (below): hub-triggered image check via EF00 DP205 */
@@ -501,6 +596,9 @@ void ota_client_start(void);   /* OTA (below): hub-triggered image check via EF0
 volatile uint32_t g_dbg_ef00_rx;   /* debug (SWD): incoming remote-DP commands */
 void app_zb_ef00_rx(uint8_t cmd, const uint8_t *payload, uint16_t len) {
     g_dbg_ef00_rx++;
+#if KAGEL_TELEMETRY_ONLY && !KAGEL_CONTROL_STAGE2G
+    (void)cmd; (void)payload; (void)len;
+#else
     /* Power/latency mode (local DP 202, NOT forwarded to the MCU): value 0/1/2 =
      * performance / balanced / battery-saver -> long-poll cadence. The leaf stack's EM2
      * dwell between polls is what makes this a real battery difference (not just latency).
@@ -510,7 +608,7 @@ void app_zb_ef00_rx(uint8_t cmd, const uint8_t *payload, uint16_t len) {
         while (rem >= 4) {
             uint8_t dp = p[0]; uint32_t vl = ((uint32_t)p[2] << 8) | p[3];
             if (4 + vl > rem) break;
-            if (dp == 205) {                         /* hub OTA-check trigger (local, not forwarded to MCU) */
+            if (kagel_profile_allows_module_ota_trigger(dp)) { /* local OTA trigger */
                 ota_client_start();
             }
             if (dp == 202 && vl >= 1) {
@@ -530,8 +628,10 @@ void app_zb_ef00_rx(uint8_t cmd, const uint8_t *payload, uint16_t len) {
         }
     }
     lock_app_ef00_rx(&g_app, cmd, payload, len);
+#endif
 }
 
+#if !KAGEL_TELEMETRY_ONLY && !KAGEL_CONTROL_STAGE2G
 /* ============================ OTA client (ZCL cluster 0x0019) ============================
  * Hand-rolled Zigbee OTA Upgrade CLIENT — the zigbee_ota_client component needs a Studio
  * regen (unavailable), so we speak the cluster directly, same as our EF00/FC00 handlers.
@@ -738,6 +838,21 @@ static void ota_client_tick(void) {
         g_dbg_ota_err++; g_ota_state = OTA_IDLE;             /* stuck -> give up */
     }
 }
+#else
+/* The telemetry-only image has no module-OTA client or flash-write path. */
+#define OTA_SLOT 0                         /* retained for the read-only slot query at init */
+volatile uint8_t  g_dbg_ota_state;
+volatile uint32_t g_dbg_ota_offset, g_dbg_ota_size, g_dbg_ota_blocks, g_dbg_ota_err;
+volatile uint32_t g_dbg_ota_gblstart;
+volatile uint32_t g_dbg_slot_addr, g_dbg_slot_size, g_dbg_slot_rc = 0xEE;
+
+int ota_active(void) { return 0; }
+void ota_client_start(void) { }
+void app_zb_ota_rx(uint8_t cmd, const uint8_t *p, uint16_t len) {
+    (void)cmd; (void)p; (void)len;
+}
+static void ota_client_tick(void) { }
+#endif
 
 /* ============================ lifecycle ============================ */
 
@@ -784,6 +899,9 @@ static void join_wake_cb(sl_sleeptimer_timer_handle_t *h, void *d) {
 }
 
 void kagel_app_init(void) {
+    /* Keep the selected profile identity reachable in the final ELF/map. */
+    g_kagel_build_identity_ref = g_kagel_build_identity;
+
     /* Start holding the EM1 floor (USART always clocked). The tick releases it to EM2
      * once settled-joined + idle (see the EM2 note up top); at KAGEL_EM2_DEEPSLEEP 0 it
      * is never released -> pure EM1 = today's proven behavior. */
@@ -797,8 +915,8 @@ void kagel_app_init(void) {
     /* Force-serve the Basic identity so z2m's interview always reads it (the ZAP
      * RAM defaults read back empty). ZCL char strings are length-prefixed;
      * cluster 0x0000 Basic, attr 0x0004 mfrName / 0x0005 modelId, type 0x42 string. */
-    static const uint8_t s_mfg[]   = {13,'S','m','a','r','t','H','o','m','e','P','l','u','s'};
-    static const uint8_t s_model[] = {9,'L','C','K','-','B','I','4','0','0'};
+    static const uint8_t s_mfg[]   = {4,'T','u','y','a'};
+    static const uint8_t s_model[] = {12,'T','Y','0','A','0','1','-','T','Y','Z','S','5'};
     g_dbg_mfg_wr   = (uint8_t)emberAfWriteServerAttribute(KAGEL_ENDPOINT, 0x0000, 0x0004, (uint8_t *)s_mfg,   0x42);
     g_dbg_model_wr = (uint8_t)emberAfWriteServerAttribute(KAGEL_ENDPOINT, 0x0000, 0x0005, (uint8_t *)s_model, 0x42);
     /* Basic attr 0x0007 powerSource = BATTERY (0x03, enum8). ZAP default is 0x00
@@ -1042,8 +1160,14 @@ void kagel_app_tick(void) {
 
     }
 
+    serial_rx_ring_recover_if_needed();
     while (rx_tail != rx_head) {
-        uint8_t b = rxbuf[rx_tail++ & 0xFF];
-        lock_app_uart_rx(&g_app, &b, 1);
+        uint16_t tail = rx_tail;
+        uint16_t slot = (uint16_t)(tail & 0xFFu);
+        uint8_t b = rxbuf[slot];
+        uint32_t tick = rx_tickbuf[slot];
+        rx_tail = (uint16_t)(tail + 1u);
+        serial_rx_feed_byte(b, tick);
     }
+    serial_rx_timeout_idle_check();
 }

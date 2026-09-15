@@ -1,0 +1,21 @@
+
+== Required TARGET_SRPTWVAK corpus ==
+PASS cold_boot_product_info_request: tests\fixtures\target_srptwvak\cold_boot\product_info.json
+PASS cold_boot_product_info_response: tests\fixtures\target_srptwvak\cold_boot\product_info_response.json
+PASS cold_boot_net_notify: tests\fixtures\target_srptwvak\cold_boot\net_notify.json
+PASS cold_boot_net_notify_ack: tests\fixtures\target_srptwvak\cold_boot\net_notify_ack.json
+PASS time_sync_request: tests\fixtures\target_srptwvak\time_sync\exchange.json
+PASS time_sync_response_utc8: tests\fixtures\target_srptwvak\time_sync\response_utc8.json
+PASS dp54_password_start: tests\fixtures\target_srptwvak\credential_add_password\dp54_sequence.json
+PASS dp54_report_start: tests\fixtures\target_srptwvak\credential_add_password\report_start.json
+PASS dp54_report_progress: tests\fixtures\target_srptwvak\credential_add_password\report_progress.json
+PASS dp54_report_complete: tests\fixtures\target_srptwvak\credential_add_password\report_complete.json
+PASS dp49_request: tests\fixtures\target_srptwvak\remote_unlock\dp49_request.json
+PASS dp49_response: tests\fixtures\target_srptwvak\remote_unlock\dp49_response.json
+PASS normal_password_record: tests\fixtures\target_srptwvak\normal_password_unlock\record.json
+PASS card_record: tests\fixtures\target_srptwvak\card_unlock\record.json
+PASS dp24_temp: tests\fixtures\target_srptwvak\temporary_password\dp24_golden_values.json
+PASS dp24_periodic: tests\fixtures\target_srptwvak\temporary_password\dp24_periodic.json
+PASS dp24_one_time: tests\fixtures\target_srptwvak\temporary_password\dp24_one_time.json
+
+AUDIT RESULT: 0 fixture-corpus failure(s)

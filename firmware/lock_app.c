@@ -1,5 +1,6 @@
 /* lock_app.c -- see lock_app.h. Portable, no hardware/SDK deps. */
 #include "lock_app.h"
+#include "kagel_control_gate.h"
 #include <string.h>
 
 /* The nicki_ek serial core's uart_write/on_dp_report callbacks carry no user
@@ -66,29 +67,30 @@ static bool core_is_online(void *user) {
  * top of the auth gate: even an authed hub session can't poke arbitrary DPs. */
 static const struct { uint8_t id, type; } DP_WRITABLE[] = {
     {21, TLS_DP_RAW},    /* remote_unlock: 6-digit ASCII password            */
-    {23, TLS_DP_BOOL},   /* remote_unlock_switch                             */
     {24, TLS_DP_RAW},    /* password_creat                                   */
     {25, TLS_DP_RAW},    /* password_delete                                  */
     {26, TLS_DP_RAW},    /* password_update                                  */
     {27, TLS_DP_RAW},    /* password_disable (freeze)                        */
     {28, TLS_DP_RAW},    /* password_enable (unfreeze)                       */
-    {39, TLS_DP_RAW},    /* password_reset (clear temp passwords)            */
     {48, TLS_DP_RAW},    /* remote_no_pd_setkey                              */
     {49, TLS_DP_RAW},    /* remote_no_dp_key (password-free remote unlock)   */
     {54, TLS_DP_RAW},    /* unlock_method_create                             */
     {55, TLS_DP_RAW},    /* unlock_method_delete                             */
-    {58, TLS_DP_RAW},    /* update_all_finger                                */
-    {59, TLS_DP_RAW},    /* update_all_password                              */
-    {60, TLS_DP_RAW},    /* update_all_card                                  */
-    {68, TLS_DP_RAW},    /* unlock_offline_pd                                */
-    {69, TLS_DP_RAW},    /* unlock_offline_clear                             */
-    {70, TLS_DP_RAW},    /* unlock_offline_clear_single                      */
-    {93, TLS_DP_RAW},    /* update_all_face                                  */
 };
 
 static int dp_write_allowed(uint8_t dp, uint8_t type) {
     for (size_t i = 0; i < sizeof DP_WRITABLE / sizeof DP_WRITABLE[0]; i++)
         if (DP_WRITABLE[i].id == dp) return DP_WRITABLE[i].type == type;
+    return 0;
+}
+static int validate_control_dp(uint8_t dp, uint8_t type, const uint8_t *v, size_t n) {
+    if (type != TLS_DP_RAW || !kagel_control_dp_allowed(dp)) return 0;
+    if (dp == 21u) return kagel_validate_dp21(v,n);
+    if (dp == 48u) return kagel_validate_dp48(v,n);
+    if (dp == 49u) return kagel_validate_dp49(v,n);
+    if (dp == 54u) return kagel_validate_dp54(v,n);
+    if (dp == 55u) return kagel_validate_dp55(v,n);
+    if (dp >= 24u && dp <= 28u) return kagel_validate_temp_password_dp(dp,v,n);
     return 0;
 }
 
@@ -151,8 +153,7 @@ void lock_app_zb_rx(lock_app_t *a, lock_msg_t type, const uint8_t *buf, size_t l
         if (len < 4) return;
         uint8_t dp_id = buf[0], t = buf[1];
         uint16_t vlen = (uint16_t)((buf[2] << 8) | buf[3]);
-        if (4 + (size_t)vlen > len) return;
-        if (!dp_write_allowed(dp_id, t)) return;          /* per-PID DP table */
+        if (4 + (size_t)vlen != len || !validate_control_dp(dp_id,t,buf+4,vlen)) return;
         tls_send_dp(&a->tls, dp_id, (tls_dp_type_t)t, buf + 4, vlen);
         break;
     }
@@ -184,18 +185,19 @@ void lock_app_ef00_rx(lock_app_t *a, uint8_t cmd, const uint8_t *buf, size_t len
     if (cmd != 0x00 && cmd != 0x04) return;
     if (!core_is_online(a)) return;
     if (len < 2) return;
-    const uint8_t *p = buf + 2;                 /* skip seq(2) */
+    /* Phase 1: validate the complete EF00 envelope without touching UART state.
+     * Stage 2D-R accepts exactly one DP unit; a valid prefix cannot authorize a
+     * send when a trailing unit is truncated, forbidden, or otherwise malformed. */
+    const uint8_t *p = buf + 2;
     size_t rem = len - 2;
-    while (rem >= 4) {
-        uint8_t dp = p[0], type = p[1];
-        uint16_t vlen = (uint16_t)((p[2] << 8) | p[3]);
-        if ((size_t)4 + vlen > rem) break;
-        if (dp == 200)                                    /* 200 = hub "push time" trigger, not a real lock DP */
-            lock_app_resync_time(a);                      /* bounce net-status -> MCU re-requests + re-adopts time now */
-        else if (dp_write_allowed(dp, type))              /* per-PID DP table */
-            tls_send_dp(&a->tls, dp, (tls_dp_type_t)type, p + 4, vlen);
-        p += 4 + vlen; rem -= 4 + vlen;
-    }
+    if (rem < 4) return;
+    uint8_t dp = p[0], type = p[1];
+    uint16_t vlen = (uint16_t)((p[2] << 8) | p[3]);
+    if ((size_t)4 + vlen != rem) return;
+    if (!validate_control_dp(dp, type, p + 4, vlen)) return;
+
+    /* Phase 2: exactly one fully validated application command. */
+    tls_send_dp(&a->tls, dp, TLS_DP_RAW, p + 4, vlen);
 }
 
 int lock_app_create_temp_pw(lock_app_t *a, uint16_t pw_id, uint32_t valid_from,

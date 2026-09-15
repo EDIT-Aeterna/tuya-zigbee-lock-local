@@ -25,10 +25,10 @@ A successful halt plus a sane vector table (stack pointer in `0x2000xxxx`, reset
 ## Flash
 
 ```bash
-pyocd flash -t efr32mg13p732f512gm48 -f 1000000 --erase chip kagel-lock.hex
+pyocd flash -t efr32mg13p732f512gm48 -f 1000000 studio/tyzs5-telemetry/build/debug/kagel_tyzs5_srptwvak_clean.hex
 ```
 
-`--erase chip` wipes the whole part first (this clears any debug lock and any stale pairing state),
+The canonical image is the Stage 2G Studio build; preserve existing device state unless a separate recovery procedure is explicitly required.
 then programs and verifies the image.
 
 ## Verify and reset
