@@ -1,6 +1,6 @@
 # TYZS5 Zigbee2MQTT installation
 
-Use only `zigbee2mqtt/TYZS5/tuya_ty0a01_tyzs5.js`, reviewer Stable v1.2.1 candidate. It matches only `Tuya / TY0A01-TYZS5`. The legacy SmartHomePlus/LCK-BI400 definition is not a compatibility fallback.
+Use only `zigbee2mqtt/TYZS5/tuya_ty0a01_tyzs5.js`, the Stable v1.2.1 production converter. It matches only `Tuya / TY0A01-TYZS5`. The legacy SmartHomePlus/LCK-BI400 definition is not a compatibility fallback.
 
 1. Back up your Zigbee2MQTT configuration and current converter.
 2. Remove the previous lock definition from the active external converters directory/registration. Do not load both old and new definitions.
@@ -28,4 +28,4 @@ An exposed optional control that produces no MCU response can indicate that the 
 
 Writable: 21,24,25,26,27,28,48,49,54,55,202. DP58/59/60 remain read-only decoded telemetry. DP39, DP68/69/70, DP205/OTA are not writable. FC00 claim/auth, auth DPs 226/227/230 and DP200 writer have been removed.
 
-No firmware rebuild, firmware flash, automatic lock operations or HA configuration changes are part of this integration. Maintainer acceptance must cover interview/rejoin, telemetry/action IDs, DP21, DP48/49, temporary-password operations, DP54/55 enrollment/delete, DP58/59/60 lists, DP202, and restart/state restoration. Candidate device regression has not been performed here.
+No firmware rebuild, firmware flash, automatic lock operations or HA configuration changes are part of this integration. Maintainer real-device regression has passed on the validated TYZS5 target. Optional lock-dependent capabilities such as alarm reporting and DP202 must only be tested where the lock MCU implements them. Lack of DP202 response on a lock that does not support that feature is not a regression.

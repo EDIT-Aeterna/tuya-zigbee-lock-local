@@ -10,7 +10,7 @@ First public TZLL TYZS5 release with validated firmware, production converter v1
 - Alarm and DP202 power/work-mode controls are optional and are not guaranteed on all supported locks.
 - This documents observed compatibility differences, not a firmware regression; executable behavior is unchanged.
 
-## Stable converter v1.2.1 candidate integration
+## Stable converter v1.2.1 integration
 
 - Add reviewer candidate unchanged as `zigbee2mqtt/TYZS5/tuya_ty0a01_tyzs5.js`.
 - Restrict fingerprint to Tuya / TY0A01-TYZS5.

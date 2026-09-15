@@ -4,7 +4,7 @@ Local firmware and Zigbee2MQTT integration for the verified TYZS5 / EFR32MG13P73
 
 ## Production converter
 
-Use [tuya_ty0a01_tyzs5.js](zigbee2mqtt/TYZS5/tuya_ty0a01_tyzs5.js), the reviewer-supplied Stable v1.2.1 candidate, integrated without payload changes. It fingerprints only manufacturer `Tuya`, model `TY0A01-TYZS5`. This integration has static validation; candidate real-device regression is still required.
+Use [tuya_ty0a01_tyzs5.js](zigbee2mqtt/TYZS5/tuya_ty0a01_tyzs5.js), the Stable v1.2.1 production converter. It fingerprints only manufacturer `Tuya`, model `TY0A01-TYZS5`. Static validation and real-device regression have passed on the validated TYZS5 target. Tuya Cloud and Tuya App compatibility are intentionally not retained.
 
 Read the [installation guide](docs/zigbee2mqtt-guide.md). Do not install the [legacy converter](zigbee2mqtt/TYZS5/legacy/README.md) alongside it.
 
