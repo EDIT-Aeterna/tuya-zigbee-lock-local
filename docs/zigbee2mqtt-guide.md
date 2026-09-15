@@ -20,6 +20,12 @@ Current official examples use ESM/.mjs. This integration deliberately preserves 
 
 ## Policy and acceptance
 
+### Lock-dependent datapoints
+
+TZLL uses a common converter for the validated TYZS5 integration, but the lock MCU behind the Zigbee module may implement only a subset of optional datapoints. Alarm reporting and power/work-mode control (DP202) are lock-dependent, not guaranteed module capabilities.
+
+An exposed optional control that produces no MCU response can indicate that the lock model does not implement that feature; it is not necessarily a Zigbee failure. Do not repeatedly retry unsupported commands. Record actual observations in the [compatibility matrix](supported-locks.md). The converter's existing alarm and DP202 handling is unchanged.
+
 Writable: 21,24,25,26,27,28,48,49,54,55,202. DP58/59/60 remain read-only decoded telemetry. DP39, DP68/69/70, DP205/OTA are not writable. FC00 claim/auth, auth DPs 226/227/230 and DP200 writer have been removed.
 
 No firmware rebuild, firmware flash, automatic lock operations or HA configuration changes are part of this integration. Maintainer acceptance must cover interview/rejoin, telemetry/action IDs, DP21, DP48/49, temporary-password operations, DP54/55 enrollment/delete, DP58/59/60 lists, DP202, and restart/state restoration. Candidate device regression has not been performed here.

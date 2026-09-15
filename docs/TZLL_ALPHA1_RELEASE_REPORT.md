@@ -1,5 +1,17 @@
 # TZLL v1.0.0-alpha.1 release preparation report
 
+## Optional-capabilities addendum
+
+Alarm reporting and power/work-mode control (DP202) are optional lock-MCU capabilities. The writable-DP list below describes converter handling, not guaranteed support by every lock. Sample A and Sample B both have working basic integration and no DP202 response; alarm is absent in A and available in B. Brand/model/module remain unknown; other feature results remain unknown.
+
+README, release notes, HA/Z2M guidance and CHANGELOG now describe this variance. The supported-locks matrix preserves only supplied evidence; the supplied compatibility-report template is included. Passive capability discovery/per-model profiles are recorded in docs/ROADMAP.md as future work only.
+
+This addendum changes documentation/release packaging only. Firmware and converter are neither rebuilt nor modified. Updated staging and ZIP include corrected release notes and refreshed checksums. No hardware actions, tag or GitHub Release are performed.
+
+Status: Ready for maintainer review.
+
+## Original release preparation
+
 The release staging directory contains only firmware HEX, production converter, SHA256SUMS.txt and RELEASE_NOTES.md. IDE/dependency files, bootloader/OTA artifacts, legacy converter, logs and absolute paths are excluded.
 
 Firmware canonical path: `studio/tyzs5-telemetry/build/debug/kagel_tyzs5_srptwvak_clean.hex`; Generate + Clean + Build using the original script passed. SHA-256: `9CE1FED4754CABA18DC8EA3FFBD3BC7E2BCA462C5A73F3214A6EA1678E73A6B6`.

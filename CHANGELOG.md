@@ -4,6 +4,12 @@
 
 First public TZLL TYZS5 release with validated firmware, production converter v1.2.1 and local Home Assistant/Zigbee2MQTT integration. Canonical identity is `Tuya / TY0A01-TYZS5`. DP39, DP68/69/70 and OTA remain disabled; TYZS3 is not included. Licensing of upstream-derived code is still being clarified.
 
+### Compatibility
+
+- Lock-MCU feature availability varies by lock model even when the Zigbee module is compatible.
+- Alarm and DP202 power/work-mode controls are optional and are not guaranteed on all supported locks.
+- This documents observed compatibility differences, not a firmware regression; executable behavior is unchanged.
+
 ## Stable converter v1.2.1 candidate integration
 
 - Add reviewer candidate unchanged as `zigbee2mqtt/TYZS5/tuya_ty0a01_tyzs5.js`.

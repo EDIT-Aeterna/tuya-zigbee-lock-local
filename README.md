@@ -8,7 +8,11 @@ Use [tuya_ty0a01_tyzs5.js](zigbee2mqtt/TYZS5/tuya_ty0a01_tyzs5.js), the reviewer
 
 Read the [installation guide](docs/zigbee2mqtt-guide.md). Do not install the [legacy converter](zigbee2mqtt/TYZS5/legacy/README.md) alongside it.
 
-Structured control DPs: 21,24,25,26,27,28,48,49,54,55; DP202 is module-local power mode. DP58/59/60 are decoded read-only telemetry. DP39, DP68/69/70 and DP205/OTA are disabled. FC00 claim/auth, legacy auth DPs 226/227/230 and the stale DP200 writer are absent from the production definition.
+The validated integration supports local pairing, Home Assistant integration and structured control DPs 21,24,25,26,27,28,48,49,54,55. Battery, unlock events and DP58/59/60 read-only telemetry depend on reports provided by the lock MCU.
+
+> A matching TYZS5/TYZS3 module does not guarantee identical lock features. Alarm reporting and power/work-mode control (DP202) are optional features implemented by the lock MCU and can vary by brand/model. TYZS3 remains planned, not included in this release.
+
+See the [tested capability matrix](docs/supported-locks.md). DP39, DP68/69/70 and DP205/OTA are disabled. FC00 claim/auth, legacy auth DPs 226/227/230 and the stale DP200 writer are absent from the production definition.
 
 ## Firmware
 
