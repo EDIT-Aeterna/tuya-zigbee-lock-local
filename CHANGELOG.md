@@ -2,7 +2,7 @@
 
 ## [1.0.0-alpha.1] - 2026-09-15
 
-First public TZLL TYZS5 release with validated firmware, production converter v1.2.1 and local Home Assistant/Zigbee2MQTT integration. Canonical identity is `Tuya / TY0A01-TYZS5`. DP39, DP68/69/70 and OTA remain disabled; TYZS3 is not included. Licensing of upstream-derived code is still being clarified.
+First public TZLL TYZS5 release with validated firmware, production converter v1.2.1 and local Home Assistant/Zigbee2MQTT integration. Stable v1.2.1 real-device regression passed for the tested TYZS5 target. Canonical identity is `Tuya / TY0A01-TYZS5`. DP39, DP68/69/70 and OTA remain disabled; TYZS3 is not included. Licensing of upstream-derived code is still being clarified.
 
 ### Compatibility
 
@@ -17,7 +17,7 @@ First public TZLL TYZS5 release with validated firmware, production converter v1
 - Use reviewer's removal of FC00 claim/auth, auth mappings 226/227/230 and stale DP200 writer.
 - Preserve structured DP21,24-28,48/49,54/55,202 behavior; DP58/59/60 remain read-only; DP39,68-70,205/OTA remain disabled.
 - Move the former converter to legacy/reference and update installation guidance.
-- No firmware or payload changes. Candidate runtime/device regression remains pending.
+- No firmware or payload changes. Stable v1.2.1 real-device regression passed for the tested TYZS5 target; TYZS3 and untested lock models are not covered.
 
 ## Repository migration
 

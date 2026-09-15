@@ -4,11 +4,11 @@ First public TYZS5 release of Tuya Zigbee Lock Local.
 
 Validated target: TYZS5, EFR32MG13P732F512GM48, manufacturer `Tuya`, model `TY0A01-TYZS5`.
 
-Provides local Zigbee operation through Zigbee2MQTT and Home Assistant, validated TYZS5 firmware, and Stable v1.2.1 production converter. No Tuya Cloud or vendor gateway is required.
+Provides local Zigbee operation through Zigbee2MQTT and Home Assistant, validated TYZS5 firmware, and Stable v1.2.1 production converter. Real-device regression passed for the tested TYZS5 target. No Tuya Cloud or vendor gateway is required.
 
 ## Core validated integration
 
-The tested integration baseline covers Zigbee2MQTT pairing, Home Assistant integration, remote unlock, supported credential operations (DP54/55) and temporary-password operations (DP24-28), alongside DP48/49. Battery and unlock-event reporting depend on what the lock MCU provides. DP58/59/60 are read-only telemetry. Production converter v1.2.1 is included; its static validation passed, while deployment runtime/device regression remains pending.
+The tested integration baseline covers Zigbee2MQTT pairing, Home Assistant integration, remote unlock, supported credential operations (DP54/55) and temporary-password operations (DP24-28), alongside DP48/49. Battery and unlock-event reporting depend on what the lock MCU provides. DP58/59/60 are read-only telemetry. Production converter v1.2.1 is included; static validation and tested TYZS5 real-device regression passed. This does not claim TYZS3 or untested lock models.
 
 ## Optional / lock-dependent capabilities
 

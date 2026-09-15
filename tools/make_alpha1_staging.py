@@ -10,6 +10,7 @@ files = [
     (root / "studio/tyzs5-telemetry/build/debug/kagel_tyzs5_srptwvak_clean.hex", Path("firmware/kagel_tyzs5_srptwvak_clean.hex")),
     (root / "zigbee2mqtt/TYZS5/tuya_ty0a01_tyzs5.js", Path("zigbee2mqtt/tuya_ty0a01_tyzs5.js")),
     (root / "RELEASE_NOTES.md", Path("RELEASE_NOTES.md")),
+    (root / "NOTICE.md", Path("NOTICE.md")),
 ]
 lines = []
 for source, relative in files:

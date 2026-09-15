@@ -1,5 +1,5 @@
-// Z2M external converter — SmartHomePlus Zigbee door lock, model LCK-BI400.
-// Stable production converter v1.2.1 candidate for TYZS5 / srptwvak Stage 2G-R2.
+// TZLL Zigbee2MQTT external converter — Tuya TY0A01-TYZS5 smart lock.
+// Stable production converter v1.2.1 for TYZS5 / srptwvak Stage 2G-R2.
 // v1.2.1 is a release-hardening cleanup: validated TYZS5 control behavior is unchanged.
 // Writable controls are deliberately limited to the target-verified safe paths.
 // Our TYZS5 Stage 2G-R2 firmware advertises Basic
