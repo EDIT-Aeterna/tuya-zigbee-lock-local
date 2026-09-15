@@ -1,5 +1,7 @@
 # Tuya Zigbee Lock Local (TZLL) v1.0.0-alpha.1
 
+**English** | [简体中文](README.zh-CN.md)
+
 Local firmware and Zigbee2MQTT integration for the verified TYZS5 / EFR32MG13P732F512GM48 / srptwvak target. Firmware baseline: Stage 2G-R2 plus Basic Identity Migration. TYZS3 is planned and not included in this release.
 
 ## Production converter
