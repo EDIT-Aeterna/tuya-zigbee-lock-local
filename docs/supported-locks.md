@@ -1,4 +1,10 @@
 # Supported locks
 
-The currently verified target is the TYZS5 module, EFR32MG13P732F512GM48,
-PID `srptwvak`. TYZS3 support is reserved for future documented targets.
+This alpha release supports one verified target:
+
+| Target | SoC | PID | Basic identity |
+|---|---|---|---|
+| TYZS5 | EFR32MG13P732F512GM48 | `srptwvak` | `Tuya` / `TY0A01-TYZS5` |
+
+TYZS3 support is planned and is not included in this release. OTA and bootloader
+layout remain unresolved and disabled.

@@ -1,5 +1,9 @@
 # Changelog
 
+## [1.0.0-alpha.1] - 2026-09-15
+
+First public TZLL TYZS5 release with validated firmware, production converter v1.2.1 and local Home Assistant/Zigbee2MQTT integration. Canonical identity is `Tuya / TY0A01-TYZS5`. DP39, DP68/69/70 and OTA remain disabled; TYZS3 is not included. Licensing of upstream-derived code is still being clarified.
+
 ## Stable converter v1.2.1 candidate integration
 
 - Add reviewer candidate unchanged as `zigbee2mqtt/TYZS5/tuya_ty0a01_tyzs5.js`.
