@@ -1,6 +1,7 @@
-# TYZS5 srptwvak Stage 2G → Zigbee2MQTT Lock Firmware
+# Tuya Zigbee Lock Local (TZLL)
 
-Target: TYZS5 / EFR32MG13P732F512GM48 / PID `srptwvak` / Stage 2G.
+Target: TYZS5 / EFR32MG13P732F512GM48 / PID `srptwvak` / Stage 2G-R2.
+This repository is the local Tuya Zigbee lock firmware and integration project.
 The canonical flash image is `studio/tyzs5-telemetry/build/debug/kagel_tyzs5_srptwvak_clean.hex`.
 
 Replacement firmware for the **TYZS5** (Silicon Labs **EFR32MG13P732**) Zigbee module used in

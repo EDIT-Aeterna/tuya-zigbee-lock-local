@@ -198,7 +198,7 @@ build/debug/project/app.o: app.c \
  C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/protocol/zigbee/app/framework/util/client-api.h \
  C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/protocol/zigbee/app/util/serial/sl_zigbee_command_interpreter.h \
  C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/protocol/zigbee/app/framework/plugin/network-steering/network-steering.h \
- config/network-steering-config.h ../../firmware/kagel_profile.h
+ config/network-steering-config.h ../../firmware/TYZS5/kagel_profile.h
 C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/platform/common/toolchain/inc/sl_gcc_preinclude.h:
 C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/protocol/zigbee/app/framework/include/af.h:
 C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/platform/service/legacy_hal/inc/platform-header.h:
@@ -405,4 +405,4 @@ C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/protocol/zigbee/app/framework/ut
 C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/protocol/zigbee/app/util/serial/sl_zigbee_command_interpreter.h:
 C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/protocol/zigbee/app/framework/plugin/network-steering/network-steering.h:
 config/network-steering-config.h:
-../../firmware/kagel_profile.h:
+../../firmware/TYZS5/kagel_profile.h:
