@@ -19,8 +19,8 @@ A matching module therefore does **not** guarantee identical features across bra
 
 | Brand | Model | Module | Basic TZLL | Remote unlock | Fingerprint | Password | Temp password | Alarm | Power/work mode | Notes | Reporter |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| Sample A | Unknown | Unknown | ✅ | ❓ | ❓ | ❓ | ❓ | ❌ | ❌ | Lower-cost tested lock; alarm absent; power/work-mode command produced no MCU response | Maintainer |
-| Sample B | Unknown | Unknown | ✅ | ❓ | ❓ | ❓ | ❓ | ✅ | ❌ | Higher-cost tested lock; alarm available; power/work-mode command produced no MCU response | Maintainer |
+| 熊鲸智能 | H1-zigbee | TYZS5 | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ | ❌ | Lower-cost tested lock; alarm absent; power/work-mode command produced no MCU response | Maintainer |
+| 施曼客 | Unknown | TYZS5 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ | Higher-cost tested lock; alarm available; power/work-mode command produced no MCU response | Maintainer |
 
 > Replace `Unknown` only when the corresponding brand/model/module has been confirmed. Do not infer it from another sample.
 
