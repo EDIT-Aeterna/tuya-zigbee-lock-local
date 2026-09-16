@@ -1,5 +1,21 @@
 # Changelog
 
+## [1.0.0-alpha.2] - 2026-09-16
+
+Converter Stable v1.2.2; converter-only correctness patch, firmware unchanged.
+
+### Fixed
+
+- Corrected DP58/59/60 bitmap indexing to verified one-based shards; IDs are `(fragment - 1) * 8 + bit`.
+- Added read-only DP93 face list/count, one-time raw-cache migration and duplicate-ID removal.
+- Reject fragment zero; remove misleading separate +8-shifted ID-space descriptions.
+
+### Validation
+
+- Production parser and decoder tested with real TYZS5 DP58 and stock TYZS3 DP58/59/60/93 capture vectors, malformed inputs, duplicate shards and migration precedence.
+- Write-control paths and firmware unchanged. TYZS3 captures are protocol evidence, not TYZS3 firmware support.
+- New v1.2.2 real-device smoke test remains pending; this release is a prerelease.
+
 ## [1.0.0-alpha.1] - 2026-09-15
 
 First public TZLL TYZS5 release with validated firmware, production converter v1.2.1 and local Home Assistant/Zigbee2MQTT integration. Stable v1.2.1 real-device regression passed for the tested TYZS5 target. Canonical identity is `Tuya / TY0A01-TYZS5`. DP39, DP68/69/70 and OTA remain disabled; TYZS3 is not included. Licensing of upstream-derived code is still being clarified.

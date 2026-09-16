@@ -1,4 +1,4 @@
-# Tuya Zigbee Lock Local (TZLL) v1.0.0-alpha.1
+# Tuya Zigbee Lock Local (TZLL) v1.0.0-alpha.2
 
 [English](README.md) | **简体中文**
 
@@ -17,7 +17,7 @@
 
 [`zigbee2mqtt/TYZS5/tuya_ty0a01_tyzs5.js`](zigbee2mqtt/TYZS5/tuya_ty0a01_tyzs5.js)
 
-这是当前 **Stable v1.2.1** 生产版 converter。
+这是当前 **Stable v1.2.2** 生产版 converter。
 
 它只匹配：
 
@@ -26,7 +26,7 @@ manufacturerName: Tuya
 modelIdentifier:  TY0A01-TYZS5
 ```
 
-该 converter 已完成静态检查与实机回归测试。
+v1.2.1 基线已完成维护者实机回归。v1.2.2 只读修复已通过静态检查和实机抓包向量回归；新版实机冒烟测试仍待确认。
 
 **本项目不会保留 Tuya Cloud / Tuya App 兼容能力。**
 
@@ -59,7 +59,7 @@ modelIdentifier:  TY0A01-TYZS5
 >
 > 报警、工作 / 省电模式（DP202）等能力由锁 MCU 实现，不同品牌、型号甚至不同配置版本之间都可能存在差异。
 >
-> TYZS3 当前仍属于计划支持目标，不包含在 `v1.0.0-alpha.1` 中。
+> TYZS3 当前仍属于计划支持目标，不包含在 `v1.0.0-alpha.2` 中。
 
 完整兼容性与能力矩阵：
 
@@ -158,7 +158,7 @@ manufacturerName: Tuya
 modelIdentifier: TY0A01-TYZS5
 ```
 
-当前 `v1.0.0-alpha.1` 不包含：
+当前 `v1.0.0-alpha.2` 不包含：
 
 - TYZS3 正式支持
 - OTA

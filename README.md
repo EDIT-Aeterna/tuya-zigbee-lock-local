@@ -1,4 +1,4 @@
-# Tuya Zigbee Lock Local (TZLL) v1.0.0-alpha.1
+# Tuya Zigbee Lock Local (TZLL) v1.0.0-alpha.2
 
 **English** | [简体中文](README.zh-CN.md)
 
@@ -6,7 +6,7 @@ Local firmware and Zigbee2MQTT integration for the verified TYZS5 / EFR32MG13P73
 
 ## Production converter
 
-Use [tuya_ty0a01_tyzs5.js](zigbee2mqtt/TYZS5/tuya_ty0a01_tyzs5.js), the Stable v1.2.1 production converter. It fingerprints only manufacturer `Tuya`, model `TY0A01-TYZS5`. Static validation and real-device regression have passed on the validated TYZS5 target. Tuya Cloud and Tuya App compatibility are intentionally not retained.
+Use [tuya_ty0a01_tyzs5.js](zigbee2mqtt/TYZS5/tuya_ty0a01_tyzs5.js), the Stable v1.2.2 production converter. It fingerprints only manufacturer `Tuya`, model `TY0A01-TYZS5`. The v1.2.1 baseline passed maintainer real-device regression. The v1.2.2 read-only patch passes captured-vector regression; a new real-device smoke test remains pending. Tuya Cloud and Tuya App compatibility are intentionally not retained.
 
 Read the [installation guide](docs/zigbee2mqtt-guide.md). Do not install the [legacy converter](zigbee2mqtt/TYZS5/legacy/README.md) alongside it.
 
