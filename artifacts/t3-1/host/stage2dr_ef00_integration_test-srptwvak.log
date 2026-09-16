@@ -1,0 +1,11 @@
+PASS single valid DP21                 exactly one application command
+PASS DP21 wrong datatype                no UART side effect
+PASS DP21 five digits                   no UART side effect
+PASS DP21 non-digit                     no UART side effect
+PASS forbidden DP24                     no UART side effect
+PASS truncated DP21                     no UART side effect
+PASS valid DP21 + truncated tail        no UART side effect
+PASS two DP21 units                     no UART side effect
+PASS unsupported EF00 command           no UART side effect
+
+ALL PASS (0 failures)

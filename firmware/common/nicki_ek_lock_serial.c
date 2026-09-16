@@ -597,7 +597,8 @@ bool tls_parse_report_dps(uint8_t cmd, uint32_t quirks, const uint8_t *data,
     if (cmd != TLS_CMD_REPORT ||
         !(quirks & LOCK_QUIRK_DP54_STAGE0_DECLARED_7_ACTUAL_9) ||
         !data || !out || !max || len != 13 ||
-        data[0] != 54 || data[1] != TLS_DP_RAW || data[2] != 0 || data[3] != 7)
+        data[0] != 54 || data[1] != TLS_DP_RAW || data[2] != 0 || data[3] != 7 ||
+        data[5] != 0) /* initial stage only */
         return false;
     out[0].id = 54; out[0].type = TLS_DP_RAW; out[0].len = 9;
     out[0].value = data + 4;

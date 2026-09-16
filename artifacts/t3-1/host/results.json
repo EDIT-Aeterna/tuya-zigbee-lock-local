@@ -1,0 +1,63 @@
+{
+  "stage11_lock_app_time_integration_test-srptwvak": {
+    "compile": 0,
+    "test": 0
+  },
+  "stage2br_adapter_test-srptwvak": {
+    "compile": 0,
+    "test": 0
+  },
+  "stage2dr_control_gate_test-srptwvak": {
+    "compile": 0,
+    "test": 3221226505
+  },
+  "stage2dr_ef00_integration_test-srptwvak": {
+    "compile": 0,
+    "test": 0
+  },
+  "stage2ea_ef00_integration_test-srptwvak": {
+    "compile": 0,
+    "test": 1
+  },
+  "stage2eb_ef00_integration_test-srptwvak": {
+    "compile": 0,
+    "test": 1
+  },
+  "stage2fr_ef00_integration_test-srptwvak": {
+    "compile": 0,
+    "test": 0
+  },
+  "stage2f_ef00_integration_test-srptwvak": {
+    "compile": 0,
+    "test": 1
+  },
+  "stage2g_ef00_credential_integration_test-srptwvak": {
+    "compile": 0,
+    "test": 0
+  },
+  "stage2g_legacy_control_gate_test-srptwvak": {
+    "compile": 0,
+    "test": 0
+  },
+  "t3_common_core_test-srptwvak": {
+    "compile": 0,
+    "test": 0
+  },
+  "t3_common_core_test-ujcjk46o": {
+    "compile": 0,
+    "test": 0
+  },
+  "host_selftest-srptwvak": {
+    "compile": 0,
+    "test": 0
+  },
+  "fixtures": {
+    "test": 0
+  },
+  "bitmap": {
+    "test": 0
+  },
+  "bitmap_reference": {
+    "test": 0
+  }
+}

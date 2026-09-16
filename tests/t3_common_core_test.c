@@ -33,6 +33,8 @@ int main(void){
  assert(!tls_parse_report_dps(5,0,quirk,sizeof quirk,dp,4,&count));assert(!tls_parse_report_dps(0x23,1,quirk,sizeof quirk,dp,4,&count));
  for(unsigned i=0;i<4;i++){uint8_t save=quirk[i];quirk[i]^=1;assert(!tls_parse_report_dps(5,1,quirk,sizeof quirk,dp,4,&count));quirk[i]=save;}
  uint8_t trail[14];memcpy(trail,quirk,13);trail[13]=0;assert(!tls_parse_report_dps(5,1,trail,14,dp,4,&count));
+ quirk[5]=1;assert(!tls_parse_report_dps(5,1,quirk,13,dp,4,&count));quirk[5]=0;
+ assert(!tls_parse_report_dps(5,1,quirk,13,dp,0,&count));
  for(uint8_t t=1;t<=4;t++){uint8_t add[]={t,0,1,0,1,0,14,0,0};uint8_t del[]={t,0,1,0,1,0,14,1,0};tls_credential_add_t ar;tls_credential_delete_t dd;
  assert(tls_parse_credential_add(54,add,7,&ar));assert(tls_parse_credential_add(54,add,9,&ar));assert(tls_parse_credential_delete(55,del,8,&dd));assert(tls_parse_credential_delete(55,del,9,&dd));}
  const lock_profile_t *p5=&lock_profile_srptwvak,*p3=&lock_profile_ujcjk46o;
@@ -46,10 +48,20 @@ int main(void){
  feed(&a,7,dyn,sizeof dyn);assert(tx[8]==2);dyn[16]=0;feed(&a,7,dyn,sizeof dyn);assert(tx[8]==3);
  reports=0;feed(&a,5,quirk,sizeof quirk);assert(reports==(a.profile->quirks?1u:0u));
  writes=0;send21(&a);assert(writes>0);
+ for(unsigned type=1;type<=4;type++){
+   uint8_t add[]={0,1,54,0,0,7,(uint8_t)type,0,1,0,1,3,0xE7};
+   uint8_t del[]={0,1,55,0,0,8,(uint8_t)type,0,1,0,1,0,14,1};
+   lock_app_init(&a,&h);writes=0;lock_app_ef00_rx(&a,0,add,sizeof add);
+   assert((writes>0)==(type<=3 || a.profile->face_credentials));
+   lock_app_init(&a,&h);writes=0;lock_app_ef00_rx(&a,0,del,sizeof del);
+   assert((writes>0)==(type<=3 || a.profile->face_credentials));
+ }
+ lock_app_init(&a,&h);writes=0;const uint8_t freeze[]={0,1,27,0,0,6,0,1,0,2,0,0};
+ lock_app_ef00_rx(&a,0,freeze,sizeof freeze);assert((writes>0)==a.profile->temporary_passwords);
  lock_app_init(&a,&h);info(&a,"{\"p\":\"wrongpid\",\"v\":\"1.0.0\"}");assert(a.pid_mismatch);assert(strcmp(a.observed_pid,"wrongpid")==0);assert(a.observed_ota);
- writes=0;send21(&a);assert(writes==0);reports=0;const uint8_t battery[]={10,2,0,4,0,0,0,80};feed(&a,5,battery,sizeof battery);assert(reports==1);
+ writes=0;send21(&a);assert(writes==0);assert(!a.tls.pend_active);reports=0;const uint8_t battery[]={10,2,0,4,0,0,0,80};feed(&a,5,battery,sizeof battery);assert(reports==1);
  lock_app_init(&a,&h);char json[100];snprintf(json,sizeof json,"{\"p\":\"%s\",\"v\":\"1.0.0\"}",a.profile->expected_pid);info(&a,json);assert(!a.pid_mismatch);assert(strcmp(a.mcu_version,"1.0.0")==0);writes=0;send21(&a);assert(writes>0);
- info(&a,"{\"p\":\"wrongpid\",\"v\":\"1\"}");info(&a,json);assert(a.pid_mismatch); /* mismatch latches until reboot */
+ assert(a.tls.pend_active);info(&a,"{\"p\":\"wrongpid\",\"v\":\"1\"}");assert(!a.tls.pend_active);info(&a,json);assert(a.pid_mismatch); /* mismatch cancels queued writes and latches until reboot */
  lock_app_init(&a,&h);info(&a,"{broken");assert(a.observed_pid[0]==0);info(&a,"{\"p\":\"this-pid-is-too-long-for-the-bounded-store\"}");assert(a.pid_mismatch);
  puts("T3 common core: ALL PASS");return 0;
 }

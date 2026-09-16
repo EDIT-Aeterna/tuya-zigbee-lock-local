@@ -67,7 +67,7 @@ static bool core_is_online(void *user) {
  * top of the auth gate: even an authed hub session can't poke arbitrary DPs. */
 static int validate_control_dp(uint8_t dp, uint8_t type, const uint8_t *v, size_t n) {
     if (!g_active_app || g_active_app->pid_mismatch || type != TLS_DP_RAW ||
-        !lock_profile_dp_allowed(g_active_app->profile, dp)) return 0;
+        !kagel_control_dp_allowed(dp)) return 0;
     /* Face uses the same reviewed structure, permitted only on its profile. */
     if ((dp == 54u || dp == 55u) && v && n && v[0] == 4u &&
         g_active_app->profile->face_credentials) {
@@ -137,9 +137,12 @@ done:
         size_t copy=vn<sizeof a->mcu_version-1?vn:sizeof a->mcu_version-1;
         memcpy(a->mcu_version,s+vs,copy);a->mcu_version[copy]=0;
     }
-    a->observed_ota=ota; return;
+    a->observed_ota=ota;
+    if (a->pid_mismatch) {a->tls.pend_active=0; a->tls.pend_len=0;}
+    return;
 invalid:
     a->pid_mismatch=true;
+    a->tls.pend_active=0; a->tls.pend_len=0;
 }
 
 void lock_app_init(lock_app_t *a, const lock_app_hal_t *hal) {
