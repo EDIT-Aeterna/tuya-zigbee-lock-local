@@ -220,10 +220,12 @@ build/debug/project/_/_/firmware/TYZS5/efr32_app.o: \
  C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/platform/bootloader/api/btl_interface_parser.h \
  C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/platform/bootloader/api/btl_interface_storage.h \
  ../../firmware/TYZS5/kagel_profile.h \
- ../../firmware/TYZS5/kagel_rx_timeout.h ../../firmware/TYZS5/lock_app.h \
- ../../firmware/TYZS5/nicki_ek_lock_serial.h \
- ../../firmware/TYZS5/kagel_control_gate.h \
- ../../firmware/TYZS5/target_tyzs5_adapter.h
+ ../../firmware/TYZS5/kagel_rx_timeout.h ../../firmware/common/lock_app.h \
+ ../../firmware/common/nicki_ek_lock_serial.h \
+ ../../firmware/common/lock_profile.h \
+ ../../firmware/common/kagel_control_gate.h \
+ ../../firmware/TYZS5/target_tyzs5_adapter.h \
+ ../../firmware/common/nicki_ek_lock_serial.h
 C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/platform/common/toolchain/inc/sl_gcc_preinclude.h:
 C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/protocol/zigbee/app/framework/include/af.h:
 C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/platform/service/legacy_hal/inc/platform-header.h:
@@ -451,7 +453,9 @@ C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/platform/bootloader/api/btl_inte
 C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/platform/bootloader/api/btl_interface_storage.h:
 ../../firmware/TYZS5/kagel_profile.h:
 ../../firmware/TYZS5/kagel_rx_timeout.h:
-../../firmware/TYZS5/lock_app.h:
-../../firmware/TYZS5/nicki_ek_lock_serial.h:
-../../firmware/TYZS5/kagel_control_gate.h:
+../../firmware/common/lock_app.h:
+../../firmware/common/nicki_ek_lock_serial.h:
+../../firmware/common/lock_profile.h:
+../../firmware/common/kagel_control_gate.h:
 ../../firmware/TYZS5/target_tyzs5_adapter.h:
+../../firmware/common/nicki_ek_lock_serial.h:
