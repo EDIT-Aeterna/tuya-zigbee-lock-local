@@ -11,7 +11,9 @@ static void report(uint8_t d,uint8_t t,const uint8_t *v,uint16_t n,uint32_t ts,v
 static void feed(lock_app_t *a,uint8_t cmd,const uint8_t *d,size_t n){
  uint8_t f[256]={0x55,0xAA,3,0x12,0x34,0,0,0};uint8_t sum=0;
  assert(n+9<=sizeof f);f[5]=cmd;f[6]=(uint8_t)(n>>8);f[7]=(uint8_t)n;
- if(n)memcpy(f+8,d,n);for(size_t i=0;i<n+8;i++)sum=(uint8_t)(sum+f[i]);f[n+8]=sum;lock_app_uart_rx(a,f,n+9);
+ if(n)memcpy(f+8,d,n);
+ for(size_t i=0;i<n+8;i++)sum=(uint8_t)(sum+f[i]);
+ f[n+8]=sum;lock_app_uart_rx(a,f,n+9);
 }
 static void info(lock_app_t *a,const char *json){uint8_t b[200];size_t n=strlen(json);assert(n<sizeof b);memcpy(b,json,n);b[n]=1;feed(a,1,b,n+1);}
 static void send21(lock_app_t *a){const uint8_t b[]={0,1,21,0,0,6,'1','2','3','4','5','6'};lock_app_ef00_rx(a,0,b,sizeof b);}
@@ -32,7 +34,7 @@ int main(void){
  for(unsigned i=0;i<4;i++){uint8_t save=quirk[i];quirk[i]^=1;assert(!tls_parse_report_dps(5,1,quirk,sizeof quirk,dp,4,&count));quirk[i]=save;}
  uint8_t trail[14];memcpy(trail,quirk,13);trail[13]=0;assert(!tls_parse_report_dps(5,1,trail,14,dp,4,&count));
  for(uint8_t t=1;t<=4;t++){uint8_t add[]={t,0,1,0,1,0,14,0,0};uint8_t del[]={t,0,1,0,1,0,14,1,0};tls_credential_add_t ar;tls_credential_delete_t dd;
- assert(tls_parse_credential_add(add,7,&ar));assert(tls_parse_credential_add(add,9,&ar));assert(tls_parse_credential_delete(del,8,&dd));assert(tls_parse_credential_delete(del,9,&dd));}
+ assert(tls_parse_credential_add(54,add,7,&ar));assert(tls_parse_credential_add(54,add,9,&ar));assert(tls_parse_credential_delete(55,del,8,&dd));assert(tls_parse_credential_delete(55,del,9,&dd));}
  const lock_profile_t *p5=&lock_profile_srptwvak,*p3=&lock_profile_ujcjk46o;
  assert(lock_profile_dp_allowed(p5,27));assert(!lock_profile_dp_allowed(p3,27));assert(p5->quirks==0 && p3->quirks==1);
  for(unsigned d=0;d<256;d++){bool expected=d==21||d==24||d==25||d==26||d==27||d==28||d==48||d==49||d==54||d==55;

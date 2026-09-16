@@ -145,7 +145,7 @@ uint16_t tls_build_temp_pw(uint8_t *out, uint16_t pw_id, uint16_t txn,
                            const uint8_t *pw, uint8_t pwlen)
 {
     /* TARGET_SRPTWVAK profile: prefix(6), start(4), end(4),
-     * unknown/reserved(6), one-time(1), password(6). */
+     * schedule(6), all-zero for current srptwvak controls, one-time(1), password(6). */
     if (!out || !pw || pwlen != 6) return 0;
     uint16_t i = 0;
     wr16(&out[i], pw_id); i += 2;
@@ -220,7 +220,12 @@ bool tls_parse_dynamic_password(const uint8_t *data, uint16_t len,
         uint8_t group_len = data[i++];
         if (group_len == 0 || group_len > 8 || i + group_len > len)
             return false;
-        if (!ascii_digits(data + i, group_len)) return false;
+        if (!ascii_digits(data + i, group_len)) {
+            /* Stock admin password: six digits, followed by one/two NULs. */
+            if (group_len < 7 || !ascii_digits(data + i, 6)) return false;
+            for (uint8_t pad = 6; pad < group_len; pad++)
+                if (data[i + pad] != 0) return false;
+        }
         i += group_len;
     }
     if (i != len) return false;
@@ -315,10 +320,8 @@ bool tls_parse_no_password_key_set(const uint8_t *data, uint16_t len,
 bool tls_parse_no_password_unlock(const uint8_t *data, uint16_t len,
                                   tls_no_password_unlock_t *out)
 {
-    if (!data || !out || len != 15 || data[0] > 1) return false;
-    uint32_t method = ((uint32_t)data[11] << 24) |
-                      ((uint32_t)data[12] << 16) |
-                      ((uint32_t)data[13] << 8) | data[14];
+    if (!data || !out || len != 13 || data[0] > 1) return false;
+    uint16_t method = rd16(data + 11);
     if (method > 3) return false;
     out->open = data[0];
     out->key_id = rd16(data + 1);
@@ -460,7 +463,7 @@ static void handle_frame(tls_ctx_t *c, const uint8_t *f, size_t flen)
         /* DP status push (no timestamp). Forward each DP to the app/radio. */
         tls_dp_t dps[16];
         size_t k = 0;
-        bool valid = dlen != 0 && tls_parse_dps_exact(data, dlen, dps, 16, &k);
+        bool valid = dlen != 0 && tls_parse_report_dps(cmd, c->quirks, data, dlen, dps, 16, &k);
         if (valid) {
             for (size_t i = 0; i < k; i++)
                 if (c->hal.on_dp_report) c->hal.on_dp_report(&dps[i], 0);
@@ -585,4 +588,48 @@ void tls_rx_feed(tls_ctx_t *c, const uint8_t *bytes, size_t n)
             rx_reset(c);
         }
     }
+}
+
+bool tls_parse_report_dps(uint8_t cmd, uint32_t quirks, const uint8_t *data,
+                         uint16_t len, tls_dp_t *out, size_t max, size_t *count)
+{
+    if (tls_parse_dps_exact(data, len, out, max, count)) return true;
+    if (cmd != TLS_CMD_REPORT ||
+        !(quirks & LOCK_QUIRK_DP54_STAGE0_DECLARED_7_ACTUAL_9) ||
+        !data || !out || !max || len != 13 ||
+        data[0] != 54 || data[1] != TLS_DP_RAW || data[2] != 0 || data[3] != 7)
+        return false;
+    out[0].id = 54; out[0].type = TLS_DP_RAW; out[0].len = 9;
+    out[0].value = data + 4;
+    if (count) *count = 1;
+    return true;
+}
+
+bool tls_parse_temp_password_extended(const uint8_t *data, uint16_t len,
+                                     tls_temp_password_extended_t *out)
+{
+    if (!data || !out || len != 27 || data[20] > 1 ||
+        !ascii_digits(data + 21, 6) || rd32(data + 6) >= rd32(data + 10) ||
+        data[16] > 23 || data[18] > 23 || data[17] > 59 || data[19] > 59)
+        return false;
+    memcpy(out->ref, data, 6);
+    out->start_gmt = rd32(data + 6); out->end_gmt = rd32(data + 10);
+    out->schedule_type = data[14]; out->weekday_bitmap = data[15];
+    out->daily_start_hour = data[16]; out->daily_start_minute = data[17];
+    out->daily_end_hour = data[18]; out->daily_end_minute = data[19];
+    out->one_time = data[20]; memcpy(out->password, data + 21, 6);
+    return true;
+}
+uint16_t tls_build_temp_password_extended(uint8_t *out, size_t capacity,
+                                          const tls_temp_password_extended_t *v)
+{
+    uint8_t b[27]; tls_temp_password_extended_t checked;
+    if (!out || !v || capacity < sizeof b) return 0;
+    memcpy(b, v->ref, 6); wr32(b+6, v->start_gmt); wr32(b+10, v->end_gmt);
+    b[14]=v->schedule_type; b[15]=v->weekday_bitmap;
+    b[16]=v->daily_start_hour; b[17]=v->daily_start_minute;
+    b[18]=v->daily_end_hour; b[19]=v->daily_end_minute;
+    b[20]=v->one_time; memcpy(b+21,v->password,6);
+    if (!tls_parse_temp_password_extended(b,sizeof b,&checked)) return 0;
+    memcpy(out,b,sizeof b); return sizeof b;
 }

@@ -146,7 +146,7 @@ typedef struct {
     uint8_t open;
     uint16_t key_id;
     const uint8_t *key;
-    uint32_t unlock_method;
+    uint16_t unlock_method;
 } tls_no_password_unlock_t;
 
 typedef struct {
@@ -208,6 +208,7 @@ typedef struct {
 
 typedef struct {
     tls_hal_t hal;
+    uint32_t  quirks; /* explicitly selected profile, zero means strict */
     uint16_t  tx_seq;
     /* RX reassembly */
     uint8_t   rx[TLS_FRAME_OVERHEAD + TLS_MAX_DATA];
@@ -222,6 +223,25 @@ typedef struct {
 } tls_ctx_t;
 
 void tls_pending_tick(tls_ctx_t *c);
+
+
+#define LOCK_QUIRK_DP54_STAGE0_DECLARED_7_ACTUAL_9 (1u << 0)
+typedef struct {
+    uint8_t ref[6];
+    uint32_t start_gmt, end_gmt;
+    uint8_t schedule_type, weekday_bitmap;
+    uint8_t daily_start_hour, daily_start_minute, daily_end_hour, daily_end_minute;
+    uint8_t one_time;
+    uint8_t password[6];
+} tls_temp_password_extended_t;
+bool tls_parse_temp_password_extended(const uint8_t *data, uint16_t len,
+                                     tls_temp_password_extended_t *out);
+uint16_t tls_build_temp_password_extended(uint8_t *out, size_t capacity,
+                                          const tls_temp_password_extended_t *value);
+bool tls_parse_report_dps(uint8_t cmd, uint32_t quirks, const uint8_t *data,
+                         uint16_t len, tls_dp_t *out, size_t max, size_t *count);
+/* tls_parse_temp_password_create is the separate 21-byte legacy/public schema.
+ * Do not use it for the measured 27-byte extended format. */
 
 /* Lifecycle */
 void tls_init(tls_ctx_t *c, const tls_hal_t *hal);

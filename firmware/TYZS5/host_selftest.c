@@ -184,13 +184,13 @@ static void test_dp_and_raw_parsers(void)
 
     const uint8_t unlock[] = {
         0x01,0x00,0x07,'1','2','3','4','5','6','7','8',
-        0x00,0x00,0x00,0x02
+        0x00,0x02
     };
     tls_no_password_unlock_t unlock_req;
     CHECK(tls_parse_no_password_unlock(unlock, sizeof(unlock), &unlock_req) &&
           unlock_req.open == 1 && unlock_req.key_id == 7 &&
           unlock_req.unlock_method == 2 && unlock_req.key[7] == '8',
-          "DP49 15-byte key unlock layout");
+          "DP49 verified 13-byte key unlock layout");
     CHECK(!tls_parse_no_password_unlock(unlock, sizeof(unlock) - 1, &unlock_req),
           "DP49 rejects incomplete raw value");
     const uint8_t key_result[] = {0x00,0x00,0x07};
