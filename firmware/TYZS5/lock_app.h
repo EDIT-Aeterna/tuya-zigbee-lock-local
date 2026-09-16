@@ -19,6 +19,7 @@
 #ifndef LOCK_APP_H
 #define LOCK_APP_H
 #include "nicki_ek_lock_serial.h"
+#include "lock_profile.h"
 #include <stdint.h>
 #include <stddef.h>
 
@@ -59,6 +60,11 @@ typedef struct {
 typedef struct {
     lock_app_hal_t hal;
     tls_ctx_t      tls;
+    const lock_profile_t *profile;
+    char observed_pid[17];
+    char mcu_version[17];
+    bool observed_ota;
+    bool pid_mismatch; /* sticky until reinitialization */
     uint16_t       txn;     /* DP24 temp-pw transaction counter (per the capture) */
 } lock_app_t;
 

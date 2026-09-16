@@ -43,7 +43,7 @@ static void core_on_config(uint8_t sub, void *user) {
     if (a && a->hal.on_config) a->hal.on_config(sub, a->hal.user);
 }
 /* TARGET_SRPTWVAK deployment: mainland China, UTC+8, no DST. */
-static int32_t core_tz(void) { return 28800; }
+static int32_t core_tz(void) { return g_active_app->profile->timezone_offset_seconds; }
 
 /* ANTI-CLONE REMOVED 2026-07-15 (Nicki): the lock is an OPEN, standard Zigbee
  * device. Kagel flashes the firmware itself, so there is no Kagel-claim gate --
@@ -65,26 +65,17 @@ static bool core_is_online(void *user) {
  * (read-only DPs like door/battery/unlock events, DPs this PID doesn't have,
  * wrong types) is DROPPED before it reaches the lock MCU. Defense-in-depth on
  * top of the auth gate: even an authed hub session can't poke arbitrary DPs. */
-static const struct { uint8_t id, type; } DP_WRITABLE[] = {
-    {21, TLS_DP_RAW},    /* remote_unlock: 6-digit ASCII password            */
-    {24, TLS_DP_RAW},    /* password_creat                                   */
-    {25, TLS_DP_RAW},    /* password_delete                                  */
-    {26, TLS_DP_RAW},    /* password_update                                  */
-    {27, TLS_DP_RAW},    /* password_disable (freeze)                        */
-    {28, TLS_DP_RAW},    /* password_enable (unfreeze)                       */
-    {48, TLS_DP_RAW},    /* remote_no_pd_setkey                              */
-    {49, TLS_DP_RAW},    /* remote_no_dp_key (password-free remote unlock)   */
-    {54, TLS_DP_RAW},    /* unlock_method_create                             */
-    {55, TLS_DP_RAW},    /* unlock_method_delete                             */
-};
-
-static int dp_write_allowed(uint8_t dp, uint8_t type) {
-    for (size_t i = 0; i < sizeof DP_WRITABLE / sizeof DP_WRITABLE[0]; i++)
-        if (DP_WRITABLE[i].id == dp) return DP_WRITABLE[i].type == type;
-    return 0;
-}
 static int validate_control_dp(uint8_t dp, uint8_t type, const uint8_t *v, size_t n) {
-    if (type != TLS_DP_RAW || !kagel_control_dp_allowed(dp)) return 0;
+    if (!g_active_app || g_active_app->pid_mismatch || type != TLS_DP_RAW ||
+        !lock_profile_dp_allowed(g_active_app->profile, dp)) return 0;
+    /* Face uses the same reviewed structure, permitted only on its profile. */
+    if ((dp == 54u || dp == 55u) && v && n && v[0] == 4u &&
+        g_active_app->profile->face_credentials) {
+        uint8_t copy[8];
+        if (n != (dp == 54u ? 7u : 8u)) return 0;
+        memcpy(copy, v, n); copy[0] = 3u;
+        return dp == 54u ? kagel_validate_dp54(copy,n) : kagel_validate_dp55(copy,n);
+    }
     if (dp == 21u) return kagel_validate_dp21(v,n);
     if (dp == 48u) return kagel_validate_dp48(v,n);
     if (dp == 49u) return kagel_validate_dp49(v,n);
@@ -94,9 +85,67 @@ static int validate_control_dp(uint8_t dp, uint8_t type, const uint8_t *v, size_
     return 0;
 }
 
+
+/* Small bounded flat-JSON reader for product info. No heap, no NUL assumptions.
+ * Unknown string fields are tolerated; malformed/duplicate identity keys fail
+ * closed for writes. No observed OTA flag can change the compiled OTA policy. */
+static void json_space(const char *s, size_t n, size_t *i) {
+    while (*i<n && (s[*i]==' ' || s[*i]=='\t' || s[*i]=='\r' || s[*i]=='\n')) (*i)++;
+}
+static bool json_string(const char *s,size_t n,size_t *i,size_t *start,size_t *len) {
+    if (*i>=n || s[(*i)++]!='"') return false;
+    *start=*i;
+    while (*i<n && s[*i]!='"') {
+        if ((unsigned char)s[*i]<32 || s[*i]=='\\') return false;
+        (*i)++;
+    }
+    if (*i>=n) return false;
+    *len=*i-*start; (*i)++; return true;
+}
+static void core_product_info(const char *s,size_t n,bool ota) {
+    lock_app_t *a=g_active_app;
+    size_t i=0, ps=0, pn=0, vs=0, vn=0; bool hasp=false,hasv=false;
+    if (!a || !s) return;
+    json_space(s,n,&i);
+    if (i>=n || s[i++]!='{') goto invalid;
+    json_space(s,n,&i);
+    if (i<n && s[i]=='}') {i++;goto done;}
+    for (;;) {
+        size_t ks,kn,bs,bn;
+        if (!json_string(s,n,&i,&ks,&kn)) goto invalid;
+        json_space(s,n,&i);
+        if (i>=n || s[i++]!=':') goto invalid;
+        json_space(s,n,&i);
+        if (!json_string(s,n,&i,&bs,&bn)) goto invalid;
+        if(kn==1 && s[ks]=='p') {if(hasp || !bn)goto invalid;hasp=true;ps=bs;pn=bn;}
+        if(kn==1 && s[ks]=='v') {if(hasv)goto invalid;hasv=true;vs=bs;vn=bn;}
+        json_space(s,n,&i);
+        if(i>=n)goto invalid;
+        if(s[i]=='}'){i++;break;}
+        if(s[i++]!=',')goto invalid;
+        json_space(s,n,&i);
+    }
+done:
+    json_space(s,n,&i); if(i!=n)goto invalid;
+    if(hasp) {
+        size_t expected=strlen(a->profile->expected_pid);
+        if(pn!=expected || memcmp(s+ps,a->profile->expected_pid,pn)!=0) a->pid_mismatch=true;
+        size_t copy=pn<sizeof a->observed_pid-1?pn:sizeof a->observed_pid-1;
+        memcpy(a->observed_pid,s+ps,copy);a->observed_pid[copy]=0;
+    }
+    if(hasv) {
+        size_t copy=vn<sizeof a->mcu_version-1?vn:sizeof a->mcu_version-1;
+        memcpy(a->mcu_version,s+vs,copy);a->mcu_version[copy]=0;
+    }
+    a->observed_ota=ota; return;
+invalid:
+    a->pid_mismatch=true;
+}
+
 void lock_app_init(lock_app_t *a, const lock_app_hal_t *hal) {
     memset(a, 0, sizeof(*a));
     a->hal = *hal;
+    a->profile = lock_profile_default();
     g_active_app = a;
 
     tls_hal_t th;
@@ -105,12 +154,14 @@ void lock_app_init(lock_app_t *a, const lock_app_hal_t *hal) {
     th.gmt_now      = core_gmt;
     th.tz_offset    = core_tz;
     th.on_dp_report = core_on_dp;
+    th.on_product_info = core_product_info;
     th.is_online    = core_is_online;
     th.on_frame     = core_on_frame;
     th.on_unhandled = core_on_unhandled;
     th.on_config    = core_on_config;
     th.user         = a;
     tls_init(&a->tls, &th);
+    a->tls.quirks = a->profile->quirks;
 }
 
 void lock_app_start(lock_app_t *a) {
@@ -205,7 +256,7 @@ int lock_app_create_temp_pw(lock_app_t *a, uint16_t pw_id, uint32_t valid_from,
                             const uint8_t *pw, uint8_t pwlen) {
     g_active_app = a;
     if (!core_is_online(a)) return 0;                 /* only when joined */
-    if (!dp_write_allowed(24, TLS_DP_RAW)) return 0;  /* belt-and-suspenders */
+    if (a->pid_mismatch || !lock_profile_dp_allowed(a->profile,24)) return 0;  /* belt-and-suspenders */
     /* Stamp the window against the lock's OWN clock (== the 0x24 time we serve). */
     uint32_t now   = core_gmt();
     uint32_t start = now + valid_from;

@@ -1,12 +1,12 @@
 #include "kagel_control_gate.h"
+#include "lock_profile.h"
 #if defined(__GNUC__)
 # define KAGEL_EXPORT __attribute__((used, noinline))
 #else
 # define KAGEL_EXPORT
 #endif
 KAGEL_EXPORT bool kagel_control_dp_allowed(uint8_t dp) {
-    return dp == 21u || dp == 24u || dp == 25u || dp == 26u || dp == 27u ||
-           dp == 28u || dp == 48u || dp == 49u || dp == 54u || dp == 55u;
+    return lock_profile_dp_allowed(lock_profile_default(), dp);
 }
 bool kagel_validate_dp21(const uint8_t *value, size_t len) {
     if (!value || len != 6u) return false;
