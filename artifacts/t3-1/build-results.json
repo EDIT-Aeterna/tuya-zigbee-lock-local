@@ -1,34 +1,42 @@
 {
   "TYZS5": {
     "hex": "studio/tyzs5-telemetry/build/debug/kagel_tyzs5_srptwvak_clean.hex",
-    "hex_sha256": "0d91e775ecdc2c068c87f1a40146efd76e3404944c1678c0b5a44ce92102de13",
-    "hex_file_bytes": 468568,
-    "flash_data_bytes": 166572,
+    "hex_sha256": "6a0dd59386aaf115e0f7d2a81b94418f97cf6324985eb2ec713092abb2de502a",
+    "hex_file_bytes": 469018,
+    "flash_data_bytes": 166732,
     "image_range_inclusive": [
       "0x0",
-      "0x28aab"
+      "0x28b4b"
     ],
-    "elf_sizes": "text\t   data\t    bss\t    dec\t    hex\tfilename\n 166560\t     12\t  15732\t 182304\t  2c820\tD:\\project\\tyzs5-lock-port\\Door-Lock-TY0A01-with-TYZS3-to-Z2M-firmware\\studio\\tyzs5-telemetry\\build\\debug\\kagel_tyzs5_srptwvak_clean.out",
+    "elf_sizes": "text\t   data\t    bss\t    dec\t    hex\tfilename\n 166720\t     12\t  15736\t 182468\t  2c8c4\tD:\\project\\tyzs5-lock-port\\Door-Lock-TY0A01-with-TYZS3-to-Z2M-firmware\\studio\\tyzs5-telemetry\\build\\debug\\kagel_tyzs5_srptwvak_clean.out",
     "identity": "Tuya / TY0A01-TYZS5",
     "profile": "srptwvak",
     "nvm3_candidate_range": "0x77000..0x7FFFF (linked candidate only, not proof of stock layout)",
     "ota_write_install_symbols": "absent",
-    "build": "Generate + Clean + Build PASS"
+    "build": "Generate + Clean + Build PASS",
+    "opposite_model_absent": true,
+    "module_version": "1.0.2",
+    "em2_enabled": true,
+    "bootloader_probe_enabled": true
   },
   "TYZS3": {
     "hex": "studio/tyzs3-candidate/build/debug/kagel_tyzs3_ujcjk46o.hex",
-    "hex_sha256": "57e611a3ccf8bd571e7aa1615f13f6138366baf4a6bce3b1237ca5a175e2067e",
-    "hex_file_bytes": 468576,
-    "flash_data_bytes": 166576,
+    "hex_sha256": "8fb7367a45891a3d99b1b1cb794148e054a830f04fcc916bbf89305841e2ca8d",
+    "hex_file_bytes": 467668,
+    "flash_data_bytes": 166252,
     "image_range_inclusive": [
       "0x0",
-      "0x28aaf"
+      "0x2896b"
     ],
-    "elf_sizes": "text\t   data\t    bss\t    dec\t    hex\tfilename\n 166564\t     12\t  15732\t 182308\t  2c824\tD:\\project\\tyzs5-lock-port\\Door-Lock-TY0A01-with-TYZS3-to-Z2M-firmware\\studio\\tyzs3-candidate\\build\\debug\\kagel_tyzs3_ujcjk46o.out",
+    "elf_sizes": "text\t   data\t    bss\t    dec\t    hex\tfilename\n 166240\t     12\t  15720\t 181972\t  2c6d4\tD:\\project\\tyzs5-lock-port\\Door-Lock-TY0A01-with-TYZS3-to-Z2M-firmware\\studio\\tyzs3-candidate\\build\\debug\\kagel_tyzs3_ujcjk46o.out",
     "identity": "Tuya / TY0A01-TYZS3",
     "profile": "ujcjk46o",
     "nvm3_candidate_range": "0x77000..0x7FFFF (linked candidate only, not proof of stock layout)",
     "ota_write_install_symbols": "absent",
-    "build": "Generate + Clean + Build PASS"
+    "build": "Generate + Clean + Build PASS",
+    "opposite_model_absent": true,
+    "module_version": "T3-1",
+    "em2_enabled": false,
+    "bootloader_probe_enabled": false
   }
 }

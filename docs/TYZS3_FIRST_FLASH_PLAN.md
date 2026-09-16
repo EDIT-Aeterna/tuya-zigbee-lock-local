@@ -2,6 +2,8 @@
 
 This phase only builds and statically reviews a candidate. No probe was connected and no device was flashed. Do not treat the candidate HEX as a released production image.
 
+Static-gate delta: use the new images documented in `T3_1_STATIC_GATE_FIX_REPORT.md`, not the earlier `57e611a3...` TYZS3 image. The maintainer must first pass hardware regression with the new TYZS5 image. TYZS3 is EM1-only (`KAGEL_EM2_DEEPSLEEP=0`), reports module version `T3-1`, and rejects lock writes until a matching `ujcjk46o` PID is verified. Missing/invalid PID responses latch the control block; telemetry continues. Stock backup/layout and rollback gates below are unchanged.
+
 ## Gates before any write
 
 1. Review the common-core diff, host logs, profile policy and both build results. Confirm expected PID `ujcjk46o`, hardware EFR32MG13P732F512GM48, UART PA0/PA1 and 115200 8N1 against the actual board.
@@ -30,7 +32,7 @@ Commander defaults to erasing only affected pages, verifying writes and resettin
 ## Ordered first-device checks
 
 1. Capture boot UART passively: 55 AA 03 wake/product-info, PID `ujcjk46o`, MCU version and observed OTA flag. Mismatch must block control while telemetry continues.
-2. Pair/rejoin a test coordinator and read Basic `Tuya / TY0A01-TYZS3`. The production TYZS5 converter deliberately does not match; use a separately reviewed diagnostic setup for the new identity, never broaden the production fingerprint automatically.
+2. Pair/rejoin a test coordinator and read Basic `Tuya / TY0A01-TYZS3`. Use the separately reviewed experimental `zigbee2mqtt/TYZS3/tuya_ty0a01_tyzs3_candidate.js`; never load another definition for the same fingerprint. The production TYZS5 converter deliberately does not match and remains unchanged.
 3. Verify Cmd24 sequence echo, standard UTC and local UTC+28800. Observe battery/events and DP58/59/60/93 where supported.
 4. With maintainer approval for each physical action, exercise one DP21, then sacrificial test credentials through DP54/55; verify only the specific malformed stage-0 report is accepted. Types 1/2/3 and optional type 4 must use actual lock-supported credentials. Never delete existing household credentials as a test.
 5. Confirm forbidden controls produce no UART wake/application command. No temporary-password, freeze/unfreeze or DP48/49 provisioning tests on the first candidate.
@@ -47,4 +49,4 @@ On boot/identity/time/control failure stop commands and retain logs. Verify the 
 
 This deliberately restores the full saved main flash (including stock code/NVM) and relies on Commander's normal verification; it does not restore external lock-MCU credentials or USERDATA. Confirm stock boot/identity and basic operation. Do not improvise a chip erase if restoration fails. Keep original backups permanently.
 
-Status: Ready for maintainer static review before first TYZS3 TZLL flash.
+Status: Ready for maintainer TYZS5 regression test and stock-layout review; TYZS3 flash not yet approved.

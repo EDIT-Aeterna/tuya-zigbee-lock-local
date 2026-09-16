@@ -410,9 +410,9 @@ static void handle_frame(tls_ctx_t *c, const uint8_t *f, size_t flen)
 
     case TLS_CMD_PRODUCT_INFO:
         /* MCU's reply carries JSON {"p":PID,"v":ver} then a trailing OTA flag. */
-        if (c->hal.on_product_info && dlen >= 1) {
-            bool ota = (data[dlen - 1] == 0x01);
-            c->hal.on_product_info((const char *)data, dlen - 1, ota);
+        if (c->hal.on_product_info) {
+            bool ota = dlen && (data[dlen - 1] == 0x01);
+            c->hal.on_product_info((const char *)data, dlen ? dlen - 1 : 0, ota);
         }
         break;
 

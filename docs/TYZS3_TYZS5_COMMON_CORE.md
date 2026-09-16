@@ -1,5 +1,7 @@
 # Phase T3-1: common residential-lock core
 
+The static-gate delta in `T3_1_STATIC_GATE_FIX_REPORT.md` supersedes the original first-candidate details below: runtime identity is target-specific, TYZS3 requires verified PID before writes, one deferred product-info retry is implemented, TYZS3 is EM1-only and reports version T3-1. The original HEX hashes below are historical and must not be used for first flash; current hashes are in `artifacts/t3-1/build-results.json`.
+
 Baseline: `866a7ad` (`v1.0.0-alpha.2`), converter Stable v1.2.2. The supplied taskbook identifies this as the validated TYZS5 baseline, including maintainer converter validation; this phase performs no hardware testing. Branch: `feature/tyzs3-common-core`. Existing release tags and main remain unchanged. The two untracked alpha.1 ZIPs were preserved outside the repository in `../pre-t3-release-archives/` before work began.
 
 ## Layout and ownership
@@ -31,6 +33,7 @@ Module build identity (`KAGEL_PROFILE`) is distinct from lock-MCU policy (`lock_
 |---|---|---|
 | Writable DP | 21,24,25,26,27,28,48,49,54,55 | 21,54,55 |
 | Timezone | +28800 seconds | +28800 seconds |
+| Verified PID required before lock writes | No; observed mismatch still blocks | Yes |
 | DP54 malformed initial report | Disabled | Narrow stage-0 quirk |
 | Credential control types | 1 password / 2 card / 3 fingerprint | Same plus observed type 4 face |
 | Temp password / freeze / unfreeze | Existing zero-schedule behavior preserved | Disabled |
@@ -68,4 +71,4 @@ The first-flash procedure and rollback gates are in `TYZS3_FIRST_FLASH_PLAN.md`.
 
 New regression vectors contain synthetic credentials only. Production bitmap tests remain unchanged. No hardware connection, flashing, main merge or release publication is part of T3-1.
 
-Status: Ready for maintainer static review before first TYZS3 TZLL flash.
+Status: Ready for maintainer TYZS5 regression test and stock-layout review; TYZS3 flash not yet approved.

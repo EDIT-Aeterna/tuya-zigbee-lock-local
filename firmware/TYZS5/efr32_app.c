@@ -71,7 +71,7 @@ extern volatile uint8_t  g_dbg_done_beacons;  /* app.c: beacons heard in steer *
  * ZCL table and can't be added without a Studio regen (unavailable), so we report
  * this over EF00 DP204 on each join; the converter maps it to the 'firmware' field.
  * Bump on every flashed build; this is also the human string for the OTA release. */
-#define KAGEL_FW_VERSION  "1.0.2"
+/* KAGEL_FW_VERSION is selected by the explicit module profile. */
 
 #define KAGEL_ENDPOINT     1
 #define KAGEL_CLUSTER_EF00 0xEF00
@@ -111,7 +111,9 @@ volatile uint32_t g_dbg_uart_first_55_after_gpio_wake;
  * during/just-after any UART byte, while a DP send is pending, and while a pair window is
  * open; only when settled-joined + idle do we release to EM2. Set KAGEL_EM2_DEEPSLEEP 0 to
  * revert to pure EM1 (today's behavior). The deaf-radio self-heal is the backstop. */
+#ifndef KAGEL_EM2_DEEPSLEEP
 #define KAGEL_EM2_DEEPSLEEP  1
+#endif
 #define KAGEL_UART_QUIET_MS  400u          /* stay in EM1 this long after the last UART edge */
 #define KAGEL_UART_RX_INTERBYTE_TIMEOUT_MS 20u /* parser gap; separate from EM1 quiet time */
 static volatile uint32_t g_poll_long_ms = 2000;   /* hub-settable: perf 1000 / balanced 2000 / saver 6000 (must stay < coordinator indirect TTL ~7.68s) */
@@ -915,8 +917,12 @@ void kagel_app_init(void) {
     /* Force-serve the Basic identity so z2m's interview always reads it (the ZAP
      * RAM defaults read back empty). ZCL char strings are length-prefixed;
      * cluster 0x0000 Basic, attr 0x0004 mfrName / 0x0005 modelId, type 0x42 string. */
-    static const uint8_t s_mfg[]   = {4,'T','u','y','a'};
-    static const uint8_t s_model[] = {12,'T','Y','0','A','0','1','-','T','Y','Z','S','5'};
+    uint8_t s_mfg[sizeof KAGEL_BASIC_MANUFACTURER];
+    uint8_t s_model[sizeof KAGEL_BASIC_MODEL];
+    s_mfg[0] = sizeof KAGEL_BASIC_MANUFACTURER - 1;
+    s_model[0] = sizeof KAGEL_BASIC_MODEL - 1;
+    memcpy(s_mfg + 1, KAGEL_BASIC_MANUFACTURER, sizeof s_mfg - 1);
+    memcpy(s_model + 1, KAGEL_BASIC_MODEL, sizeof s_model - 1);
     g_dbg_mfg_wr   = (uint8_t)emberAfWriteServerAttribute(KAGEL_ENDPOINT, 0x0000, 0x0004, (uint8_t *)s_mfg,   0x42);
     g_dbg_model_wr = (uint8_t)emberAfWriteServerAttribute(KAGEL_ENDPOINT, 0x0000, 0x0005, (uint8_t *)s_model, 0x42);
     /* Basic attr 0x0007 powerSource = BATTERY (0x03, enum8). ZAP default is 0x00
@@ -927,9 +933,11 @@ void kagel_app_init(void) {
     static const uint8_t s_pwr = EMBER_ZCL_POWER_SOURCE_BATTERY;
     g_dbg_pwr_wr = (uint8_t)emberAfWriteServerAttribute(KAGEL_ENDPOINT, 0x0000, 0x0007, (uint8_t *)&s_pwr, ZCL_ENUM8_ATTRIBUTE_TYPE);
 
-    bootloader_init();   /* OTA: bring up the Gecko bootloader storage interface */
+#if KAGEL_BOOTLOADER_PROBE
+    bootloader_init();   /* Read-only legacy probe, disabled for first TYZS3 */
     { BootloaderStorageSlot_t si; g_dbg_slot_rc = (uint32_t)bootloader_getStorageSlotInfo(OTA_SLOT, &si);
       if (g_dbg_slot_rc == 0) { g_dbg_slot_addr = si.address; g_dbg_slot_size = si.length; } }
+#endif
 
     /* BOOT NEVER OPENS A PAIRING WINDOW. Only a deliberate user press (MCU 0x03
      * sub=0x01) does -- see hal_on_config.

@@ -11,6 +11,7 @@ typedef struct {
     bool temporary_passwords;
     bool password_free;
     bool face_credentials;
+    bool require_pid_match_for_writes;
 } lock_profile_t;
 extern const lock_profile_t lock_profile_srptwvak;
 extern const lock_profile_t lock_profile_ujcjk46o;

@@ -59,5 +59,8 @@
   },
   "bitmap_reference": {
     "test": 0
+  },
+  "tyzs3_converter": {
+    "test": 0
   }
 }

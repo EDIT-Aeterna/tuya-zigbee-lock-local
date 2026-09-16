@@ -32,6 +32,7 @@ static uint32_t core_gmt(void) {
 }
 static void core_on_frame(uint8_t cmd, const uint8_t *data, uint16_t dlen, void *user) {
     lock_app_t *a = app_of(user);
+    if (a) a->mcu_seen = true; /* no TX while the serial frame is dispatching */
     if (a && a->hal.on_frame) a->hal.on_frame(cmd, data, dlen, a->hal.user);
 }
 static void core_on_unhandled(uint8_t cmd, void *user) {
@@ -65,8 +66,12 @@ static bool core_is_online(void *user) {
  * (read-only DPs like door/battery/unlock events, DPs this PID doesn't have,
  * wrong types) is DROPPED before it reaches the lock MCU. Defense-in-depth on
  * top of the auth gate: even an authed hub session can't poke arbitrary DPs. */
+static bool identity_allows_writes(const lock_app_t *a) {
+    return a && !a->pid_mismatch &&
+        (!a->profile->require_pid_match_for_writes || a->pid_verified);
+}
 static int validate_control_dp(uint8_t dp, uint8_t type, const uint8_t *v, size_t n) {
-    if (!g_active_app || g_active_app->pid_mismatch || type != TLS_DP_RAW ||
+    if (!identity_allows_writes(g_active_app) || type != TLS_DP_RAW ||
         !kagel_control_dp_allowed(dp)) return 0;
     /* Face uses the same reviewed structure, permitted only on its profile. */
     if ((dp == 54u || dp == 55u) && v && n && v[0] == 4u &&
@@ -126,7 +131,8 @@ static void core_product_info(const char *s,size_t n,bool ota) {
         json_space(s,n,&i);
     }
 done:
-    json_space(s,n,&i); if(i!=n)goto invalid;
+    json_space(s,n,&i); if(i!=n || !hasp)goto invalid;
+    a->product_info_seen=true;
     if(hasp) {
         size_t expected=strlen(a->profile->expected_pid);
         if(pn!=expected || memcmp(s+ps,a->profile->expected_pid,pn)!=0) a->pid_mismatch=true;
@@ -138,10 +144,12 @@ done:
         memcpy(a->mcu_version,s+vs,copy);a->mcu_version[copy]=0;
     }
     a->observed_ota=ota;
+    a->pid_verified=!a->pid_mismatch;
     if (a->pid_mismatch) {a->tls.pend_active=0; a->tls.pend_len=0;}
     return;
 invalid:
     a->pid_mismatch=true;
+    a->pid_verified=false;
     a->tls.pend_active=0; a->tls.pend_len=0;
 }
 
@@ -169,12 +177,18 @@ void lock_app_init(lock_app_t *a, const lock_app_hal_t *hal) {
 
 void lock_app_start(lock_app_t *a) {
     g_active_app = a;
+    a->product_query_started = true;
     tls_request_product_info(&a->tls);   /* stock module's first move; gate stays closed */
 }
 
 void lock_app_uart_rx(lock_app_t *a, const uint8_t *bytes, size_t n) {
     g_active_app = a;
     tls_rx_feed(&a->tls, bytes, n);
+    if (a->product_query_started && a->mcu_seen && !a->product_info_seen &&
+        !a->product_info_retry_sent) {
+        a->product_info_retry_sent = true;
+        tls_request_product_info(&a->tls);
+    }
 }
 
 void lock_app_announce_online(lock_app_t *a) {
@@ -259,7 +273,7 @@ int lock_app_create_temp_pw(lock_app_t *a, uint16_t pw_id, uint32_t valid_from,
                             const uint8_t *pw, uint8_t pwlen) {
     g_active_app = a;
     if (!core_is_online(a)) return 0;                 /* only when joined */
-    if (a->pid_mismatch || !lock_profile_dp_allowed(a->profile,24)) return 0;  /* belt-and-suspenders */
+    if (!identity_allows_writes(a) || !lock_profile_dp_allowed(a->profile,24)) return 0;
     /* Stamp the window against the lock's OWN clock (== the 0x24 time we serve). */
     uint32_t now   = core_gmt();
     uint32_t start = now + valid_from;

@@ -22,6 +22,8 @@ for target,folder,stem,profile in [('TYZS5','tyzs5-telemetry','kagel_tyzs5_srptw
     assert eof and min(data)==0 and max(data)<0x77000
     image=bytes(data.get(a,255) for a in range(max(data)+1))
     assert ('TY0A01-'+target).encode() in image and b'Tuya' in image
+    opposite = 'TYZS3' if target == 'TYZS5' else 'TYZS5'
+    assert ('TY0A01-'+opposite).encode() not in image, 'Opposite runtime model present'
     nm=subprocess.check_output([str(tools/'arm-none-eabi-nm.exe'),'-n',str(elf)],text=True)
     symbols={line.split()[-1]:line.split()[0] for line in nm.splitlines() if len(line.split())>=3}
     for forbidden in ['bootloader_writeStorage','bootloader_eraseStorageSlot','bootloader_setImageToBootload','bootloader_rebootAndInstall']:
@@ -30,11 +32,21 @@ for target,folder,stem,profile in [('TYZS5','tyzs5-telemetry','kagel_tyzs5_srptw
     assert int(symbols['linker_nvm_begin'],16)==0x77000 and int(symbols['linker_nvm_end'],16)==0x80000
     defs=(project/(stem+'.project.mak')).read_text()
     assert '-DKAGEL_TELEMETRY_ONLY=1' in defs and '-DKAGEL_CONTROL_STAGE2G=1' in defs
-    if target=='TYZS3':assert '-DLOCK_PROFILE_UJCJK46O=1' in defs
+    if target=='TYZS3':
+        assert '-DLOCK_PROFILE_UJCJK46O=1' in defs
+        assert '-DKAGEL_EM2_DEEPSLEEP=0' in defs
+        assert b'T3-1' in image
+        adapter = subprocess.check_output([str(tools/'arm-none-eabi-objdump.exe'),'-d','--disassemble=kagel_app_init',str(elf)],text=True)
+        assert '<bootloader_init>' not in adapter and 'bootloader_getStorageSlotInfo' not in symbols
+        # SDK sl_platform_init still initializes its mandatory read-only interface.
+    else:
+        assert '-DKAGEL_EM2_DEEPSLEEP=0' not in defs
+        assert b'1.0.2' in image
     zap=json.loads((project/'config/zcl/zcl_config.zap').read_text())
     assert not any(c.get('enabled') and c.get('code')==25 for e in zap['endpointTypes'] for c in e['clusters'])
     sizes=subprocess.check_output([str(tools/'arm-none-eabi-size.exe'),str(elf)],text=True).strip()
     results[target]={'hex':str(hexpath.relative_to(root)).replace('\\','/'),'hex_sha256':hashlib.sha256(hexpath.read_bytes()).hexdigest(),'hex_file_bytes':hexpath.stat().st_size,'flash_data_bytes':len(data),'image_range_inclusive':[hex(min(data)),hex(max(data))],'elf_sizes':sizes,'identity':'Tuya / TY0A01-'+target,'profile':profile,'nvm3_candidate_range':'0x77000..0x7FFFF (linked candidate only, not proof of stock layout)','ota_write_install_symbols':'absent','build':'Generate + Clean + Build PASS'}
+    results[target].update({'opposite_model_absent':True,'module_version':'T3-1' if target=='TYZS3' else '1.0.2','em2_enabled':target=='TYZS5','bootloader_probe_enabled':target=='TYZS5'})
     (root/'artifacts/t3-1'/(target.lower()+'-symbols.txt')).write_text(nm,encoding='utf8')
 out=root/'artifacts/t3-1/build-results.json';out.write_text(json.dumps(results,indent=2),encoding='utf8')
 print(json.dumps(results,indent=2))

@@ -3,21 +3,21 @@ SLF4J(W): Defaulting to no-operation (NOP) logger implementation
 SLF4J(W): See https://www.slf4j.org/codes.html#noProviders for further details.
 Found valid project type for makefile
 Generation location: D:\project\tyzs5-lock-port\Door-Lock-TY0A01-with-TYZS3-to-Z2M-firmware\studio\tyzs3-candidate
-Generation: Starting AC generation for ucProject in project kagel_tyzs3_ujcjk46o: Wed Sep 16 22:29:26 CST 2026
-Generation: Starting AC generation for ProjectPostBuild in project kagel_tyzs3_ujcjk46o: Wed Sep 16 22:29:26 CST 2026
-Generation: AC content generated for ProjectPostBuild in project kagel_tyzs3_ujcjk46o. Elapsed time: 8ms
-Generation: Starting AC generation for ProjectPostBuild in project kagel_tyzs3_ujcjk46o: Wed Sep 16 22:29:27 CST 2026
-Generation: AC content generated for ProjectPostBuild in project kagel_tyzs3_ujcjk46o. Elapsed time: 6ms
-Generation: AC content generated for ucProject in project kagel_tyzs3_ujcjk46o. Elapsed time: 942ms
-Generation: Starting project generation for kagel_tyzs3_ujcjk46o: Wed Sep 16 22:29:27 CST 2026
+Generation: Starting AC generation for ucProject in project kagel_tyzs3_ujcjk46o: Wed Sep 16 22:55:09 CST 2026
+Generation: Starting AC generation for ProjectPostBuild in project kagel_tyzs3_ujcjk46o: Wed Sep 16 22:55:10 CST 2026
+Generation: AC content generated for ProjectPostBuild in project kagel_tyzs3_ujcjk46o. Elapsed time: 9ms
+Generation: Starting AC generation for ProjectPostBuild in project kagel_tyzs3_ujcjk46o: Wed Sep 16 22:55:10 CST 2026
+Generation: AC content generated for ProjectPostBuild in project kagel_tyzs3_ujcjk46o. Elapsed time: 5ms
+Generation: AC content generated for ucProject in project kagel_tyzs3_ujcjk46o. Elapsed time: 971ms
+Generation: Starting project generation for kagel_tyzs3_ujcjk46o: Wed Sep 16 22:55:10 CST 2026
 Generation: Projects generated kagel_tyzs3_ujcjk46o.Makefile
-Generation: Project generation completed for kagel_tyzs3_ujcjk46o: Elapsed time: 1243ms
-Total generation time: 2235 ms
+Generation: Project generation completed for kagel_tyzs3_ujcjk46o: Elapsed time: 1347ms
+Total generation time: 2370 ms
 
 Generation for kagel_tyzs3_ujcjk46o to D:\project\tyzs5-lock-port\Door-Lock-TY0A01-with-TYZS3-to-Z2M-firmware\studio\tyzs3-candidate has completed.
 Reference the following for more information:
   readme.html
-🔧 Using temporary state directory: C:\Users\Aerial\AppData\Local\Temp\zap.la6iKh
+🔧 Using temporary state directory: C:\Users\Aerial\AppData\Local\Temp\zap.CJT350
 🤖 ZAP generation started:
     🔍 input files: D:\project\tyzs5-lock-port\Door-Lock-TY0A01-with-TYZS3-to-Z2M-firmware\studio\tyzs3-candidate\config\zcl\zcl_config.zap
     🔍 input Extension files:
@@ -25,7 +25,7 @@ Reference the following for more information:
     🔍 using templates: C:\Users\Aerial\SimplicityStudio\SDKs\gecko_sdk\protocol\zigbee\app\framework\gen-template\gen-templates.json
     🔍 using zcl data: D:\project\tyzs5-lock-port\Door-Lock-TY0A01-with-TYZS3-to-Z2M-firmware\studio\tyzs3-candidate\config\zcl\kagel-zcl.json
     🔍 zap version: ver. 2025.10.23, featureLevel 107, commit: d751c4bfb7467889e7ac79794d2f996f252c3cea from 2025-10-23T13:39:49.000Z, mode: binary, exe: C:\SiliconLabs\SimplicityStudio\v5\developer\adapter_packs\zap\zap-cli.exe
-🕐 Setup time: 1s 111ms
+🕐 Setup time: 1s 39ms
 👉 using input file: D:\project\tyzs5-lock-port\Door-Lock-TY0A01-with-TYZS3-to-Z2M-firmware\studio\tyzs3-candidate\config\zcl\zcl_config.zap
 
 
@@ -46,14 +46,14 @@ Application is failing the Cluster Specification as follows:
 
 
 👉 using output destination: D:\project\tyzs5-lock-port\Door-Lock-TY0A01-with-TYZS3-to-Z2M-firmware\studio\tyzs3-candidate\autogen
-🕐 File loading time: 31ms
+🕐 File loading time: 29ms
 🤖 Generating files:
     ✍  D:\project\tyzs5-lock-port\Door-Lock-TY0A01-with-TYZS3-to-Z2M-firmware\studio\tyzs3-candidate\autogen\zap-cluster-command-parser.h
     ✍  D:\project\tyzs5-lock-port\Door-Lock-TY0A01-with-TYZS3-to-Z2M-firmware\studio\tyzs3-candidate\autogen\zap-print.h
     ✍  D:\project\tyzs5-lock-port\Door-Lock-TY0A01-with-TYZS3-to-Z2M-firmware\studio\tyzs3-candidate\autogen\zap-event.c
-    ✍  D:\project\tyzs5-lock-port\Door-Lock-TY0A01-with-TYZS3-to-Z2M-firmware\studio\tyzs3-candidate\autogen\zap-id.h
-    ✍  D:\project\tyzs5-lock-port\Door-Lock-TY0A01-with-TYZS3-to-Z2M-firmware\studio\tyzs3-candidate\autogen\zap-event.h
     ✍  D:\project\tyzs5-lock-port\Door-Lock-TY0A01-with-TYZS3-to-Z2M-firmware\studio\tyzs3-candidate\autogen\zap-enabled-incoming-commands.h
+    ✍  D:\project\tyzs5-lock-port\Door-Lock-TY0A01-with-TYZS3-to-Z2M-firmware\studio\tyzs3-candidate\autogen\zap-event.h
+    ✍  D:\project\tyzs5-lock-port\Door-Lock-TY0A01-with-TYZS3-to-Z2M-firmware\studio\tyzs3-candidate\autogen\zap-id.h
     ✍  D:\project\tyzs5-lock-port\Door-Lock-TY0A01-with-TYZS3-to-Z2M-firmware\studio\tyzs3-candidate\autogen\zap-cli.c
     ✍  D:\project\tyzs5-lock-port\Door-Lock-TY0A01-with-TYZS3-to-Z2M-firmware\studio\tyzs3-candidate\autogen\zap-tokens.h
     ✍  D:\project\tyzs5-lock-port\Door-Lock-TY0A01-with-TYZS3-to-Z2M-firmware\studio\tyzs3-candidate\autogen\zap-config.h
@@ -61,15 +61,15 @@ Application is failing the Cluster Specification as follows:
     ✍  D:\project\tyzs5-lock-port\Door-Lock-TY0A01-with-TYZS3-to-Z2M-firmware\studio\tyzs3-candidate\autogen\zap-type.h
     ✍  D:\project\tyzs5-lock-port\Door-Lock-TY0A01-with-TYZS3-to-Z2M-firmware\studio\tyzs3-candidate\autogen\zap-command-structs.h
     ✍  D:\project\tyzs5-lock-port\Door-Lock-TY0A01-with-TYZS3-to-Z2M-firmware\studio\tyzs3-candidate\autogen\zap-cluster-command-parser.c
-🕐 Generation time: 1s 827ms
+🕐 Generation time: 1s 837ms
 ZAP generation completed: D:\project\tyzs5-lock-port\Door-Lock-TY0A01-with-TYZS3-to-Z2M-firmware\studio\tyzs3-candidate\autogen
 rm -f -rf build
 # No pre-build defined
 Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/platform/bootloader/api/btl_interface.c
 Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/platform/bootloader/api/btl_interface_storage.c
 Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/platform/bootloader/app_properties/app_properties.c
-Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/platform/common/src/sl_assert.c
 Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/platform/common/src/sl_slist.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/platform/common/src/sl_assert.c
 Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/platform/common/src/sl_syscalls.c
 Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/platform/common/toolchain/src/sl_memory.c
 Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/platform/Device/SiliconLabs/EFR32MG13P/Source/startup_efr32mg13p.c
@@ -158,8 +158,8 @@ Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/protocol/zigbee/app/fra
 Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/protocol/zigbee/app/framework/util/af-soc-common.c
 Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/protocol/zigbee/app/framework/util/af-soc.c
 Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/protocol/zigbee/app/framework/util/attribute-size.c
-Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/protocol/zigbee/app/framework/util/attribute-storage.c
 Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/protocol/zigbee/app/framework/util/attribute-table.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/protocol/zigbee/app/framework/util/attribute-storage.c
 Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/protocol/zigbee/app/framework/util/client-api.c
 Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/protocol/zigbee/app/framework/util/global-callback.c
 Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/protocol/zigbee/app/framework/util/global-other-callback.c
@@ -177,10 +177,10 @@ Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/protocol/zigbee/app/uti
 Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/protocol/zigbee/app/util/zigbee-framework/zigbee-device-common.c
 Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/protocol/zigbee/app/util/zigbee-framework/zigbee-device-library.c
 Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/protocol/zigbee/stack/config/ember-configuration-access.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/protocol/zigbee/stack/config/ember-configuration.c
 C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/protocol/zigbee/app/util/common/library.c:36:21: warning: 'libraryNames' defined but not used [-Wunused-variable]
    36 | static const char * libraryNames[] = {
       |                     ^~~~~~~~~~~~
-Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/protocol/zigbee/stack/config/ember-configuration.c
 Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/protocol/zigbee/stack/core/ember-multi-network-stub.c
 Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/protocol/zigbee/stack/core/multi-pan-common.c
 Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/protocol/zigbee/stack/core/multi-pan-stub.c
@@ -215,13 +215,13 @@ Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/util/third_party/mbedtl
 Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/util/third_party/mbedtls/library/constant_time.c
 Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/util/third_party/mbedtls/library/platform.c
 Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/util/third_party/mbedtls/library/platform_util.c
-Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/util/third_party/mbedtls/library/psa_util.c
 Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/util/third_party/mbedtls/library/psa_crypto_client.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/util/third_party/mbedtls/library/psa_util.c
 Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/util/third_party/mbedtls/library/threading.c
 Building ../../firmware/common/kagel_control_gate.c
 Building ../../firmware/common/lock_app.c
-Building ../../firmware/common/lock_profile.c
 Building ../../firmware/common/nicki_ek_lock_serial.c
+Building ../../firmware/common/lock_profile.c
 Building ../../firmware/TYZS3/efr32_app.c
 Building app.c
 Building autogen/sl_cluster_service_gen.c
@@ -230,6 +230,15 @@ Building autogen/sl_event_handler.c
 Building autogen/sl_power_manager_handler.c
 Building autogen/sl_rail_util_ieee802154_phy_select.c
 Building autogen/sl_rail_util_ieee802154_stack_event.c
+In file included from ../../firmware/TYZS3/efr32_app.c:5:
+../../firmware/TYZS3/../TYZS5/efr32_app.c: In function 'kagel_app_tick':
+../../firmware/TYZS3/../TYZS5/efr32_app.c:996:13: warning: variable 'settled' set but not used [-Wunused-but-set-variable]
+  996 |         int settled = 0;
+      |             ^~~~~~~
+../../firmware/TYZS3/../TYZS5/efr32_app.c: At top level:
+../../firmware/TYZS3/../TYZS5/efr32_app.c:157:13: warning: 'em1_release' defined but not used [-Wunused-function]
+  157 | static void em1_release(void) {       /* arm the EM2 wake, then let PM drop to EM2 */
+      |             ^~~~~~~~~~~
 Building autogen/zigbee_common_callback_dispatcher.c
 Building autogen/zigbee_stack_callback_dispatcher.c
 Building autogen/zigbee_zcl_callback_dispatcher.c

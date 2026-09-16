@@ -65,6 +65,11 @@ typedef struct {
     char mcu_version[17];
     bool observed_ota;
     bool pid_mismatch; /* sticky until reinitialization */
+    bool pid_verified;
+    bool product_query_started;
+    bool mcu_seen;
+    bool product_info_seen;
+    bool product_info_retry_sent;
     uint16_t       txn;     /* DP24 temp-pw transaction counter (per the capture) */
 } lock_app_t;
 

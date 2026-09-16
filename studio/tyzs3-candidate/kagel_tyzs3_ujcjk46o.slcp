@@ -48,6 +48,7 @@ define:
 - {name: KAGEL_PROFILE, value: KAGEL_PROFILE_TYZS3_HARDENED}
 - {name: KAGEL_REQUIRE_EXPLICIT_PROFILE, value: '1'}
 - {name: LOCK_PROFILE_UJCJK46O, value: '1'}
+- {name: KAGEL_EM2_DEEPSLEEP, value: '0'}
 - {name: KAGEL_REQUIRE_TYZS3_PROFILE, value: '1'}
 config_file:
 - {path: config/zcl/zcl_config.zap, directory: zcl}
