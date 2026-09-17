@@ -20,6 +20,8 @@ commits=git('log','--reverse','--format=%h %s',baseline+'..HEAD').decode()
 (out/'common-core.diff').write_bytes(git('diff','--binary','--find-renames',baseline,'HEAD','--','firmware','tests','tools','studio/tyzs5-telemetry/kagel_tyzs5_srptwvak_clean.slcp','studio/tyzs3-candidate/kagel_tyzs3_ujcjk46o.slcp'))
 copy('docs/TYZS3_TYZS5_COMMON_CORE.md','COMMON_CORE_REPORT.md')
 copy('docs/TYZS3_FIRST_FLASH_PLAN.md','FIRST_FLASH_PLAN.md')
+if (root/'docs/TYZS3_PID_GATE_HOTFIX_REPORT.md').exists():
+    copy('docs/TYZS3_PID_GATE_HOTFIX_REPORT.md','PID_GATE_HOTFIX_REPORT.md')
 if (root/'docs/T3_1_STATIC_GATE_FIX_REPORT.md').exists():
     copy('docs/T3_1_STATIC_GATE_FIX_REPORT.md','STATIC_GATE_FIX_REPORT.md')
     copy('zigbee2mqtt/TYZS3/tuya_ty0a01_tyzs3_candidate.js','zigbee2mqtt/tuya_ty0a01_tyzs3_candidate.js')

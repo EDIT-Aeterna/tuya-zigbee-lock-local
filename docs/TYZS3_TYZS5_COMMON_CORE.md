@@ -1,5 +1,7 @@
 # Phase T3-1: common residential-lock core
 
+Latest delta: `TYZS3_PID_GATE_HOTFIX_REPORT.md` accepts measured pure JSON and JSON plus an optional 0/1 OTA byte without weakening the PID gate. It supplies the current HEX hashes; earlier build hashes in this document and the static-gate report are historical.
+
 The static-gate delta in `T3_1_STATIC_GATE_FIX_REPORT.md` supersedes the original first-candidate details below: runtime identity is target-specific, TYZS3 requires verified PID before writes, one deferred product-info retry is implemented, TYZS3 is EM1-only and reports version T3-1. The original HEX hashes below are historical and must not be used for first flash; current hashes are in `artifacts/t3-1/build-results.json`.
 
 Baseline: `866a7ad` (`v1.0.0-alpha.2`), converter Stable v1.2.2. The supplied taskbook identifies this as the validated TYZS5 baseline, including maintainer converter validation; this phase performs no hardware testing. Branch: `feature/tyzs3-common-core`. Existing release tags and main remain unchanged. The two untracked alpha.1 ZIPs were preserved outside the repository in `../pre-t3-release-archives/` before work began.

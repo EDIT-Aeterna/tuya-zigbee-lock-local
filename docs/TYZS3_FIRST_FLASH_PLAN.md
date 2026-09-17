@@ -1,5 +1,7 @@
 # TYZS3 first-flash plan — candidate, manual review required
 
+PID hotfix update: use the HEX hashes in `TYZS3_PID_GATE_HOTFIX_REPORT.md`, superseding both earlier candidate builds. After maintainer flashing, cold boot and capture Cmd01 pure JSON, then validate DP21, DP54 and DP55 in that order. Expected path: Zigbee EF00 -> verified PID gate -> UART wake -> Cmd04. Backup/layout and rollback gates below still apply.
+
 This phase only builds and statically reviews a candidate. No probe was connected and no device was flashed. Do not treat the candidate HEX as a released production image.
 
 Static-gate delta: use the new images documented in `T3_1_STATIC_GATE_FIX_REPORT.md`, not the earlier `57e611a3...` TYZS3 image. The maintainer must first pass hardware regression with the new TYZS5 image. TYZS3 is EM1-only (`KAGEL_EM2_DEEPSLEEP=0`), reports module version `T3-1`, and rejects lock writes until a matching `ujcjk46o` PID is verified. Missing/invalid PID responses latch the control block; telemetry continues. Stock backup/layout and rollback gates below are unchanged.

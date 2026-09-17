@@ -1,5 +1,7 @@
 # T3-1 static-gate fixes
 
+Historical static-gate build: its HEX hashes are superseded by `TYZS3_PID_GATE_HOTFIX_REPORT.md`. Use the hotfix images for subsequent validation; the earlier TYZS3 image incorrectly rejects pure-JSON product info.
+
 Baseline: `5f41ef2287c624c43c24a5d34adb958489773a72`, branch `feature/tyzs3-common-core`. This delta fixes first-flash gates only. No production converter change, new writable DP, hardware write or release publication.
 
 ## Runtime identity and version

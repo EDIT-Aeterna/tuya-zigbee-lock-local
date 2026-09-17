@@ -409,10 +409,17 @@ static void handle_frame(tls_ctx_t *c, const uint8_t *f, size_t flen)
         break;
 
     case TLS_CMD_PRODUCT_INFO:
-        /* MCU's reply carries JSON {"p":PID,"v":ver} then a trailing OTA flag. */
+        /* Stock product-info is pure JSON or JSON plus a 0/1 OTA flag.
+         * Never strip the closing brace from a pure JSON response. */
         if (c->hal.on_product_info) {
-            bool ota = dlen && (data[dlen - 1] == 0x01);
-            c->hal.on_product_info((const char *)data, dlen ? dlen - 1 : 0, ota);
+            size_t json_len = dlen;
+            bool ota = false;
+            if (dlen >= 2u && data[dlen - 2u] == (uint8_t)'}' &&
+                (data[dlen - 1u] == 0x00u || data[dlen - 1u] == 0x01u)) {
+                json_len = dlen - 1u;
+                ota = data[dlen - 1u] == 0x01u;
+            }
+            c->hal.on_product_info((const char *)data, json_len, ota);
         }
         break;
 

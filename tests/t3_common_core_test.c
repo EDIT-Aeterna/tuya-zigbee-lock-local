@@ -15,7 +15,9 @@ static void feed(lock_app_t *a,uint8_t cmd,const uint8_t *d,size_t n){
  for(size_t i=0;i<n+8;i++)sum=(uint8_t)(sum+f[i]);
  f[n+8]=sum;lock_app_uart_rx(a,f,n+9);
 }
-static void info(lock_app_t *a,const char *json){uint8_t b[200];size_t n=strlen(json);assert(n<sizeof b);memcpy(b,json,n);b[n]=1;feed(a,1,b,n+1);}
+static void info_with_ota(lock_app_t *a,const char *json,uint8_t ota){uint8_t b[200];size_t n=strlen(json);assert(n+1<sizeof b);memcpy(b,json,n);b[n]=ota;feed(a,1,b,n+1);}
+static void info(lock_app_t *a,const char *json){info_with_ota(a,json,1);}
+static void info_plain(lock_app_t *a,const char *json){feed(a,1,(const uint8_t *)json,strlen(json));}
 static void send21(lock_app_t *a){const uint8_t b[]={0,1,21,0,0,6,'1','2','3','4','5','6'};lock_app_ef00_rx(a,0,b,sizeof b);}
 static void verify_pid(lock_app_t *a){char j[80];snprintf(j,sizeof j,"{\"p\":\"%s\",\"v\":\"1.0.0\"}",a->profile->expected_pid);info(a,j);assert(a->pid_verified);}
 int main(void){
@@ -43,6 +45,17 @@ int main(void){
  for(unsigned d=0;d<256;d++){bool expected=d==21||d==24||d==25||d==26||d==27||d==28||d==48||d==49||d==54||d==55;
  assert(lock_profile_dp_allowed(p5,(uint8_t)d)==expected);assert(lock_profile_dp_allowed(p3,(uint8_t)d)==(d==21||d==54||d==55));}
  lock_app_t a;lock_app_hal_t h={0};h.uart_write=uart;h.gmt_now=now;h.zb_ef00_report=report;lock_app_init(&a,&h);
+ /* Product-info variants observed on real locks: pure JSON and JSON+OTA byte. */
+ {
+   char j[80];snprintf(j,sizeof j,"{\"p\":\"%s\",\"v\":\"1.0.0\"}",a.profile->expected_pid);
+   info_plain(&a,j);assert(a.pid_verified && !a.pid_mismatch && !a.observed_ota);
+   writes=0;send21(&a);assert(writes>0 && a.tls.pend_active);
+   lock_app_init(&a,&h);info_with_ota(&a,j,1);assert(a.pid_verified && !a.pid_mismatch && a.observed_ota);
+   lock_app_init(&a,&h);info_with_ota(&a,j,0);assert(a.pid_verified && !a.pid_mismatch && !a.observed_ota);
+   lock_app_init(&a,&h);info_with_ota(&a,j,2);assert(a.pid_mismatch && !a.pid_verified);
+   writes=0;send21(&a);assert(writes==0);
+ }
+ lock_app_init(&a,&h);
  feed(&a,0x24,NULL,0);assert(txlen==17 && tx[0]==0x55 && tx[1]==0xAA && tx[2]==3 && tx[3]==0x12 && tx[4]==0x34);
  uint32_t utc=((uint32_t)tx[8]<<24)|((uint32_t)tx[9]<<16)|((uint32_t)tx[10]<<8)|tx[11];
  uint32_t local=((uint32_t)tx[12]<<24)|((uint32_t)tx[13]<<16)|((uint32_t)tx[14]<<8)|tx[15];assert(utc==1700000000u && local-utc==28800);
