@@ -1,5 +1,5 @@
-// Experimental / first-flash diagnostic converter for TYZS3 ujcjk46o.
-// Only DP21/54/55 writes. Not a production release or hardware approval.
+// TYZS3 converter v0.1.0 — Initial validated TYZS3 integration.
+// Tested product binding ujcjk46o / MCU 1.0.0; only DP21/54/55 writes.
 // Structured staging/builders retained from reviewed TYZS5 v1.2.2.
 // Face type 4 is an observed extension; use only on a supporting lock MCU.
 const nicki_ek = require('zigbee-herdsman-converters/lib/tuya');
@@ -321,6 +321,8 @@ const parseShardBitmapIds = (value) => {
     const b = bitmapBytes(value);
     if (b === null) return {error: '不是有效字节数组/hex', ids: []};
     if (b.length % 2 !== 0) return {error: `长度异常 ${b.length}`, ids: []};
+    // Exact empty-list sentinel observed on the tested TYZS3 lock MCU.
+    if (b.length === 2 && b[0] === 0 && b[1] === 0) return {ids: []};
     const ids = new Set();
     for (let i = 0; i < b.length; i += 2) {
         const fragment = b[i];
@@ -393,7 +395,7 @@ const actions = {1:'unlock_fingerprint',2:'unlock_password',3:'unlock_temporary'
 module.exports = [{
     fingerprint: [{manufacturerName:'Tuya',modelID:'TY0A01-TYZS3'}],
     model:'TY0A01-TYZS3',vendor:'Tuya',
-    description:'Experimental / first-flash diagnostic TYZS3 ujcjk46o (DP21/54/55 only)',
+    description:'Initial validated TYZS3 integration v0.1.0, ujcjk46o (DP21/54/55 only)',
     fromZigbee:[fzUnlockId,fzCredentialManagementResult,fzReadableCredentialIdLists,nicki_ek.fz.datapoints],
     toZigbee:[tzRemoteUnlockSafe,tzCredentialManagementSafe],
     exposes:[

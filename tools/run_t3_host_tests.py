@@ -26,7 +26,7 @@ with tempfile.TemporaryDirectory(prefix='tzll-t3-tests-') as temporary:
             results[name] = {'compile': build.returncode, 'test': run.returncode}
             (out/(name+'.log')).write_text(build.stdout+build.stderr+run.stdout+run.stderr, encoding='utf8')
             print(name, results[name], flush=True)
-for name, cmd in [('fixtures',['python','tests/run_fixtures.py']), ('bitmap',['node','tests/credential_bitmap_test.js']), ('bitmap_reference',['node','tests/credential_bitmap_regression.js']), ('tyzs3_converter',['node','tests/tyzs3_candidate_converter_test.js'])]:
+for name, cmd in [('fixtures',['python','tests/run_fixtures.py']), ('bitmap',['node','tests/credential_bitmap_test.js']), ('bitmap_reference',['node','tests/credential_bitmap_regression.js']), ('tyzs3_converter',['node','tests/tyzs3_converter_test.js'])]:
     r = subprocess.run(cmd,env=env,capture_output=True,text=True,errors='replace')
     results[name] = {'test':r.returncode}
     (out/(name+'.log')).write_text(r.stdout+r.stderr,encoding='utf8')

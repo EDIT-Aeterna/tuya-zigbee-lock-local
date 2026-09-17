@@ -1,6 +1,6 @@
 'use strict';
 const fs=require('fs'), path=require('path'), vm=require('vm'), assert=require('assert');
-const source=fs.readFileSync(path.join(__dirname,'../zigbee2mqtt/TYZS3/tuya_ty0a01_tyzs3_candidate.js'),'utf8');
+const source=fs.readFileSync(path.join(__dirname,'../zigbee2mqtt/TYZS3/tuya_ty0a01_tyzs3.js'),'utf8');
 const sends=[];
 const expose=(name,access)=>{const x={name,access};for(const m of ['withLabel','withDescription','withCategory'])x[m]=()=>x;return x;};
 const ctx={Buffer,Map,Set,Date,console,module:{exports:{}},setTimeout:()=>1,clearTimeout:()=>{},require:(name)=>{
@@ -38,5 +38,23 @@ async function set(key,value){const w=d.toZigbee.find((w)=>w.key.includes(key));
    assert.strictEqual(result[kind+'_id_list'],'1, 3, 17');assert.strictEqual(result[kind+'_id_count'],3);
  }
  for(const dp of [24,25,26,27,28,39,48,49,68,69,70,200,202,205])assert(!d.meta.tuyaDatapoints.some((v)=>v[0]===dp));
- console.log('TYZS3 diagnostic converter: fingerprint, report lists, guarded DP21/54/55, no other writers: ALL PASS');
+ for(const [dp,kind,hex,list] of [[58,'fingerprint','0104026c','2, 10, 11, 13, 14'],[59,'password','01010280','0, 15'],[60,'card','02100301','12, 16'],[93,'face','0240','14']]){
+   for(const value of [hex,Buffer.from(hex,'hex'),Array.from(Buffer.from(hex,'hex')),new Uint8Array(Buffer.from(hex,'hex'))]){
+     const result=report.convert(null,{device:{ieeeAddr:'vector-'+dp},data:{dpValues:[{dp,data:value}]}},null,null,{state:{}});
+     assert.strictEqual(result[kind+'_id_list'],list);
+     assert.strictEqual(result[kind+'_id_count'],list.split(',').length);
+   }
+   const empty=report.convert(null,{device:{ieeeAddr:'empty-'+dp},data:{dpValues:[{dp,data:Buffer.from('0000','hex')}]}},null,null,{state:{[kind+'_id_list']:list,[kind+'_id_count']:5}});
+   assert.strictEqual(empty[kind+'_id_list'],'无');assert.strictEqual(empty[kind+'_id_count'],0);
+   for(const bad of ['0001','00000101','01010000','00','zz']){
+     const rejected=report.convert(null,{device:{ieeeAddr:'bad-'+dp},data:{dpValues:[{dp,data:bad}]}},null,null,{state:{}});
+     assert(rejected[kind+'_id_list'].startsWith('格式异常'));
+   }
+ }
+ // Freeze all structured writers and the rest of the tested converter during promotion.
+ const {execFileSync}=require('child_process');
+ const old=execFileSync('git',['show','3ba36fe:zigbee2mqtt/TYZS3/tuya_ty0a01_tyzs3_candidate.js'],{cwd:path.join(__dirname,'..'),encoding:'utf8'});
+ const normalize=(s)=>s.replace(/\r\n/g,'\n').split('\n').filter((l)=>!l.startsWith('//')&&!l.includes('description:')&&!l.includes('Exact empty-list sentinel')&&!l.includes('b.length === 2 && b[0] === 0 && b[1] === 0')).join('\n');
+ assert.strictEqual(normalize(source),normalize(old),'Unexpected behavior change during promotion');
+ console.log('TYZS3 v0.1.0: exact fingerprint, empty/captured lists, unchanged DP21/54/55 writers: ALL PASS');
 })().catch((e)=>{console.error(e);process.exitCode=1;});

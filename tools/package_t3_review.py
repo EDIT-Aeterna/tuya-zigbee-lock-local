@@ -24,7 +24,8 @@ if (root/'docs/TYZS3_PID_GATE_HOTFIX_REPORT.md').exists():
     copy('docs/TYZS3_PID_GATE_HOTFIX_REPORT.md','PID_GATE_HOTFIX_REPORT.md')
 if (root/'docs/T3_1_STATIC_GATE_FIX_REPORT.md').exists():
     copy('docs/T3_1_STATIC_GATE_FIX_REPORT.md','STATIC_GATE_FIX_REPORT.md')
-    copy('zigbee2mqtt/TYZS3/tuya_ty0a01_tyzs3_candidate.js','zigbee2mqtt/tuya_ty0a01_tyzs3_candidate.js')
+    converter = 'tuya_ty0a01_tyzs3.js' if (root/'zigbee2mqtt/TYZS3/tuya_ty0a01_tyzs3.js').exists() else 'tuya_ty0a01_tyzs3_candidate.js'
+    copy('zigbee2mqtt/TYZS3/'+converter,'zigbee2mqtt/'+converter)
     copy('zigbee2mqtt/TYZS3/README.md','zigbee2mqtt/README.md')
     (out/'static-gate.diff').write_bytes(git('diff','--binary',baseline,'HEAD','--','firmware','tests','tools','docs','zigbee2mqtt/TYZS3','studio/tyzs3-candidate/kagel_tyzs3_ujcjk46o.slcp'))
 report=(root/'docs/TYZS3_TYZS5_COMMON_CORE.md').read_text(encoding='utf8')
