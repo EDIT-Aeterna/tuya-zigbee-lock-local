@@ -1,5 +1,7 @@
 # TYZS3 product-info PID gate hotfix
 
+Historical hotfix report. The subsequent T3-2 taskbook confirms maintainer hardware validation; current release status and canonical filenames are in `TYZS3_VALIDATION_v1.1.0-alpha.1.md`. The hashes below remain the validated firmware baseline.
+
 Baseline: `639ac0d`, branch `feature/tyzs3-common-core`. Scope: the supplied `TZLL_TYZS3_PID_GATE_HOTFIX_BUNDLE.zip`. No hardware access, flashing, converter changes, new writable DP or publication was performed.
 
 ## Root cause and change

@@ -1,5 +1,7 @@
 # TYZS3 first-flash plan — candidate, manual review required
 
+Historical T3-1 review plan. The T3-2 taskbook now reports maintainer TYZS3 first-device validation and TYZS5 regression PASS. For current release installation use `tyzs3-guide.md` / `tyzs3-guide.zh-CN.md` and `FLASHING.md`; baseline evidence is in `TYZS3_KNOWN_GOOD_BASELINE.md`. The older status statements below describe the pre-validation phase. Exact-device backup and stock-layout checks still apply to new hardware.
+
 PID hotfix update: use the HEX hashes in `TYZS3_PID_GATE_HOTFIX_REPORT.md`, superseding both earlier candidate builds. After maintainer flashing, cold boot and capture Cmd01 pure JSON, then validate DP21, DP54 and DP55 in that order. Expected path: Zigbee EF00 -> verified PID gate -> UART wake -> Cmd04. Backup/layout and rollback gates below still apply.
 
 This phase only builds and statically reviews a candidate. No probe was connected and no device was flashed. Do not treat the candidate HEX as a released production image.
