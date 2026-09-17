@@ -1,0 +1,18 @@
+{
+  "stage2dr_control_gate_test": {
+    "compile": 0,
+    "test": 3221226505
+  },
+  "stage2ea_ef00_integration_test": {
+    "compile": 0,
+    "test": 1
+  },
+  "stage2eb_ef00_integration_test": {
+    "compile": 0,
+    "test": 1
+  },
+  "stage2f_ef00_integration_test": {
+    "compile": 0,
+    "test": 1
+  }
+}

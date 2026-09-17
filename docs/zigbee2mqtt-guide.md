@@ -28,7 +28,7 @@ An exposed optional control that produces no MCU response can indicate that the 
 
 Writable: 21,24,25,26,27,28,48,49,54,55,202. DP58/59/60 remain read-only decoded telemetry. DP39, DP68/69/70, DP205/OTA are not writable. FC00 claim/auth, auth DPs 226/227/230 and DP200 writer have been removed.
 
-No firmware rebuild, firmware flash, automatic lock operations or HA configuration changes are part of this integration. Maintainer real-device regression passed for the v1.2.1 baseline on the validated TYZS5 target. The v1.2.2 patch passed captured-vector regression; a fresh device smoke test remains pending. Optional lock-dependent capabilities such as alarm reporting and DP202 must only be tested where the lock MCU implements them. Lack of DP202 response on a lock that does not support that feature is not a regression.
+The T3-2 maintainer taskbook reports that TYZS5 common-core hardware regression passed. Stable v1.2.2 remains unchanged; its production bitmap/control tests pass. No automatic lock operations or HA configuration changes are part of release preparation. The converter's optional DP202 exposure is retained, but the current firmware control allowlist does not accept DP202; it is not a supported end-to-end control in this release. Optional reports such as alarm still depend on the lock MCU. For initial TYZS3 support use the separate [TYZS3 guide](tyzs3-guide.md).
 
 ## Credential lists in v1.2.2
 

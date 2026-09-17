@@ -21,12 +21,14 @@ source:
 - {path: main.c}
 - {path: app.c}
 - {path: ../../firmware/TYZS5/efr32_app.c}
-- {path: ../../firmware/TYZS5/lock_app.c}
-- {path: ../../firmware/TYZS5/nicki_ek_lock_serial.c}
-- {path: ../../firmware/TYZS5/kagel_control_gate.c}
+- {path: ../../firmware/common/lock_app.c}
+- {path: ../../firmware/common/nicki_ek_lock_serial.c}
+- {path: ../../firmware/common/kagel_control_gate.c}
+- {path: ../../firmware/common/lock_profile.c}
 include:
 - {path: .}
 - {path: ../../firmware/TYZS5}
+- {path: ../../firmware/common}
 sdk: {id: gecko_sdk, version: 4.5.1}
 toolchain_settings: []
 component:

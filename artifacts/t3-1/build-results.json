@@ -1,0 +1,42 @@
+{
+  "TYZS5": {
+    "hex": "studio/tyzs5-telemetry/build/debug/kagel_tyzs5_srptwvak_clean.hex",
+    "hex_sha256": "e46e3dc9efa07119d30d677c091dc3a217d3db577fcc6c6d473c35babfd82183",
+    "hex_file_bytes": 469018,
+    "flash_data_bytes": 166732,
+    "image_range_inclusive": [
+      "0x0",
+      "0x28b4b"
+    ],
+    "elf_sizes": "text\t   data\t    bss\t    dec\t    hex\tfilename\n 166720\t     12\t  15736\t 182468\t  2c8c4\tD:\\project\\tyzs5-lock-port\\Door-Lock-TY0A01-with-TYZS3-to-Z2M-firmware\\studio\\tyzs5-telemetry\\build\\debug\\kagel_tyzs5_srptwvak_clean.out",
+    "identity": "Tuya / TY0A01-TYZS5",
+    "profile": "srptwvak",
+    "nvm3_candidate_range": "0x77000..0x7FFFF (linked candidate only, not proof of stock layout)",
+    "ota_write_install_symbols": "absent",
+    "build": "Generate + Clean + Build PASS",
+    "opposite_model_absent": true,
+    "module_version": "1.0.2",
+    "em2_enabled": true,
+    "bootloader_probe_enabled": true
+  },
+  "TYZS3": {
+    "hex": "studio/tyzs3-candidate/build/debug/kagel_tyzs3_ujcjk46o.hex",
+    "hex_sha256": "a10da2b79daf8378f60893ed4b2fb68cc586d162b8d4ec86e9acef2fa31ba268",
+    "hex_file_bytes": 467758,
+    "flash_data_bytes": 166284,
+    "image_range_inclusive": [
+      "0x0",
+      "0x2898b"
+    ],
+    "elf_sizes": "text\t   data\t    bss\t    dec\t    hex\tfilename\n 166272\t     12\t  15720\t 182004\t  2c6f4\tD:\\project\\tyzs5-lock-port\\Door-Lock-TY0A01-with-TYZS3-to-Z2M-firmware\\studio\\tyzs3-candidate\\build\\debug\\kagel_tyzs3_ujcjk46o.out",
+    "identity": "Tuya / TY0A01-TYZS3",
+    "profile": "ujcjk46o",
+    "nvm3_candidate_range": "0x77000..0x7FFFF (linked candidate only, not proof of stock layout)",
+    "ota_write_install_symbols": "absent",
+    "build": "Generate + Clean + Build PASS",
+    "opposite_model_absent": true,
+    "module_version": "T3-1",
+    "em2_enabled": false,
+    "bootloader_probe_enabled": false
+  }
+}

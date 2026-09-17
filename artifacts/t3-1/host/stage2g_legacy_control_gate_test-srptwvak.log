@@ -1,0 +1,11 @@
+PASS valid legacy DP21                    accepted
+PASS valid legacy DP48                    accepted
+PASS valid legacy DP49                    accepted
+PASS legacy DP21 non-digit rejected       no UART
+PASS legacy DP48 invalid enable rejected  no UART
+PASS legacy DP49 invalid method rejected  no UART
+PASS legacy DP39 forbidden                no UART
+PASS legacy DP58 write forbidden          no UART
+PASS legacy DP55 delete-all rejected      no UART
+
+ALL PASS (0 failures)
