@@ -1,5 +1,8 @@
 # Tuya Zigbee Lock Local (TZLL) v1.1.0-alpha.1
 
+<img width="1308" height="1912" alt="image" src="https://github.com/user-attachments/assets/fe1053bc-1a1d-4df8-a24a-b884bb38ef6c" />
+<img width="1307" height="1223" alt="image" src="https://github.com/user-attachments/assets/bc33dd89-441c-4b3f-b9e4-af53920a4189" />
+
 **English** | [简体中文](README.zh-CN.md)
 
 Local firmware and Zigbee2MQTT integration for tested TYZS5 and TYZS3 locks using EFR32MG13P732F512GM48. This prerelease introduces initial hardware-validated TYZS3 support on the shared core. Tuya Cloud and Tuya App compatibility are intentionally not retained.
