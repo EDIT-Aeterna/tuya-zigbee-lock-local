@@ -72,7 +72,7 @@ static bool identity_allows_writes(const lock_app_t *a) {
 }
 static int validate_control_dp(uint8_t dp, uint8_t type, const uint8_t *v, size_t n) {
     if (!identity_allows_writes(g_active_app) || type != TLS_DP_RAW ||
-        !lock_capability_dp_writable(g_active_app->binding->capability_profile, dp)) return 0;
+        !kagel_control_dp_allowed(dp)) return 0;
     /* Face uses the same reviewed structure, permitted only on its profile. */
     if ((dp == 54u || dp == 55u) && v && n && v[0] == 4u &&
         lock_capability_has(g_active_app->binding->capability_profile, LOCK_CAP_FACE_CREDENTIALS)) {
