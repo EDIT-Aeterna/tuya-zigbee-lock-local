@@ -1,0 +1,37 @@
+PASS fixtures\credential_add\dp54_report.json: valid frame
+PASS fixtures\credential_add\dp54_request.json: valid frame
+PASS fixtures\credential_delete\dp55_report.json: valid frame
+PASS fixtures\credential_delete\dp55_request.json: valid frame
+PASS fixtures\dynamic_password\official_request.json: valid frame
+PASS fixtures\malformed\bad_checksum.json: malformed frame rejected
+PASS fixtures\malformed\bad_length.json: malformed frame rejected
+PASS fixtures\malformed\truncated_record.json: malformed frame rejected
+PASS fixtures\remote_unlock\dp49_request_official_schema.json: valid frame
+PASS fixtures\remote_unlock\dp49_response_uncertain_sample.json: malformed frame rejected
+PASS fixtures\status_report\dp8_door_state.json: valid frame
+PASS fixtures\target_srptwvak\card_unlock\record.json: valid frame
+PASS fixtures\target_srptwvak\cold_boot\net_notify.json: valid frame
+PASS fixtures\target_srptwvak\cold_boot\net_notify_ack.json: valid frame
+PASS fixtures\target_srptwvak\cold_boot\product_info.json: valid frame
+PASS fixtures\target_srptwvak\cold_boot\product_info_response.json: valid frame
+PASS fixtures\target_srptwvak\credential_add_password\dp54_sequence.json: valid frame
+PASS fixtures\target_srptwvak\credential_add_password\report_complete.json: valid frame
+PASS fixtures\target_srptwvak\credential_add_password\report_progress.json: valid frame
+PASS fixtures\target_srptwvak\credential_add_password\report_start.json: valid frame
+PASS fixtures\target_srptwvak\normal_password_unlock\record.json: valid frame
+PASS fixtures\target_srptwvak\remote_unlock\dp49_request.json: valid frame
+PASS fixtures\target_srptwvak\remote_unlock\dp49_response.json: valid frame
+PASS fixtures\target_srptwvak\temporary_password\dp24_golden_values.json: valid frame
+PASS fixtures\target_srptwvak\temporary_password\dp24_one_time.json: valid frame
+PASS fixtures\target_srptwvak\temporary_password\dp24_periodic.json: valid frame
+PASS fixtures\target_srptwvak\time_sync\exchange.json: valid frame
+PASS fixtures\target_srptwvak\time_sync\response_utc8.json: valid frame
+PASS fixtures\temporary_password\dp24_create.json: valid frame
+PASS fixtures\temporary_password\dp24_result.json: valid frame
+PASS fixtures\time_sync\official_request.json: valid frame
+PASS fixtures\time_sync\official_response.json: valid frame
+PASS fixtures\unlock_record\official_dp1_record.json: valid frame
+PASS fixtures\wakeup\mcu_to_module.json: valid frame
+PASS fixtures\wakeup\module_to_mcu.json: valid frame
+
+FIXTURES: 35 passed, 0 failed, 0 awaiting hardware

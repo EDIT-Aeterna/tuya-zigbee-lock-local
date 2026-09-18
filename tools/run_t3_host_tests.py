@@ -4,19 +4,23 @@ from pathlib import Path
 import subprocess
 import tempfile
 import json
+import argparse
 root = Path(__file__).resolve().parents[1]
 os.chdir(root)
 env = os.environ.copy()
 env['PATH'] = r'C:\msys64\ucrt64\bin' + os.pathsep + env['PATH']
 gcc = r'C:\msys64\ucrt64\bin\gcc.exe'
-out = root / 'artifacts/t3-1/host'
+parser = argparse.ArgumentParser()
+parser.add_argument('--output', default='artifacts/t3-1/host')
+args = parser.parse_args()
+out = root / args.output
 out.mkdir(parents=True, exist_ok=True)
 core = list((root / 'firmware/common').glob('*.c'))
 results = {}
 with tempfile.TemporaryDirectory(prefix='tzll-t3-tests-') as temporary:
     tests = list((root/'tests').glob('*.c')) + [root/'firmware/TYZS5/host_selftest.c']
     for test in tests:
-        for profile in (['srptwvak', 'ujcjk46o'] if test.stem == 't3_common_core_test' else ['srptwvak']):
+        for profile in (['srptwvak', 'ujcjk46o'] if test.stem in ('t3_common_core_test', 'platform_characterization_test', 'platform_binding_test') else ['srptwvak']):
             name = test.stem + '-' + profile
             exe = Path(temporary) / (name + '.exe')
             cmd = [gcc, '-std=c99', '-Wall', '-Wextra', '-Werror', str(test), *map(str,core), '-I', 'firmware/common', '-I', 'firmware/TYZS5', '-o', str(exe)]

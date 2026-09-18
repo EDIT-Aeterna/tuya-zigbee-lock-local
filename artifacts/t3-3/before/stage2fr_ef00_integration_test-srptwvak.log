@@ -1,0 +1,11 @@
+PASS target DP24 create                 one DP24 command
+PASS target DP26 modify                 one DP26 command
+PASS target DP25                        one DP25 command
+PASS target DP27                        one DP27 command
+PASS target DP28                        one DP28 command
+PASS DP39 remains forbidden             no UART
+PASS DP54 remains forbidden             no UART
+PASS old 21-byte DP26 rejected          no UART
+PASS DP24 + malformed tail              no UART
+
+ALL PASS (0 failures)

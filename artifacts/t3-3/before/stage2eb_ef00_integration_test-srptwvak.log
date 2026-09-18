@@ -1,0 +1,13 @@
+PASS DP21 regression                        exactly one DP21 application command
+PASS DP48 regression                        exactly one DP48 application command
+PASS valid target DP49                      exactly one DP49 application command
+PASS DP49 state != 1 rejected               no UART side effect
+PASS DP49 key_id != 1 rejected              no UART side effect
+PASS DP49 non-digit key rejected            no UART side effect
+PASS DP49 wrong datatype rejected           no UART side effect
+PASS truncated DP49 rejected                no UART side effect
+PASS DP24 remains forbidden                 no UART side effect
+PASS valid DP49 + malformed tail            no UART side effect
+
+FAILURES (1 failure)
+FAIL DP49 method != 1 rejected              unexpected UART side effect: 48 byte(s)
