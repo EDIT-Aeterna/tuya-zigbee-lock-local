@@ -68,6 +68,7 @@ bool lock_product_observe(lock_product_observation_t *o,const char *s,size_t n,
 done:
     json_space(s,n,&i); if(i!=n || !hasp)return false;
     size_t copy=pn<sizeof o->pid-1?pn:sizeof o->pid-1;
+    o->pid_length=pn;
     memcpy(o->pid,s+ps,copy);o->pid[copy]=0;
     if(hasv) {
         copy=vn<sizeof o->mcu_version-1?vn:sizeof o->mcu_version-1;

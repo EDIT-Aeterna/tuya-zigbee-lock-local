@@ -182,7 +182,7 @@ typedef struct {
     /* Called for every DP the MCU reports (via 0x05 or 0x23). ts==0 if none. */
     void     (*on_dp_report)(const tls_dp_t *dp, uint32_t ts);
     /* Called once the MCU has announced its product info. */
-    void     (*on_product_info)(const char *json, size_t n, bool ota);
+    void     (*on_product_info)(const char *json, size_t n, bool ota_flag_present, bool ota);
     /* Hub-lock gate (optional). When set, the core answers the MCU's online
      * queries with GW_AND_SERVER only if this returns true, else NO_GW -- i.e.
      * the lock stays inert until the bound Kagel hub has authenticated. NULL
@@ -208,7 +208,7 @@ typedef struct {
 
 typedef struct {
     tls_hal_t hal;
-    uint32_t  quirks; /* explicitly selected profile, zero means strict */
+    uint32_t  quirks; /* copied from expected product binding; zero means strict */
     uint16_t  tx_seq;
     /* RX reassembly */
     uint8_t   rx[TLS_FRAME_OVERHEAD + TLS_MAX_DATA];

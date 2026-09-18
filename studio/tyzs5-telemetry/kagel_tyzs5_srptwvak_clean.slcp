@@ -24,7 +24,8 @@ source:
 - {path: ../../firmware/common/lock_app.c}
 - {path: ../../firmware/common/nicki_ek_lock_serial.c}
 - {path: ../../firmware/common/kagel_control_gate.c}
-- {path: ../../firmware/common/lock_profile.c}
+- {path: ../../firmware/common/lock_product_binding.c}
+- {path: ../../firmware/common/lock_capability_profile.c}
 include:
 - {path: .}
 - {path: ../../firmware/TYZS5}

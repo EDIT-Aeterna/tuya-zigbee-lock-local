@@ -27,9 +27,6 @@
 # if !defined(KAGEL_PROFILE) || KAGEL_PROFILE != KAGEL_PROFILE_TYZS3_HARDENED
 #  error "TYZS3 candidate requires hardened module profile"
 # endif
-# if !defined(LOCK_PROFILE_UJCJK46O) || !LOCK_PROFILE_UJCJK46O
-#  error "First TYZS3 candidate requires ujcjk46o lock profile"
-# endif
 #endif
 
 #if defined(KAGEL_REQUIRE_EXPLICIT_PROFILE) && KAGEL_REQUIRE_EXPLICIT_PROFILE \

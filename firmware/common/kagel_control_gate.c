@@ -1,12 +1,12 @@
 #include "kagel_control_gate.h"
-#include "lock_profile.h"
+#include "lock_product_binding.h"
 #if defined(__GNUC__)
 # define KAGEL_EXPORT __attribute__((used, noinline))
 #else
 # define KAGEL_EXPORT
 #endif
 KAGEL_EXPORT bool kagel_control_dp_allowed(uint8_t dp) {
-    return lock_profile_dp_allowed(lock_profile_default(), dp);
+    return lock_capability_dp_writable(lock_binding_default()->capability_profile, dp);
 }
 bool kagel_validate_dp21(const uint8_t *value, size_t len) {
     if (!value || len != 6u) return false;

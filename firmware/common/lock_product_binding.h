@@ -21,6 +21,7 @@ typedef struct {
     bool valid; /* latest JSON has valid product identity; not write authorization */
     bool ota_flag_present;
     bool ota_capable;
+    size_t pid_length; /* original length, so truncation cannot verify an identity */
     char pid[17];
     char mcu_version[17];
 } lock_product_observation_t;
