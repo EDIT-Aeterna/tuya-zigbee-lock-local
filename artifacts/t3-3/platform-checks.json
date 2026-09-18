@@ -1,0 +1,18 @@
+{
+  "baseline": "3e7fbed",
+  "characterization": "identical pre/post UART/report trace digests",
+  "existing_test_outcomes": "unchanged, including 4 documented stale conflicts",
+  "new_tests": "PASS",
+  "converter_sha256": {
+    "TYZS3": "46d34703c7b49cd497b4a2843530ea975686485b0ab668e96739decc6aa64779",
+    "TYZS5": "e35cc2dc0262a353ca17181eb633dd0ba5b355b4a17a268838295d388c8a6e91"
+  },
+  "module_binding_matrix": [
+    "TYZS5 + srptwvak: PASS (host independence test only)",
+    "TYZS5 + ujcjk46o: PASS (host independence test only)",
+    "TYZS3 + srptwvak: PASS (host independence test only)",
+    "TYZS3 + ujcjk46o: PASS (host independence test only)"
+  ],
+  "hardware": "not tested; maintainer regression required",
+  "publication": "not performed"
+}

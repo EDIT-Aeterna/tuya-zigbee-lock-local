@@ -1,0 +1,249 @@
+SLF4J(W): No SLF4J providers were found.
+SLF4J(W): Defaulting to no-operation (NOP) logger implementation
+SLF4J(W): See https://www.slf4j.org/codes.html#noProviders for further details.
+Found valid project type for makefile
+Generation location: D:\project\tyzs5-lock-port\Door-Lock-TY0A01-with-TYZS3-to-Z2M-firmware\studio\tyzs3-candidate
+Generation: Starting AC generation for ucProject in project kagel_tyzs3_ujcjk46o: Fri Sep 18 18:14:01 CST 2026
+Generation: Starting AC generation for ProjectPostBuild in project kagel_tyzs3_ujcjk46o: Fri Sep 18 18:14:01 CST 2026
+Generation: AC content generated for ProjectPostBuild in project kagel_tyzs3_ujcjk46o. Elapsed time: 9ms
+Generation: Starting AC generation for ProjectPostBuild in project kagel_tyzs3_ujcjk46o: Fri Sep 18 18:14:02 CST 2026
+Generation: AC content generated for ProjectPostBuild in project kagel_tyzs3_ujcjk46o. Elapsed time: 5ms
+Generation: AC content generated for ucProject in project kagel_tyzs3_ujcjk46o. Elapsed time: 904ms
+Generation: Starting project generation for kagel_tyzs3_ujcjk46o: Fri Sep 18 18:14:02 CST 2026
+Generation: Projects generated kagel_tyzs3_ujcjk46o.Makefile
+Generation: Project generation completed for kagel_tyzs3_ujcjk46o: Elapsed time: 1287ms
+Total generation time: 2243 ms
+
+Generation for kagel_tyzs3_ujcjk46o to D:\project\tyzs5-lock-port\Door-Lock-TY0A01-with-TYZS3-to-Z2M-firmware\studio\tyzs3-candidate has completed.
+Reference the following for more information:
+  readme.html
+🔧 Using temporary state directory: C:\Users\Aerial\AppData\Local\Temp\zap.pwnpuJ
+🤖 ZAP generation started:
+    🔍 input files: D:\project\tyzs5-lock-port\Door-Lock-TY0A01-with-TYZS3-to-Z2M-firmware\studio\tyzs3-candidate\config\zcl\zcl_config.zap
+    🔍 input Extension files:
+    🔍 output pattern: D:\project\tyzs5-lock-port\Door-Lock-TY0A01-with-TYZS3-to-Z2M-firmware\studio\tyzs3-candidate\autogen
+    🔍 using templates: C:\Users\Aerial\SimplicityStudio\SDKs\gecko_sdk\protocol\zigbee\app\framework\gen-template\gen-templates.json
+    🔍 using zcl data: D:\project\tyzs5-lock-port\Door-Lock-TY0A01-with-TYZS3-to-Z2M-firmware\studio\tyzs3-candidate\config\zcl\kagel-zcl.json
+    🔍 zap version: ver. 2025.10.23, featureLevel 107, commit: d751c4bfb7467889e7ac79794d2f996f252c3cea from 2025-10-23T13:39:49.000Z, mode: binary, exe: C:\SiliconLabs\SimplicityStudio\v5\developer\adapter_packs\zap\zap-cli.exe
+🕐 Setup time: 1s 34ms
+👉 using input file: D:\project\tyzs5-lock-port\Door-Lock-TY0A01-with-TYZS3-to-Z2M-firmware\studio\tyzs3-candidate\config\zcl\zcl_config.zap
+
+
+🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨
+
+Application is failing the Device Type Specification as follows:
+
+  - ⚠ Check Device Type Compliance on endpoint: 1, device type: HA-doorlock, cluster: Door Lock server needs to be enabled
+  - ⚠ Check Device Type Compliance on endpoint: 1, device type: HA-doorlock, cluster: Groups server needs to be enabled
+  - ⚠ Check Device Type Compliance on endpoint: 1, device type: HA-doorlock, cluster: Identify client needs to be enabled
+  - ⚠ Check Device Type Compliance on endpoint: 1, device type: HA-doorlock, cluster: Identify server needs to be enabled
+  - ⚠ Check Device Type Compliance on endpoint: 1, device type: HA-doorlock, cluster: Scenes server needs to be enabled
+
+Application is failing the Cluster Specification as follows:
+
+
+🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨
+
+
+👉 using output destination: D:\project\tyzs5-lock-port\Door-Lock-TY0A01-with-TYZS3-to-Z2M-firmware\studio\tyzs3-candidate\autogen
+🕐 File loading time: 30ms
+🤖 Generating files:
+    ✍  D:\project\tyzs5-lock-port\Door-Lock-TY0A01-with-TYZS3-to-Z2M-firmware\studio\tyzs3-candidate\autogen\zap-cluster-command-parser.h
+    ✍  D:\project\tyzs5-lock-port\Door-Lock-TY0A01-with-TYZS3-to-Z2M-firmware\studio\tyzs3-candidate\autogen\zap-print.h
+    ✍  D:\project\tyzs5-lock-port\Door-Lock-TY0A01-with-TYZS3-to-Z2M-firmware\studio\tyzs3-candidate\autogen\zap-event.c
+    ✍  D:\project\tyzs5-lock-port\Door-Lock-TY0A01-with-TYZS3-to-Z2M-firmware\studio\tyzs3-candidate\autogen\zap-enabled-incoming-commands.h
+    ✍  D:\project\tyzs5-lock-port\Door-Lock-TY0A01-with-TYZS3-to-Z2M-firmware\studio\tyzs3-candidate\autogen\zap-id.h
+    ✍  D:\project\tyzs5-lock-port\Door-Lock-TY0A01-with-TYZS3-to-Z2M-firmware\studio\tyzs3-candidate\autogen\zap-event.h
+    ✍  D:\project\tyzs5-lock-port\Door-Lock-TY0A01-with-TYZS3-to-Z2M-firmware\studio\tyzs3-candidate\autogen\zap-cli.c
+    ✍  D:\project\tyzs5-lock-port\Door-Lock-TY0A01-with-TYZS3-to-Z2M-firmware\studio\tyzs3-candidate\autogen\zap-tokens.h
+    ✍  D:\project\tyzs5-lock-port\Door-Lock-TY0A01-with-TYZS3-to-Z2M-firmware\studio\tyzs3-candidate\autogen\zap-config.h
+    ✍  D:\project\tyzs5-lock-port\Door-Lock-TY0A01-with-TYZS3-to-Z2M-firmware\studio\tyzs3-candidate\autogen\zap-command.h
+    ✍  D:\project\tyzs5-lock-port\Door-Lock-TY0A01-with-TYZS3-to-Z2M-firmware\studio\tyzs3-candidate\autogen\zap-type.h
+    ✍  D:\project\tyzs5-lock-port\Door-Lock-TY0A01-with-TYZS3-to-Z2M-firmware\studio\tyzs3-candidate\autogen\zap-command-structs.h
+    ✍  D:\project\tyzs5-lock-port\Door-Lock-TY0A01-with-TYZS3-to-Z2M-firmware\studio\tyzs3-candidate\autogen\zap-cluster-command-parser.c
+🕐 Generation time: 1s 851ms
+ZAP generation completed: D:\project\tyzs5-lock-port\Door-Lock-TY0A01-with-TYZS3-to-Z2M-firmware\studio\tyzs3-candidate\autogen
+rm -f -rf build
+# No pre-build defined
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/platform/bootloader/api/btl_interface.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/platform/bootloader/api/btl_interface_storage.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/platform/bootloader/app_properties/app_properties.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/platform/common/src/sl_assert.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/platform/common/src/sl_slist.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/platform/common/src/sl_syscalls.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/platform/common/toolchain/src/sl_memory.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/platform/Device/SiliconLabs/EFR32MG13P/Source/startup_efr32mg13p.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/platform/Device/SiliconLabs/EFR32MG13P/Source/system_efr32mg13p.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/platform/emdrv/nvm3/src/nvm3_default_common_linker.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/platform/emdrv/nvm3/src/nvm3_hal_flash.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/platform/emdrv/nvm3/src/nvm3_lock.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/platform/emlib/src/em_cmu.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/platform/emlib/src/em_core.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/platform/emlib/src/em_crypto.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/platform/emlib/src/em_emu.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/platform/emlib/src/em_gpio.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/platform/emlib/src/em_msc.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/platform/emlib/src/em_prs.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/platform/emlib/src/em_rmu.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/platform/emlib/src/em_rtcc.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/platform/emlib/src/em_system.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/platform/emlib/src/em_timer.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/platform/emlib/src/em_usart.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/platform/emlib/src/em_wdog.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/platform/radio/rail_lib/plugin/coexistence/protocol/ieee802154_uc/coexistence-802154.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/platform/radio/rail_lib/plugin/pa-conversions/pa_conversions_efr32.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/platform/radio/rail_lib/plugin/pa-conversions/pa_curves_efr32.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/platform/radio/rail_lib/plugin/rail_util_ant_div/sl_rail_util_ant_div.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/platform/radio/rail_lib/plugin/rail_util_power_manager_init/sl_rail_util_power_manager_init.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/platform/radio/rail_lib/plugin/rail_util_pti/sl_rail_util_pti.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/platform/radio/rail_lib/plugin/rail_util_sequencer/sl_rail_util_sequencer.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/platform/security/sl_component/sl_mbedtls_support/src/crypto_aes.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/platform/security/sl_component/sl_mbedtls_support/src/mbedtls_ccm.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/platform/security/sl_component/sl_mbedtls_support/src/sl_mbedtls.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/platform/security/sl_component/sl_psa_driver/src/crypto_management.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/platform/security/sl_component/sl_psa_driver/src/sli_crypto_transparent_driver_aead.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/platform/security/sl_component/sl_psa_driver/src/sli_crypto_transparent_driver_cipher.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/platform/security/sl_component/sl_psa_driver/src/sli_crypto_transparent_driver_hash.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/platform/security/sl_component/sl_psa_driver/src/sli_crypto_transparent_driver_mac.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/platform/security/sl_component/sl_psa_driver/src/sli_psa_driver_common.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/platform/security/sl_component/sl_psa_driver/src/sli_psa_driver_init.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/platform/security/sl_component/sl_psa_driver/src/sli_se_version_dependencies.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/platform/service/device_init/src/sl_device_init_dcdc_s1.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/platform/service/device_init/src/sl_device_init_emu_s1.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/platform/service/device_init/src/sl_device_init_hfxo_s1.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/platform/service/device_init/src/sl_device_init_nvic.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/platform/service/legacy_hal/src/base-replacement.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/platform/service/legacy_hal/src/crc.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/platform/service/legacy_hal/src/diagnostic.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/platform/service/legacy_hal/src/ember-phy.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/platform/service/legacy_hal/src/faults.s
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/platform/service/legacy_hal/src/random.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/platform/service/legacy_hal/src/token_legacy.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/platform/service/legacy_hal_wdog/src/sl_legacy_hal_wdog.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/platform/service/power_manager/src/sl_power_manager.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/platform/service/power_manager/src/sl_power_manager_debug.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/platform/service/power_manager/src/sl_power_manager_hal_s0_s1.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/platform/service/sleeptimer/src/sl_sleeptimer.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/platform/service/sleeptimer/src/sl_sleeptimer_hal_prortc.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/platform/service/sleeptimer/src/sl_sleeptimer_hal_rtcc.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/platform/service/sleeptimer/src/sl_sleeptimer_hal_timer.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/platform/service/system/src/sl_system_init.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/platform/service/system/src/sl_system_process_action.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/platform/service/token_manager/src/sl_token_def.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/platform/service/token_manager/src/sl_token_manager.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/platform/service/token_manager/src/sl_token_manufacturing.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/platform/service/token_manager/src/sl_token_manufacturing_generic.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/protocol/zigbee/app/framework/common/zigbee_app_framework_common.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/protocol/zigbee/app/framework/common/zigbee_app_framework_sleep.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/protocol/zigbee/app/framework/common/zigbee_app_framework_stack_cb.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/protocol/zigbee/app/framework/common/zigbee_enhanced_routing.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/protocol/zigbee/app/framework/plugin/counters/counters-cb.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/protocol/zigbee/app/framework/plugin/counters/counters-ota.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/protocol/zigbee/app/framework/plugin/counters/counters-soc.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/protocol/zigbee/app/framework/plugin/network-steering/network-steering-cb.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/protocol/zigbee/app/framework/plugin/network-steering/network-steering-soc.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/protocol/zigbee/app/framework/plugin/network-steering/network-steering-v2.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/protocol/zigbee/app/framework/plugin/network-steering/network-steering.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/protocol/zigbee/app/framework/plugin/scan-dispatch/scan-dispatch.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/protocol/zigbee/app/framework/plugin/update-tc-link-key/update-tc-link-key-cb.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/protocol/zigbee/app/framework/plugin/update-tc-link-key/update-tc-link-key.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/protocol/zigbee/app/framework/security/af-node.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/protocol/zigbee/app/framework/security/af-security-common.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/protocol/zigbee/app/framework/security/af-trust-center.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/protocol/zigbee/app/framework/security/crypto-state.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/protocol/zigbee/app/framework/service-function/sl_service_function.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/protocol/zigbee/app/framework/signature-decode/sl_signature_decode.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/protocol/zigbee/app/framework/util/af-common.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/protocol/zigbee/app/framework/util/af-event.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/protocol/zigbee/app/framework/util/af-soc-common.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/protocol/zigbee/app/framework/util/af-soc.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/protocol/zigbee/app/framework/util/attribute-size.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/protocol/zigbee/app/framework/util/attribute-storage.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/protocol/zigbee/app/framework/util/attribute-table.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/protocol/zigbee/app/framework/util/client-api.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/protocol/zigbee/app/framework/util/global-callback.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/protocol/zigbee/app/framework/util/global-other-callback.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/protocol/zigbee/app/framework/util/message.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/protocol/zigbee/app/framework/util/multi-network.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/protocol/zigbee/app/framework/util/process-cluster-message.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/protocol/zigbee/app/framework/util/process-global-message.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/protocol/zigbee/app/framework/util/service-discovery-common.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/protocol/zigbee/app/framework/util/service-discovery-soc.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/protocol/zigbee/app/framework/util/time-util.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/protocol/zigbee/app/framework/util/util.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/protocol/zigbee/app/framework/util/zcl-util.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/protocol/zigbee/app/util/common/library.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/protocol/zigbee/app/util/security/security-address-cache.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/protocol/zigbee/app/util/zigbee-framework/zigbee-device-common.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/protocol/zigbee/app/util/zigbee-framework/zigbee-device-library.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/protocol/zigbee/stack/config/ember-configuration-access.c
+C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/protocol/zigbee/app/util/common/library.c:36:21: warning: 'libraryNames' defined but not used [-Wunused-variable]
+   36 | static const char * libraryNames[] = {
+      |                     ^~~~~~~~~~~~
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/protocol/zigbee/stack/config/ember-configuration.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/protocol/zigbee/stack/core/ember-multi-network-stub.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/protocol/zigbee/stack/core/multi-pan-common.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/protocol/zigbee/stack/core/multi-pan-stub.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/protocol/zigbee/stack/framework/aes-ecb.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/protocol/zigbee/stack/framework/debug-extended-stub.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/protocol/zigbee/stack/framework/debug-stub.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/protocol/zigbee/stack/framework/strong-random-api.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/protocol/zigbee/stack/framework/zigbee-event-logger-stub-gen.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/protocol/zigbee/stack/gp/gp-stub.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/protocol/zigbee/stack/mac/mac-info-element-parsing-stub.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/protocol/zigbee/stack/routing/zigbee/enhanced-beacon-request-stub.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/protocol/zigbee/stack/security/cbke-crypto-engine-163k1-stub.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/protocol/zigbee/stack/security/cbke-crypto-engine-283k1-stub.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/protocol/zigbee/stack/security/cbke-crypto-engine-dsa-sign-stub.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/protocol/zigbee/stack/security/cbke-crypto-engine-dsa-verify-283k1-stub.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/protocol/zigbee/stack/security/cbke-crypto-engine-dsa-verify-stub.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/protocol/zigbee/stack/security/cbke-crypto-engine-stub.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/protocol/zigbee/stack/security/zigbee-security-manager-no-vault.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/protocol/zigbee/stack/security/zigbee-security-manager.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/protocol/zigbee/stack/stubs/sl_zigbee_dynamic_commissioning_stubs.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/protocol/zigbee/stack/stubs/sl_zigbee_fragmentation_stubs.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/protocol/zigbee/stack/stubs/sl_zigbee_r23_misc_support_stubs.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/protocol/zigbee/stack/stubs/sli_zigbee_zdo_cluster_filter_stubs.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/protocol/zigbee/stack/zigbee/aps-keys-full-stub.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/protocol/zigbee/stack/zigbee/zdo-r22-stub.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/protocol/zigbee/stack/zll/zll-stubs.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/util/silicon_labs/silabs_core/memory_manager/sl_malloc.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/util/third_party/mbedtls/library/aes.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/util/third_party/mbedtls/library/ccm.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/util/third_party/mbedtls/library/cipher.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/util/third_party/mbedtls/library/cipher_wrap.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/util/third_party/mbedtls/library/constant_time.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/util/third_party/mbedtls/library/platform.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/util/third_party/mbedtls/library/platform_util.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/util/third_party/mbedtls/library/psa_crypto_client.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/util/third_party/mbedtls/library/psa_util.c
+Building C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/util/third_party/mbedtls/library/threading.c
+Building ../../firmware/common/kagel_control_gate.c
+Building ../../firmware/common/lock_app.c
+Building ../../firmware/common/lock_capability_profile.c
+Building ../../firmware/common/lock_product_binding.c
+Building ../../firmware/common/nicki_ek_lock_serial.c
+Building ../../firmware/TYZS3/efr32_app.c
+Building app.c
+Building autogen/sl_cluster_service_gen.c
+Building autogen/sl_device_init_clocks.c
+Building autogen/sl_event_handler.c
+Building autogen/sl_power_manager_handler.c
+Building autogen/sl_rail_util_ieee802154_phy_select.c
+In file included from ../../firmware/TYZS3/efr32_app.c:5:
+../../firmware/TYZS3/../TYZS5/efr32_app.c: In function 'kagel_app_tick':
+../../firmware/TYZS3/../TYZS5/efr32_app.c:996:13: warning: variable 'settled' set but not used [-Wunused-but-set-variable]
+  996 |         int settled = 0;
+      |             ^~~~~~~
+../../firmware/TYZS3/../TYZS5/efr32_app.c: At top level:
+../../firmware/TYZS3/../TYZS5/efr32_app.c:157:13: warning: 'em1_release' defined but not used [-Wunused-function]
+  157 | static void em1_release(void) {       /* arm the EM2 wake, then let PM drop to EM2 */
+      |             ^~~~~~~~~~~
+Building autogen/sl_rail_util_ieee802154_stack_event.c
+Building autogen/zigbee_common_callback_dispatcher.c
+Building autogen/zigbee_stack_callback_dispatcher.c
+Building autogen/zigbee_zcl_callback_dispatcher.c
+Building main.c
+Linking build/debug/kagel_tyzs3_ujcjk46o.out
+Done.
+# No post-build defined

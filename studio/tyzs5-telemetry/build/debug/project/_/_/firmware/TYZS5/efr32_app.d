@@ -222,7 +222,8 @@ build/debug/project/_/_/firmware/TYZS5/efr32_app.o: \
  ../../firmware/TYZS5/kagel_profile.h \
  ../../firmware/TYZS5/kagel_rx_timeout.h ../../firmware/common/lock_app.h \
  ../../firmware/common/nicki_ek_lock_serial.h \
- ../../firmware/common/lock_profile.h \
+ ../../firmware/common/lock_product_binding.h \
+ ../../firmware/common/lock_capability_profile.h \
  ../../firmware/common/kagel_control_gate.h \
  ../../firmware/TYZS5/target_tyzs5_adapter.h \
  ../../firmware/common/nicki_ek_lock_serial.h
@@ -455,7 +456,8 @@ C:/Users/Aerial/SimplicityStudio/SDKs/gecko_sdk/platform/bootloader/api/btl_inte
 ../../firmware/TYZS5/kagel_rx_timeout.h:
 ../../firmware/common/lock_app.h:
 ../../firmware/common/nicki_ek_lock_serial.h:
-../../firmware/common/lock_profile.h:
+../../firmware/common/lock_product_binding.h:
+../../firmware/common/lock_capability_profile.h:
 ../../firmware/common/kagel_control_gate.h:
 ../../firmware/TYZS5/target_tyzs5_adapter.h:
 ../../firmware/common/nicki_ek_lock_serial.h:

@@ -1,0 +1,1 @@
+Assertion failed: kagel_control_dp_allowed((uint8_t)dp)==(dp==21), file D:\project\tyzs5-lock-port\Door-Lock-TY0A01-with-TYZS3-to-Z2M-firmware\tests\stage2dr_control_gate_test.c, line 5

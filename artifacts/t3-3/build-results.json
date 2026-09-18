@@ -1,0 +1,46 @@
+{
+  "TYZS5": {
+    "hex": "studio/tyzs5-telemetry/build/debug/kagel_tyzs5_srptwvak_clean.hex",
+    "hex_sha256": "97b998853292fb3194f31bea33b42c578af69fd6840efbb9b9c5122c96e844f7",
+    "hex_file_bytes": 469783,
+    "flash_data_bytes": 167004,
+    "image_range_inclusive": [
+      "0x0",
+      "0x28c5b"
+    ],
+    "elf_sizes": "text\t   data\t    bss\t    dec\t    hex\tfilename\n 166992\t     12\t  15744\t 182748\t  2c9dc\tD:\\project\\tyzs5-lock-port\\Door-Lock-TY0A01-with-TYZS3-to-Z2M-firmware\\studio\\tyzs5-telemetry\\build\\debug\\kagel_tyzs5_srptwvak_clean.out",
+    "identity": "Tuya / TY0A01-TYZS5",
+    "profile": "srptwvak",
+    "nvm3_candidate_range": "0x77000..0x7FFFF (linked candidate only, not proof of stock layout)",
+    "ota_write_install_symbols": "absent",
+    "build": "Generate + Clean + Build PASS",
+    "opposite_model_absent": true,
+    "module_version": "1.0.2",
+    "em2_enabled": true,
+    "bootloader_probe_enabled": true,
+    "product_binding": "srptwvak",
+    "capability_profile": "TUYA_LOCK_CAP_EXTENDED_V1"
+  },
+  "TYZS3": {
+    "hex": "studio/tyzs3-candidate/build/debug/kagel_tyzs3_ujcjk46o.hex",
+    "hex_sha256": "3a5a92b246883fdf323cdc20afe5c330e5e64962d42494cdd247967bd5c9edde",
+    "hex_file_bytes": 468388,
+    "flash_data_bytes": 166508,
+    "image_range_inclusive": [
+      "0x0",
+      "0x28a6b"
+    ],
+    "elf_sizes": "text\t   data\t    bss\t    dec\t    hex\tfilename\n 166496\t     12\t  15728\t 182236\t  2c7dc\tD:\\project\\tyzs5-lock-port\\Door-Lock-TY0A01-with-TYZS3-to-Z2M-firmware\\studio\\tyzs3-candidate\\build\\debug\\kagel_tyzs3_ujcjk46o.out",
+    "identity": "Tuya / TY0A01-TYZS3",
+    "profile": "ujcjk46o",
+    "nvm3_candidate_range": "0x77000..0x7FFFF (linked candidate only, not proof of stock layout)",
+    "ota_write_install_symbols": "absent",
+    "build": "Generate + Clean + Build PASS",
+    "opposite_model_absent": true,
+    "module_version": "T3-1",
+    "em2_enabled": false,
+    "bootloader_probe_enabled": false,
+    "product_binding": "ujcjk46o",
+    "capability_profile": "TUYA_LOCK_CAP_CORE_V1"
+  }
+}
