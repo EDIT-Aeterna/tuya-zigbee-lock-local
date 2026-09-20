@@ -1,13 +1,17 @@
 # Flashing and rollback
 
-Select the exact module image from the v1.1.0-alpha.1 release ZIP and verify SHA256SUMS:
+Select the exact module AND edition from the v1.2.0-alpha.1 release ZIP and verify SHA256SUMS.txt. Monitor is recommended for status/events-only use; Control is for intentional remote control.
 
-| Target | Release image | Canonical Studio build |
+| Target / edition | Release image | Basic model |
 |---|---|---|
-| TYZS5 / srptwvak | firmware/TYZS5/tzll_tyzs5_srptwvak_v1.1.0-alpha.1.hex | studio/tyzs5-telemetry/build/debug/kagel_tyzs5_srptwvak_clean.hex |
-| TYZS3 / ujcjk46o | firmware/TYZS3/tzll_tyzs3_ujcjk46o_v1.1.0-alpha.1.hex | studio/tyzs3-candidate/build/debug/kagel_tyzs3_ujcjk46o.hex |
+| TYZS5 Control / srptwvak | firmware/TYZS5/tzll_tyzs5_control_v1.2.0-alpha.1.hex | TY0A01-TYZS5 |
+| TYZS5 Monitor / srptwvak | firmware/TYZS5/tzll_tyzs5_monitor_v1.2.0-alpha.1.hex | TY0A01-TYZS5-MON |
+| TYZS3 Control / ujcjk46o | firmware/TYZS3/tzll_tyzs3_control_v1.2.0-alpha.1.hex | TY0A01-TYZS3 |
+| TYZS3 Monitor / ujcjk46o | firmware/TYZS3/tzll_tyzs3_monitor_v1.2.0-alpha.1.hex | TY0A01-TYZS3-MON |
 
-Both tested targets use EFR32MG13P732F512GM48. Do not select by SoC alone; confirm module, board wiring and tested product binding. See [TYZS3 guide](tyzs3-guide.md) / [中文](tyzs3-guide.zh-CN.md) and [hardware wiring](HARDWARE.md).
+All manufacturers are Tuya. These are exact copies of audited isolated matrix outputs, not older original Studio build folders. Choose the converter matching module and edition. Changing editions requires reflashing and may require Zigbee2MQTT re-interview or deleting/re-pairing to refresh cached model/HA entities. Do not reuse a Control converter for Monitor.
+
+Both tested targets use EFR32MG13P732F512GM48. Do not select by SoC alone; confirm module, actual board wiring and tested product binding using the maintainer-verified setup. Historical upstream hardware/flasher instructions are not this release's flashing procedure.
 
 ## Before writing
 

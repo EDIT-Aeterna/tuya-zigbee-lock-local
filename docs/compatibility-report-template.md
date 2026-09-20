@@ -4,52 +4,47 @@
 
 - Brand:
 - Model:
-- Purchase/listing reference:
 - Hardware revision (if known):
 
-## Zigbee module
+## Zigbee module / product identity
 
-- Module marking:
+- Module marking (TYZS3/TYZS5/other):
 - Module photo:
 - Mainboard/connector photo:
+- Tuya Product ID / PID:
+- Lock MCU version:
+- Zigbee manufacturerName:
+- Zigbee modelIdentifier:
+- Access Edition: Control / Monitor
 
 ## Software
 
-- TZLL firmware version:
-- Converter version:
+- TZLL release / firmware filename:
+- Converter filename/version:
 - Zigbee2MQTT version:
 - Home Assistant version:
 
 ## Feature results
 
-Use:
-
-- ✅ Tested working
-- ❌ Tested not supported / no response
-- ➖ Not present / not applicable
-- ❓ Not tested / unknown
-- ⚠️ Partial / unusual behavior
-
 | Feature | Result | Notes |
 |---|---|---|
-| Pairing | ❓ | |
-| Remote unlock | ❓ | |
+| Pairing / rejoin | ❓ | |
+| Battery | ❓ | |
 | Fingerprint event | ❓ | |
 | Password event | ❓ | |
 | Card event | ❓ | |
-| Temporary password | ❓ | |
-| Credential enrollment | ❓ | |
-| Credential deletion | ❓ | |
-| Battery | ❓ | |
+| Face event | ❓ | |
+| DP58 fingerprint list | ❓ | |
+| DP59 password list | ❓ | |
+| DP60 card list | ❓ | |
+| DP93 face list | ❓ | |
 | Alarm | ❓ | |
-| Power/work mode (DP202) | ❓ | |
-| DP58/59/60 sync lists | ❓ | |
+| Remote unlock (Control only) | ❓ | |
+| Temporary password (profile dependent) | ❓ | |
+| Credential enrollment (Control only) | ❓ | |
+| Credential deletion (Control only) | ❓ | |
+| Power/work mode | ❓ | |
 
-## Unknown / unusual datapoints
+## Privacy / safety
 
-- DP:
-- Direction:
-- Payload:
-- Observed behavior:
-
-## Notes
+Remove real passwords, dynamic passwords, administrator credentials, Zigbee network keys and other household-sensitive values before posting. Do not upload full private stock backups.

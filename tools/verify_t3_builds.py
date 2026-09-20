@@ -1,7 +1,12 @@
 """Offline HEX/ELF evidence; never opens a debug probe."""
 from pathlib import Path
-import subprocess, hashlib, json
+import subprocess, hashlib, json, argparse
 root=Path(__file__).resolve().parents[1]
+parser=argparse.ArgumentParser()
+parser.add_argument('--output', default='artifacts/t3-1')
+args=parser.parse_args()
+output=root/args.output
+output.mkdir(parents=True,exist_ok=True)
 tools=Path('C:/SiliconLabs/SimplicityStudio/v5/developer/toolchains/gnu_arm/12.2.rel1_2023.7/bin')
 results={}
 for target,folder,stem,profile in [('TYZS5','tyzs5-telemetry','kagel_tyzs5_srptwvak_clean','srptwvak'),('TYZS3','tyzs3-candidate','kagel_tyzs3_ujcjk46o','ujcjk46o')]:
@@ -28,7 +33,8 @@ for target,folder,stem,profile in [('TYZS5','tyzs5-telemetry','kagel_tyzs5_srptw
     symbols={line.split()[-1]:line.split()[0] for line in nm.splitlines() if len(line.split())>=3}
     for forbidden in ['bootloader_writeStorage','bootloader_eraseStorageSlot','bootloader_setImageToBootload','bootloader_rebootAndInstall']:
         assert forbidden not in symbols, forbidden
-    for required in ['tls_send_dp','kagel_control_dp_allowed','kagel_validate_dp21','lock_app_ef00_rx','lock_profile_'+profile]:assert required in symbols,required
+    capability='TUYA_LOCK_CAP_CORE_V1' if target=='TYZS3' else 'TUYA_LOCK_CAP_EXTENDED_V1'
+    for required in ['tls_send_dp','kagel_control_dp_allowed','kagel_validate_dp21','lock_app_ef00_rx','lock_binding_'+profile,capability]:assert required in symbols,required
     assert int(symbols['linker_nvm_begin'],16)==0x77000 and int(symbols['linker_nvm_end'],16)==0x80000
     defs=(project/(stem+'.project.mak')).read_text()
     assert '-DKAGEL_TELEMETRY_ONLY=1' in defs and '-DKAGEL_CONTROL_STAGE2G=1' in defs
@@ -47,6 +53,7 @@ for target,folder,stem,profile in [('TYZS5','tyzs5-telemetry','kagel_tyzs5_srptw
     sizes=subprocess.check_output([str(tools/'arm-none-eabi-size.exe'),str(elf)],text=True).strip()
     results[target]={'hex':str(hexpath.relative_to(root)).replace('\\','/'),'hex_sha256':hashlib.sha256(hexpath.read_bytes()).hexdigest(),'hex_file_bytes':hexpath.stat().st_size,'flash_data_bytes':len(data),'image_range_inclusive':[hex(min(data)),hex(max(data))],'elf_sizes':sizes,'identity':'Tuya / TY0A01-'+target,'profile':profile,'nvm3_candidate_range':'0x77000..0x7FFFF (linked candidate only, not proof of stock layout)','ota_write_install_symbols':'absent','build':'Generate + Clean + Build PASS'}
     results[target].update({'opposite_model_absent':True,'module_version':'T3-1' if target=='TYZS3' else '1.0.2','em2_enabled':target=='TYZS5','bootloader_probe_enabled':target=='TYZS5'})
-    (root/'artifacts/t3-1'/(target.lower()+'-symbols.txt')).write_text(nm,encoding='utf8')
-out=root/'artifacts/t3-1/build-results.json';out.write_text(json.dumps(results,indent=2),encoding='utf8')
+    results[target].update({'product_binding':profile,'capability_profile':capability})
+    (output/(target.lower()+'-symbols.txt')).write_text(nm,encoding='utf8')
+out=output/'build-results.json';out.write_text(json.dumps(results,indent=2),encoding='utf8')
 print(json.dumps(results,indent=2))

@@ -1,37 +1,32 @@
-# TYZS5 Zigbee2MQTT installation
+# Zigbee2MQTT installation — TZLL v1.2
 
-Use only `zigbee2mqtt/TYZS5/tuya_ty0a01_tyzs5.js`, the Stable v1.2.2 production converter. It matches only `Tuya / TY0A01-TYZS5`. The legacy SmartHomePlus/LCK-BI400 definition is not a compatibility fallback.
+Use the converter that matches **both** module and Access Edition.
 
-1. Back up your Zigbee2MQTT configuration and current converter.
-2. Remove the previous lock definition from the active external converters directory/registration. Do not load both old and new definitions.
-3. Copy the canonical file to `<Zigbee2MQTT data directory>/external_converters/tuya_ty0a01_tyzs5.js`.
-4. If external JavaScript is disabled, merge this setting into the existing configuration (do not replace other advanced settings):
+| Target | Canonical repository converter | Exact fingerprint |
+|---|---|---|
+| TYZS5 Control | `zigbee2mqtt/TYZS5/tuya_ty0a01_tyzs5.js` | Tuya / TY0A01-TYZS5 |
+| TYZS5 Monitor | `zigbee2mqtt/TYZS5/tuya_ty0a01_tyzs5_monitor.js` | Tuya / TY0A01-TYZS5-MON |
+| TYZS3 Control | `zigbee2mqtt/TYZS3/tuya_ty0a01_tyzs3.js` | Tuya / TY0A01-TYZS3 |
+| TYZS3 Monitor | `zigbee2mqtt/TYZS3/tuya_ty0a01_tyzs3_monitor.js` | Tuya / TY0A01-TYZS3-MON |
 
-   ```yaml
-   advanced:
-     enable_external_js: true
-   ```
+Never reuse a Control definition for Monitor and never load duplicate fingerprints.
 
-5. Restart Zigbee2MQTT using your installation's normal service controls. Check loading errors and the `zigbee2mqtt/bridge/converters` listing before exercising controls.
+## Install
 
-The [official external converter guide](https://www.zigbee2mqtt.io/advanced/more/external_converters.html) notes external converters are disabled by default in new installations from 2.11.0. The exact key `advanced.enable_external_js` and restart requirement were verified against [official settings](https://www.zigbee2mqtt.io/guide/configuration/all-settings.html#enable_external_js). Existing installation defaults can differ.
+1. Back up Zigbee2MQTT configuration and active external converters.
+2. Remove any older/candidate definition matching the same identity.
+3. Copy the selected converter into the deployment's external-converter directory/registration.
+4. Restart Zigbee2MQTT and check converter-loading errors before testing.
+5. Pair or re-interview the lock and confirm the exact Tuya model identity above.
 
-Current official examples use ESM/.mjs. This integration deliberately preserves the reviewed CommonJS/.js file; do not rename it to .mjs or claim modern-loader compatibility without testing in the deployment version.
+TZLL retains the reviewed CommonJS `.js` format. Do not rename a converter to `.mjs` without testing that deployment path.
 
-## Policy and acceptance
+## Control vs Monitor
 
-### Lock-dependent datapoints
+TYZS5 Control firmware permits DP21,24–28,48,49,54,55. TYZS3 Control permits DP21,54,55 after PID verification. Both Monitor definitions are read-only: no lock-control `toZigbee` writers and no writable lock exposes; firmware adds a second independent deny layer.
 
-TZLL uses a common converter for the validated TYZS5 integration, but the lock MCU behind the Zigbee module may implement only a subset of optional datapoints. Alarm reporting and power/work-mode control (DP202) are lock-dependent, not guaranteed module capabilities.
+The unchanged TYZS5 Control converter still contains optional DP202 handling, but DP202 is outside the firmware allowlist and is not a supported end-to-end control.
 
-An exposed optional control that produces no MCU response can indicate that the lock model does not implement that feature; it is not necessarily a Zigbee failure. Do not repeatedly retry unsupported commands. Record actual observations in the [compatibility matrix](supported-locks.md). The converter's existing alarm and DP202 handling is unchanged.
+DP58/59/60/93 credential IDs use `ID = (shard - 1) * 8 + bit`; exact `00 00` is the empty-list sentinel. DP93 is an observed report-only face-list extension.
 
-Writable: 21,24,25,26,27,28,48,49,54,55,202. DP58/59/60 remain read-only decoded telemetry. DP39, DP68/69/70, DP205/OTA are not writable. FC00 claim/auth, auth DPs 226/227/230 and DP200 writer have been removed.
-
-The T3-2 maintainer taskbook reports that TYZS5 common-core hardware regression passed. Stable v1.2.2 remains unchanged; its production bitmap/control tests pass. No automatic lock operations or HA configuration changes are part of release preparation. The converter's optional DP202 exposure is retained, but the current firmware control allowlist does not accept DP202; it is not a supported end-to-end control in this release. Optional reports such as alarm still depend on the lock MCU. For initial TYZS3 support use the separate [TYZS3 guide](tyzs3-guide.md).
-
-## Credential lists in v1.2.2
-
-DP58/59/60/93 decode fingerprint/password/card/face credential IDs using `(shard - 1) * 8 + bit`. On tested locks these match local unlock and DP54/55 hardware IDs; they are not a separate shifted ID space. DP93 is an observed stock-lock extension and remains report-only. Credential classes depend on the lock MCU.
-
-Replace the external converter and restart Zigbee2MQTT; no firmware reflash is needed. Cached raw `update_all_face` is migrated once and cleared. Existing already-decoded lists from v1.2.1 require a fresh MCU sync to correct their IDs; do not infer current IDs from stale cached lists. With DP58 `01 0A 03 02`, confirm `1, 3, 17`; check ID17 unlock reports and the credential-delete ID field, without automatically sending any delete command. Check other lists only where supported.
+See [Access Editions](ACCESS_EDITIONS.md), [TYZS3 guide](tyzs3-guide.md) and [supported locks](supported-locks.md).

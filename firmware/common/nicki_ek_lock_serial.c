@@ -414,12 +414,14 @@ static void handle_frame(tls_ctx_t *c, const uint8_t *f, size_t flen)
         if (c->hal.on_product_info) {
             size_t json_len = dlen;
             bool ota = false;
+            bool ota_flag_present = false;
             if (dlen >= 2u && data[dlen - 2u] == (uint8_t)'}' &&
                 (data[dlen - 1u] == 0x00u || data[dlen - 1u] == 0x01u)) {
                 json_len = dlen - 1u;
+                ota_flag_present = true;
                 ota = data[dlen - 1u] == 0x01u;
             }
-            c->hal.on_product_info((const char *)data, json_len, ota);
+            c->hal.on_product_info((const char *)data, json_len, ota_flag_present, ota);
         }
         break;
 

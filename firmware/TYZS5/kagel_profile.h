@@ -3,6 +3,7 @@
 #define KAGEL_PROFILE_H
 
 #include <stdint.h>
+#include "tzll_access_policy.h"
 
 /* The legacy/default profile remains full-control TYZS3 behavior. Select the
  * TYZS5 first-hardware profile with:
@@ -14,21 +15,28 @@
 
 #define KAGEL_BASIC_MANUFACTURER "Tuya"
 #if KAGEL_PROFILE == KAGEL_PROFILE_TYZS3_HARDENED
-# define KAGEL_BASIC_MODEL "TY0A01-TYZS3"
-# define KAGEL_FW_VERSION "T3-1"
+# if TZLL_ACCESS_EDITION == TZLL_EDITION_MONITOR
+#  define KAGEL_BASIC_MODEL "TY0A01-TYZS3-MON"
+#  define KAGEL_FW_VERSION "T3-1-MON"
+# else
+#  define KAGEL_BASIC_MODEL "TY0A01-TYZS3"
+#  define KAGEL_FW_VERSION "T3-1"
+# endif
 # define KAGEL_BOOTLOADER_PROBE 0
 #else
-# define KAGEL_BASIC_MODEL "TY0A01-TYZS5"
-# define KAGEL_FW_VERSION "1.0.2"
+# if TZLL_ACCESS_EDITION == TZLL_EDITION_MONITOR
+#  define KAGEL_BASIC_MODEL "TY0A01-TYZS5-MON"
+#  define KAGEL_FW_VERSION "1.0.2-MON"
+# else
+#  define KAGEL_BASIC_MODEL "TY0A01-TYZS5"
+#  define KAGEL_FW_VERSION "1.0.2"
+# endif
 # define KAGEL_BOOTLOADER_PROBE 1
 #endif
 
 #if defined(KAGEL_REQUIRE_TYZS3_PROFILE) && KAGEL_REQUIRE_TYZS3_PROFILE
 # if !defined(KAGEL_PROFILE) || KAGEL_PROFILE != KAGEL_PROFILE_TYZS3_HARDENED
 #  error "TYZS3 candidate requires hardened module profile"
-# endif
-# if !defined(LOCK_PROFILE_UJCJK46O) || !LOCK_PROFILE_UJCJK46O
-#  error "First TYZS3 candidate requires ujcjk46o lock profile"
 # endif
 #endif
 
