@@ -1,6 +1,7 @@
 /* lock_app.c -- see lock_app.h. Portable, no hardware/SDK deps. */
 #include "lock_app.h"
 #include "kagel_control_gate.h"
+#include "tzll_access_policy.h"
 #include <string.h>
 
 /* The nicki_ek serial core's uart_write/on_dp_report callbacks carry no user
@@ -228,7 +229,7 @@ int lock_app_create_temp_pw(lock_app_t *a, uint16_t pw_id, uint32_t valid_from,
                             const uint8_t *pw, uint8_t pwlen) {
     g_active_app = a;
     if (!core_is_online(a)) return 0;                 /* only when joined */
-    if (!identity_allows_writes(a) || !lock_capability_dp_writable(a->binding->capability_profile,24)) return 0;
+    if (!identity_allows_writes(a) || !tzll_access_external_dp_writable(a->binding,24)) return 0;
     /* Stamp the window against the lock's OWN clock (== the 0x24 time we serve). */
     uint32_t now   = core_gmt();
     uint32_t start = now + valid_from;

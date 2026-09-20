@@ -26,6 +26,7 @@ source:
 - {path: ../../firmware/common/kagel_control_gate.c}
 - {path: ../../firmware/common/lock_product_binding.c}
 - {path: ../../firmware/common/lock_capability_profile.c}
+- {path: ../../firmware/common/tzll_access_policy.c}
 include:
 - {path: .}
 - {path: ../../firmware/TYZS5}
