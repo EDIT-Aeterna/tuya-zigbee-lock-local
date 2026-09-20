@@ -1,0 +1,4 @@
+# Preserve the exact hardware-validated Monitor converter bytes.
+zigbee2mqtt/TYZS3/tuya_ty0a01_tyzs3_monitor.js -text
+zigbee2mqtt/TYZS5/tuya_ty0a01_tyzs5_monitor.js -text
+tests/reviewer-monitor/test_monitor_converters.js -text
