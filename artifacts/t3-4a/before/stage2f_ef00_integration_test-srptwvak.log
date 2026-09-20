@@ -1,0 +1,11 @@
+PASS target DP24                      one DP24 command
+PASS generic DP25                     one DP25 command
+PASS generic DP27                     one DP27 command
+PASS generic DP28                     one DP28 command
+PASS DP54 forbidden                   no UART
+PASS DP24 unknown6 nonzero            no UART
+PASS DP24 + malformed tail            no UART
+
+FAILURES (2 failures)
+FAIL generic DP39                     expected 3 wake writes
+FAIL generic DP26                     expected 3 wake writes
