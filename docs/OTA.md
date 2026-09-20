@@ -1,3 +1,6 @@
+> [!WARNING]
+> **Historical upstream OTA documentation.** OTA is disabled in current TZLL releases, and the current release firmware is intentionally audited without OTA write/install paths. Do not install the historical bootloader or follow this procedure on a TZLL lock. This file is retained only for provenance and future research.
+
 # Wireless firmware updates (OTA)
 
 Once the lock is assembled the SWD pads are sealed away, so **over-the-air update is the

@@ -1,67 +1,78 @@
-# Building the firmware
+# Building TYZS5 firmware
 
-You only need this if you want to change the firmware. A prebuilt image, `kagel-lock.hex`, is in
-this folder — flash that and skip the build.
+This directory contains the TYZS5 target adapter/source used by the shared TZLL firmware core.
 
-## Source layout
+For normal users, use the versioned HEX from the matching GitHub Release. Do **not** look for a prebuilt `kagel-lock.hex` in this source directory.
 
-The code is split so the hard part (the MCU serial protocol) is portable and host-testable, and
-only the thin hardware layer needs the Silicon Labs SDK.
+## Current architecture
 
-| File | Layer |
-|---|---|
-| `nicki_ek_lock_serial.c/.h` | Portable module-side MCU serial core — frame codec, datapoint parse, boot/online handshake, time sync. Pure C99, HAL-abstracted. |
-| `lock_app.c/.h` | Portable application logic that ties the serial core to the radio. |
-| `efr32_app.c` | EFR32MG13 hardware layer — USART, NVM3, sleeptimer, Zigbee EF00 join + telemetry. |
-| `app.c` | Zigbee stack callbacks (routes incoming cluster traffic, auto-joins). |
-| `host_selftest.c` | Host tests for the serial core — no hardware needed. |
+Shared protocol/application policy lives in:
 
-## Host tests (no hardware)
-
-```
-cc -std=c99 -Wall -Wextra host_selftest.c nicki_ek_lock_serial.c -o selftest && ./selftest
+```text
+firmware/common/
 ```
 
-## On-device build (Simplicity Studio 5)
+TYZS5 target-specific code/configuration lives in:
 
-The EFR32MG13 is a Series-1 part. The 2025 *Simplicity SDK* dropped Series-1 Zigbee, so install the
-**Gecko SDK Suite 4.5.x** (which still has MG13 Zigbee) via *Manage SDKs*.
+```text
+firmware/TYZS5/
+studio/tyzs5-telemetry/
+```
 
-1. Create a **Zigbee – SoC** project for target **EFR32MG13P732F512GM48**, Custom Board.
-2. Add the five `.c/.h` files above to the project. Call `kagel_app_init()` from the generated
-   `app_init`, and `kagel_app_tick()` from the main loop.
-3. Components to add: NVM3, IO Stream (USART), Network Steering, and the manufacturer-specific EF00
-   cluster send path. On a custom board, add **IO Stream: Dummy** to satisfy the recommended-stream
-   check, and set the Simple LED `LED0` port/pin directly in its generated config header.
-4. Advertise the lock identity in the Basic cluster (`zcl_config.zap`): manufacturer name
-   `SmartHomePlus`, model identifier `LCK-BI400`. These must match the Zigbee2MQTT converter.
-5. Build. The output `kagel-lock.hex` (Intel HEX) is what the flasher and pyOCD use.
+The current platform separates Product Binding, Capability Profile and Access Edition. TYZS5 supports two build editions:
 
-## Headless rebuild
+| Edition | Basic identity | External control policy |
+|---|---|---|
+| Control | Tuya / TY0A01-TYZS5 | validated profile allowlist |
+| Monitor | Tuya / TY0A01-TYZS5-MON | empty external write surface |
 
-Once the Studio project exists, `rebuild-firmware.bat` (in `../flasher/`) shows the exact
-`make` invocation using the toolchain bundled with Simplicity Studio — a header-only change
-rebuilds in a few seconds without opening the IDE. Adjust the paths at the top of the batch file
-to match your workspace.
+## Supported build entry points
 
-## Confirm the UART baud
+Build one edition:
 
-`efr32_app.c` runs the MCU link at **9600 8N1**, confirmed on real hardware. If a unit differs,
-change `LOCK_BAUD`.
+```powershell
+tools/build_tzll.ps1 -Module TYZS5 -Edition Control -SdkRoot <gecko_sdk>
+tools/build_tzll.ps1 -Module TYZS5 -Edition Monitor -SdkRoot <gecko_sdk>
+```
 
-## Sleepy end device (battery) build
+Build the full 2×2 TYZS3/TYZS5 matrix:
 
-The firmware now runs the module as a **sleepy end device** — the radio sleeps
-between polls instead of listening 24/7, which is the difference between weeks
-and many months on batteries. `kagel-lock.hex` here (and in `flasher/`) is this
-build, verified on hardware.
+```powershell
+tools/build_all_editions.ps1 -SdkRoot <gecko_sdk>
+```
 
-Building it yourself requires, together (a partial conversion crashes mid-join):
+The build helper derives an isolated generated Studio project under:
 
-1. Device type **Sleepy End Device** in `config/zigbee_device_config.h`
-   (`SLI_ZIGBEE_PRIMARY_NETWORK_DEVICE_TYPE`).
-2. The **Pro Leaf Stack** component (`zigbee_pro_leaf_stack`) in place of
-   `zigbee_pro_stack`, which also defines `SL_ZIGBEE_LEAF_STACK` for all
-   sources. The router stack asserts (RAIL error 59) if run as a sleepy device.
-3. The SED polling block in `efr32_app.c` (in this repo): ~200ms fast poll
-   through joining + 60s settle (key exchange + interview), 2s long poll after.
+```text
+studio/tzll-<module>-<edition>-generated/
+```
+
+Those directories and all `studio/*/build/` outputs are intentionally ignored by Git. Maintained source/configuration remains in the original Studio inputs plus `firmware/common`.
+
+## Toolchain
+
+The reviewed project uses Silicon Labs Simplicity Studio / Gecko SDK with EFR32MG13P732F512GM48 support. The repository scripts call SLC generation, ZAP generation, clean, then make.
+
+Pass your local Gecko SDK path explicitly with `-SdkRoot`; the default path in helper scripts is only a maintainer convenience and is not portable.
+
+## Control compatibility build
+
+`tools/build_stage2br.ps1` remains as a historical-compatible TYZS5 Control build entry. New development should prefer the edition-aware `build_tzll.ps1` / `build_all_editions.ps1` path.
+
+## Host tests
+
+Current pull-request CI runs:
+
+```text
+python tools/run_current_ci.py
+```
+
+This covers the portable common core, access policy, fixtures and converter tests without the Silicon Labs SDK. Full firmware builds remain a separate maintainer/release gate.
+
+## OTA / bootloader note
+
+The files `kagel-lock-bootloader.hex`, `kagel-lock-bootloader.s37` and `make-ota.js` are retained from the upstream OTA work for provenance/research only.
+
+**OTA is disabled in current TZLL releases. Do not flash the historical standalone bootloader as part of a supported TZLL installation.**
+
+See [../../docs/FLASHING.md](../../docs/FLASHING.md) and the warning in [../../docs/OTA.md](../../docs/OTA.md).

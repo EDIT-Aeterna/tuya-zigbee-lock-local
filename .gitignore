@@ -14,3 +14,12 @@ selftest
 /artifacts/release/v1.2.0-alpha.1/
 /artifacts/release-work/v1.2.0-alpha.1/
 /artifacts/release/TZLL-v1.2.0-alpha.1.zip
+
+# Studio build products are reproducible and must not be committed.
+/studio/*/build/
+
+# Local current-policy CI logs.
+/artifacts/current-ci/
+
+# Historical release staging belongs on GitHub Releases, not in the source tree.
+/release/TZLL-v*/
