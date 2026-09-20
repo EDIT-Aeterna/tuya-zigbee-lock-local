@@ -1,3 +1,7 @@
+# Main-branch note
+
+> Detailed generated build/debug evidence referenced below is preserved in the v1.2.0-alpha.1 tag/release-prep history and is intentionally not duplicated on main.
+
 # T3-3 platform cleanup — verification and handoff
 
 ## Baseline and scope

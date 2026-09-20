@@ -4,7 +4,7 @@
 
 - T3-4A: compile-time Control/Monitor policy and four builds; maintainer hardware regression PASS.
 - T3-4B: both independent Monitor converters integrated; matching firmware/converter Zigbee2MQTT/HA validation PASS. Existing Control definitions remain unchanged.
-- v1.2.0-alpha.1: four-edition release preparation and final audit; publication remains a separate manual maintainer step.
+- v1.2.0-alpha.1: Control/Monitor four-edition prerelease published on 2026-09-20 after maintainer hardware validation.
 
 See [Access Editions](ACCESS_EDITIONS.md).
 
@@ -17,9 +17,16 @@ Later work, not implemented in T3-3:
 - Automatic multi-PID binding lookup from observations.
 - Generic unknown-PID read-only profile, without relaxing current write safety.
 - Multiple product bindings mapping to a shared capability profile.
-- Converter commonization (the two current converters remain unchanged).
+- Converter commonization across the separate Control/Monitor definitions.
 - Runtime/site timezone configuration instead of the preserved binding UTC+8 metadata.
 
 ## Lock capability discovery / per-model feature profiling
 
 Future work should prefer passive observation of reported datapoints and known-model compatibility profiles. Avoid aggressive startup probing of unknown lock MCUs. Capability discovery is not implemented by the optional-capabilities documentation addendum.
+
+## Post-release hardening
+
+- Keep `main` aligned with the latest published source while excluding generated/debug build evidence.
+- Refresh Home Assistant and Zigbee2MQTT user guides for Control/Monitor.
+- Add SECURITY.md, contribution/compatibility issue templates and current-policy CI.
+- Continue the compatibility matrix with additional tested Product Bindings and lock samples.

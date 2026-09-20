@@ -1,3 +1,7 @@
+# Historical postscript — v1.2.0-alpha.1 is published
+
+> This document records the pre-publication reproducibility/audit process. The release was published on 2026-09-20. It is retained as engineering history.
+
 # Reproduce v1.2.0-alpha.1 release preparation
 
 Run from a clean checkout of the release-preparation commit:

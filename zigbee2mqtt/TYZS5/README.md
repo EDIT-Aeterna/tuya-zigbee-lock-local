@@ -1,17 +1,14 @@
-# TYZS5 production converter
+# TYZS5 Zigbee2MQTT converters
 
-Canonical file: [tuya_ty0a01_tyzs5.js](tuya_ty0a01_tyzs5.js).
+Validated Product Binding: `srptwvak`.
 
-Reviewer Stable v1.2.1 candidate SHA-256:
-`8DE0244E00CF66145377BD5B574B49020F41901A50B89F338A20CAE19004836F`
+| Edition | Canonical file | Version | Fingerprint | Write surface |
+|---|---|---|---|---|
+| Control | `tuya_ty0a01_tyzs5.js` | Stable v1.2.2 | Tuya / TY0A01-TYZS5 | DP21,24–28,48,49,54,55 in firmware |
+| Monitor | `tuya_ty0a01_tyzs5_monitor.js` | v0.1.0 | Tuya / TY0A01-TYZS5-MON | none |
 
-The file is copied byte-for-byte from the review bundle. Its sole fingerprint is:
-`{modelID: 'TY0A01-TYZS5', manufacturerName: 'Tuya'}`.
+Monitor has no lock-control `toZigbee` writer. DP58/59/60/93 credential IDs use `(shard - 1) * 8 + bit`; exact `00 00` is the empty-list sentinel.
 
-Writes: DP21, DP24/25/26/27/28, DP48/49, DP54/55 and module-local DP202.
-Read-only decoded sync: DP58/59/60.
-Disabled: DP39, DP68/69/70, DP205/OTA. Removed: FC00 claim/auth, auth mappings 226/227/230 and DP200 writer.
+The unchanged Control converter still contains optional DP202 handling, but DP202 is outside the current firmware allowlist and is not a supported end-to-end control. DP39, DP68/69/70 and DP205/OTA remain disabled.
 
-Use the [installation guide](../../docs/zigbee2mqtt-guide.md). The old converter is retained under [legacy](legacy/README.md), not for installation. Never load both definitions simultaneously.
-
-The converter does not intentionally persist plaintext credentials in device state; submitted values still pass through the HA/Z2M/MQTT request path. It retains the reviewer-provided CommonJS format. Syntax validation does not establish compatibility with every Zigbee2MQTT version; runtime and real-device regression remain required.
+Use the [installation guide](../../docs/zigbee2mqtt-guide.md). The [legacy](legacy/README.md) definitions are historical/reference only.

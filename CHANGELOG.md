@@ -2,7 +2,7 @@
 
 ## [1.2.0-alpha.1] - 2026-09-20
 
-Prepared for maintainer review and manual publication.
+Published as a GitHub prerelease on 2026-09-20.
 
 - Added TYZS5 and TYZS3 Monitor Edition, with independent hardware-validated read-only Zigbee2MQTT definitions.
 - Added compile-time CONTROL / MONITOR policy; Monitor has an empty external writable-DP surface.

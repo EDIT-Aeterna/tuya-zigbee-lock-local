@@ -59,6 +59,6 @@ TYZS5 remains Tuya / TY0A01-TYZS5, module version 1.0.2. TYZS3 remains Tuya / TY
 
 Timezone remains 28800 seconds on bindings to preserve behavior. TODO: timezone is deployment/site configuration, not a product capability. Runtime/site timezone configuration is future work.
 
-Multiple future PIDs may map to the same capability profile. Automatic observed-PID binding lookup, generic unknown-PID read-only fallback and converter commonization are not implemented. Unknown products currently follow the existing expected-binding rejection policy. No dynamic-password algorithm, new controls, converter entities or public release is introduced.
+Multiple future PIDs may map to the same capability profile. Automatic observed-PID binding lookup, generic unknown-PID read-only fallback and converter commonization are not implemented. Unknown products currently follow the existing expected-binding rejection policy. No dynamic-password algorithm or new control semantics were introduced by the architecture refactor. The hardware-validated Control/Monitor result is published in v1.2.0-alpha.1.
 
 See [T3-3 verification report](T3_3_PLATFORM_CLEANUP_REPORT.md) for pre/post characterization, current builds and the required maintainer hardware regression.

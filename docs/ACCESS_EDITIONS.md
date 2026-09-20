@@ -1,6 +1,6 @@
 # Access Editions — Control and Monitor
 
-The compile-time access policy is independent of module target, product binding and capability profile. The maintainer has validated all four firmware variants, including both Monitor converters in Zigbee2MQTT/Home Assistant. v1.2.0-alpha.1 is prepared for manual release review. Monitor is recommended for status/events-only use; Control is for intentional remote lock control.
+The compile-time access policy is independent of module target, product binding and capability profile. The maintainer has validated all four firmware variants, including both Monitor converters in Zigbee2MQTT/Home Assistant. v1.2.0-alpha.1 was published as a GitHub prerelease on 2026-09-20. Monitor is recommended for status/events-only use; Control is for intentional remote lock control.
 
 ## Control Edition / 可控制版
 
