@@ -1,5 +1,13 @@
 # Roadmap
 
+## Access editions
+
+- T3-4A: firmware-only Control/Monitor access policy and four candidate builds; implemented for maintainer hardware regression, not public release.
+- T3-4B: matching Control/Monitor converter layer; not implemented in T3-4A. Canonical converters remain unchanged.
+- Planned v1.2.0-alpha.1: four-edition release only after hardware validation and T3-4B review. Not prepared, tagged or published by T3-4A.
+
+See [Access Editions](ACCESS_EDITIONS.md).
+
 ## Product binding and capability profiles
 
 PID means Tuya Product ID / product definition binding, not module type or protocol generation. T3-3 separates module targets, static product bindings, neutral capability profiles and runtime observations; see [architecture](PLATFORM_ARCHITECTURE.md). Current builds still select one expected binding; MCU versions remain evidence metadata, not an additional gate.

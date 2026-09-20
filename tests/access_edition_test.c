@@ -82,6 +82,10 @@ int main(void){
             uint8_t temp[18]={0,1,0,0,0,0,0,0,0x0E,0x10,0,6,'1','2','3','4','5','6'};
             lock_app_zb_rx(&a,LOCK_MSG_CREATE_TEMP_PW,temp,sizeof temp);assert(!writes&&!a.tls.pend_active);
             feed(&a,0,NULL,0);assert(!a.tls.pend_active); /* never queued an application command */
+            const uint8_t battery[]={10,2,0,4,0,0,0,80};
+            before=reports;feed(&a,5,battery,sizeof battery);
+            assert(reports==before+1 && last[5]==5 && last[8]==0x10);
+            feed(&a,0x24,NULL,0);assert(last[5]==0x24 && lastlen==17);
         }
     }
     puts("Access exact/exhaustive policy, external paths, PID and internal traffic: ALL PASS");return 0;

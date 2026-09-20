@@ -1,5 +1,17 @@
 # TZLL platform architecture — T3-3
 
+T3-4A extension: [Access Editions](ACCESS_EDITIONS.md) adds an independent compile-time Control/Monitor gate after the product capability allowlist. Module Target, Product Binding, Capability Profile and Runtime Product Observation retain their ownership below. Access Edition owns only effective external write permission; it does not redefine product capabilities or internal protocol traffic.
+
+```text
+Module Target -> hardware / Basic module identity
+Product Binding -> Capability Profile -> explicit product write allowlist
+Access Edition (CONTROL / MONITOR) -> effective external write policy
+Module Target + Access Edition -> runtime Basic model identity
+Runtime Product Observation -> existing PID verification / diagnostics
+```
+
+Control preserves the product allowlist. Monitor grants no external writes. `tzll_access_policy.c/h` is the access authority; `kagel_control_dp_allowed` and the external temporary-password helper delegate to it. Edition selection is not remotely mutable. No generic serial-send gate is introduced. The T3-3 descriptions below of product policy continue to apply before the access gate.
+
 PID is a Tuya Product ID / product definition binding. It is not a Zigbee module identifier or protocol version. Capability names below are internal TZLL policy names, not official Tuya protocol generations.
 
 | Concept | Owns | Implementation |
