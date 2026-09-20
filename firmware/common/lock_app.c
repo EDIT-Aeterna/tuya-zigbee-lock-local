@@ -1,6 +1,7 @@
 /* lock_app.c -- see lock_app.h. Portable, no hardware/SDK deps. */
 #include "lock_app.h"
 #include "kagel_control_gate.h"
+#include "tzll_access_policy.h"
 #include <string.h>
 
 /* The nicki_ek serial core's uart_write/on_dp_report callbacks carry no user
@@ -44,7 +45,7 @@ static void core_on_config(uint8_t sub, void *user) {
     if (a && a->hal.on_config) a->hal.on_config(sub, a->hal.user);
 }
 /* TARGET_SRPTWVAK deployment: mainland China, UTC+8, no DST. */
-static int32_t core_tz(void) { return g_active_app->profile->timezone_offset_seconds; }
+static int32_t core_tz(void) { return g_active_app->binding->timezone_offset_seconds; }
 
 /* ANTI-CLONE REMOVED 2026-07-15 (Nicki): the lock is an OPEN, standard Zigbee
  * device. Kagel flashes the firmware itself, so there is no Kagel-claim gate --
@@ -68,14 +69,14 @@ static bool core_is_online(void *user) {
  * top of the auth gate: even an authed hub session can't poke arbitrary DPs. */
 static bool identity_allows_writes(const lock_app_t *a) {
     return a && !a->pid_mismatch &&
-        (!a->profile->require_pid_match_for_writes || a->pid_verified);
+        (!lock_binding_requires_pid_match(a->binding) || a->pid_verified);
 }
 static int validate_control_dp(uint8_t dp, uint8_t type, const uint8_t *v, size_t n) {
     if (!identity_allows_writes(g_active_app) || type != TLS_DP_RAW ||
         !kagel_control_dp_allowed(dp)) return 0;
     /* Face uses the same reviewed structure, permitted only on its profile. */
     if ((dp == 54u || dp == 55u) && v && n && v[0] == 4u &&
-        g_active_app->profile->face_credentials) {
+        lock_capability_has(g_active_app->binding->capability_profile, LOCK_CAP_FACE_CREDENTIALS)) {
         uint8_t copy[8];
         if (n != (dp == 54u ? 7u : 8u)) return 0;
         memcpy(copy, v, n); copy[0] = 3u;
@@ -91,72 +92,27 @@ static int validate_control_dp(uint8_t dp, uint8_t type, const uint8_t *v, size_
 }
 
 
-/* Small bounded flat-JSON reader for product info. No heap, no NUL assumptions.
- * Unknown string fields are tolerated; malformed/duplicate identity keys fail
- * closed for writes. No observed OTA flag can change the compiled OTA policy. */
-static void json_space(const char *s, size_t n, size_t *i) {
-    while (*i<n && (s[*i]==' ' || s[*i]=='\t' || s[*i]=='\r' || s[*i]=='\n')) (*i)++;
-}
-static bool json_string(const char *s,size_t n,size_t *i,size_t *start,size_t *len) {
-    if (*i>=n || s[(*i)++]!='"') return false;
-    *start=*i;
-    while (*i<n && s[*i]!='"') {
-        if ((unsigned char)s[*i]<32 || s[*i]=='\\') return false;
-        (*i)++;
-    }
-    if (*i>=n) return false;
-    *len=*i-*start; (*i)++; return true;
-}
-static void core_product_info(const char *s,size_t n,bool ota) {
+/* Observation parsing and PID comparison belong to the product-binding layer. */
+static void core_product_info(const char *s,size_t n,bool present,bool ota) {
     lock_app_t *a=g_active_app;
-    size_t i=0, ps=0, pn=0, vs=0, vn=0; bool hasp=false,hasv=false;
     if (!a || !s) return;
-    json_space(s,n,&i);
-    if (i>=n || s[i++]!='{') goto invalid;
-    json_space(s,n,&i);
-    if (i<n && s[i]=='}') {i++;goto done;}
-    for (;;) {
-        size_t ks,kn,bs,bn;
-        if (!json_string(s,n,&i,&ks,&kn)) goto invalid;
-        json_space(s,n,&i);
-        if (i>=n || s[i++]!=':') goto invalid;
-        json_space(s,n,&i);
-        if (!json_string(s,n,&i,&bs,&bn)) goto invalid;
-        if(kn==1 && s[ks]=='p') {if(hasp || !bn)goto invalid;hasp=true;ps=bs;pn=bn;}
-        if(kn==1 && s[ks]=='v') {if(hasv)goto invalid;hasv=true;vs=bs;vn=bn;}
-        json_space(s,n,&i);
-        if(i>=n)goto invalid;
-        if(s[i]=='}'){i++;break;}
-        if(s[i++]!=',')goto invalid;
-        json_space(s,n,&i);
+    if (!lock_product_observe(&a->observation,s,n,present,ota)) {
+        a->pid_mismatch=true;
+        a->pid_verified=false;
+    } else {
+        a->product_info_seen=true;
+        if (a->observation.pid_length >= sizeof a->observation.pid ||
+            !lock_binding_pid_matches(a->binding,a->observation.pid,a->observation.pid_length))
+            a->pid_mismatch=true;
+        a->pid_verified=!a->pid_mismatch;
     }
-done:
-    json_space(s,n,&i); if(i!=n || !hasp)goto invalid;
-    a->product_info_seen=true;
-    if(hasp) {
-        size_t expected=strlen(a->profile->expected_pid);
-        if(pn!=expected || memcmp(s+ps,a->profile->expected_pid,pn)!=0) a->pid_mismatch=true;
-        size_t copy=pn<sizeof a->observed_pid-1?pn:sizeof a->observed_pid-1;
-        memcpy(a->observed_pid,s+ps,copy);a->observed_pid[copy]=0;
-    }
-    if(hasv) {
-        size_t copy=vn<sizeof a->mcu_version-1?vn:sizeof a->mcu_version-1;
-        memcpy(a->mcu_version,s+vs,copy);a->mcu_version[copy]=0;
-    }
-    a->observed_ota=ota;
-    a->pid_verified=!a->pid_mismatch;
     if (a->pid_mismatch) {a->tls.pend_active=0; a->tls.pend_len=0;}
-    return;
-invalid:
-    a->pid_mismatch=true;
-    a->pid_verified=false;
-    a->tls.pend_active=0; a->tls.pend_len=0;
 }
 
 void lock_app_init(lock_app_t *a, const lock_app_hal_t *hal) {
     memset(a, 0, sizeof(*a));
     a->hal = *hal;
-    a->profile = lock_profile_default();
+    a->binding = lock_binding_default();
     g_active_app = a;
 
     tls_hal_t th;
@@ -172,7 +128,7 @@ void lock_app_init(lock_app_t *a, const lock_app_hal_t *hal) {
     th.on_config    = core_on_config;
     th.user         = a;
     tls_init(&a->tls, &th);
-    a->tls.quirks = a->profile->quirks;
+    a->tls.quirks = a->binding->quirks;
 }
 
 void lock_app_start(lock_app_t *a) {
@@ -273,7 +229,7 @@ int lock_app_create_temp_pw(lock_app_t *a, uint16_t pw_id, uint32_t valid_from,
                             const uint8_t *pw, uint8_t pwlen) {
     g_active_app = a;
     if (!core_is_online(a)) return 0;                 /* only when joined */
-    if (!identity_allows_writes(a) || !lock_profile_dp_allowed(a->profile,24)) return 0;
+    if (!identity_allows_writes(a) || !tzll_access_external_dp_writable(a->binding,24)) return 0;
     /* Stamp the window against the lock's OWN clock (== the 0x24 time we serve). */
     uint32_t now   = core_gmt();
     uint32_t start = now + valid_from;

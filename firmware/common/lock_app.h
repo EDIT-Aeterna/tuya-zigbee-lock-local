@@ -19,7 +19,7 @@
 #ifndef LOCK_APP_H
 #define LOCK_APP_H
 #include "nicki_ek_lock_serial.h"
-#include "lock_profile.h"
+#include "lock_product_binding.h"
 #include <stdint.h>
 #include <stddef.h>
 
@@ -60,15 +60,13 @@ typedef struct {
 typedef struct {
     lock_app_hal_t hal;
     tls_ctx_t      tls;
-    const lock_profile_t *profile;
-    char observed_pid[17];
-    char mcu_version[17];
-    bool observed_ota;
+    const lock_product_binding_t *binding;
+    lock_product_observation_t observation;
     bool pid_mismatch; /* sticky until reinitialization */
     bool pid_verified;
     bool product_query_started;
     bool mcu_seen;
-    bool product_info_seen;
+    bool product_info_seen; /* sticky: at least one valid JSON reply, independent of latest observation */
     bool product_info_retry_sent;
     uint16_t       txn;     /* DP24 temp-pw transaction counter (per the capture) */
 } lock_app_t;

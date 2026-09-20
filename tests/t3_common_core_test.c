@@ -1,6 +1,6 @@
 /* Synthetic credentials; structures transcribed from maintainer stock captures. */
 #include "lock_app.h"
-#include "lock_profile.h"
+#include "lock_product_binding.h"
 #include <assert.h>
 #include <stdio.h>
 #include <string.h>
@@ -19,7 +19,7 @@ static void info_with_ota(lock_app_t *a,const char *json,uint8_t ota){uint8_t b[
 static void info(lock_app_t *a,const char *json){info_with_ota(a,json,1);}
 static void info_plain(lock_app_t *a,const char *json){feed(a,1,(const uint8_t *)json,strlen(json));}
 static void send21(lock_app_t *a){const uint8_t b[]={0,1,21,0,0,6,'1','2','3','4','5','6'};lock_app_ef00_rx(a,0,b,sizeof b);}
-static void verify_pid(lock_app_t *a){char j[80];snprintf(j,sizeof j,"{\"p\":\"%s\",\"v\":\"1.0.0\"}",a->profile->expected_pid);info(a,j);assert(a->pid_verified);}
+static void verify_pid(lock_app_t *a){char j[80];snprintf(j,sizeof j,"{\"p\":\"%s\",\"v\":\"1.0.0\"}",a->binding->pid);info(a,j);assert(a->pid_verified);}
 int main(void){
  uint8_t ext[27]={0,1,0,2,0,0,0x65,0x53,0xF1,0,0x65,0x53,0xFF,0,2,0x1F,0,0,23,0,0,'1','2','3','4','5','6'};
  tls_temp_password_extended_t parsed;uint8_t rebuilt[27];
@@ -40,18 +40,18 @@ int main(void){
  assert(!tls_parse_report_dps(5,1,quirk,13,dp,0,&count));
  for(uint8_t t=1;t<=4;t++){uint8_t add[]={t,0,1,0,1,0,14,0,0};uint8_t del[]={t,0,1,0,1,0,14,1,0};tls_credential_add_t ar;tls_credential_delete_t dd;
  assert(tls_parse_credential_add(54,add,7,&ar));assert(tls_parse_credential_add(54,add,9,&ar));assert(tls_parse_credential_delete(55,del,8,&dd));assert(tls_parse_credential_delete(55,del,9,&dd));}
- const lock_profile_t *p5=&lock_profile_srptwvak,*p3=&lock_profile_ujcjk46o;
- assert(lock_profile_dp_allowed(p5,27));assert(!lock_profile_dp_allowed(p3,27));assert(p5->quirks==0 && p3->quirks==1);
+ const lock_product_binding_t *p5=&lock_binding_srptwvak,*p3=&lock_binding_ujcjk46o;
+ assert(lock_capability_dp_writable(p5->capability_profile,27));assert(!lock_capability_dp_writable(p3->capability_profile,27));assert(p5->quirks==0 && p3->quirks==1);
  for(unsigned d=0;d<256;d++){bool expected=d==21||d==24||d==25||d==26||d==27||d==28||d==48||d==49||d==54||d==55;
- assert(lock_profile_dp_allowed(p5,(uint8_t)d)==expected);assert(lock_profile_dp_allowed(p3,(uint8_t)d)==(d==21||d==54||d==55));}
+ assert(lock_capability_dp_writable(p5->capability_profile,(uint8_t)d)==expected);assert(lock_capability_dp_writable(p3->capability_profile,(uint8_t)d)==(d==21||d==54||d==55));}
  lock_app_t a;lock_app_hal_t h={0};h.uart_write=uart;h.gmt_now=now;h.zb_ef00_report=report;lock_app_init(&a,&h);
  /* Product-info variants observed on real locks: pure JSON and JSON+OTA byte. */
  {
-   char j[80];snprintf(j,sizeof j,"{\"p\":\"%s\",\"v\":\"1.0.0\"}",a.profile->expected_pid);
-   info_plain(&a,j);assert(a.pid_verified && !a.pid_mismatch && !a.observed_ota);
+   char j[80];snprintf(j,sizeof j,"{\"p\":\"%s\",\"v\":\"1.0.0\"}",a.binding->pid);
+   info_plain(&a,j);assert(a.pid_verified && !a.pid_mismatch && !a.observation.ota_capable);
    writes=0;send21(&a);assert(writes>0 && a.tls.pend_active);
-   lock_app_init(&a,&h);info_with_ota(&a,j,1);assert(a.pid_verified && !a.pid_mismatch && a.observed_ota);
-   lock_app_init(&a,&h);info_with_ota(&a,j,0);assert(a.pid_verified && !a.pid_mismatch && !a.observed_ota);
+   lock_app_init(&a,&h);info_with_ota(&a,j,1);assert(a.pid_verified && !a.pid_mismatch && a.observation.ota_capable);
+   lock_app_init(&a,&h);info_with_ota(&a,j,0);assert(a.pid_verified && !a.pid_mismatch && !a.observation.ota_capable);
    lock_app_init(&a,&h);info_with_ota(&a,j,2);assert(a.pid_mismatch && !a.pid_verified);
    writes=0;send21(&a);assert(writes==0);
  }
@@ -60,24 +60,24 @@ int main(void){
  uint32_t utc=((uint32_t)tx[8]<<24)|((uint32_t)tx[9]<<16)|((uint32_t)tx[10]<<8)|tx[11];
  uint32_t local=((uint32_t)tx[12]<<24)|((uint32_t)tx[13]<<16)|((uint32_t)tx[14]<<8)|tx[15];assert(utc==1700000000u && local-utc==28800);
  feed(&a,7,dyn,sizeof dyn);assert(tx[8]==2);dyn[16]=0;feed(&a,7,dyn,sizeof dyn);assert(tx[8]==3);
- reports=0;feed(&a,5,quirk,sizeof quirk);assert(reports==(a.profile->quirks?1u:0u));
- writes=0;send21(&a);assert((writes>0)==!a.profile->require_pid_match_for_writes);
+ reports=0;feed(&a,5,quirk,sizeof quirk);assert(reports==(a.binding->quirks?1u:0u));
+ writes=0;send21(&a);assert((writes>0)==!lock_binding_requires_pid_match(a.binding));
  verify_pid(&a);writes=0;send21(&a);assert(writes>0);
  for(unsigned type=1;type<=4;type++){
    uint8_t add[]={0,1,54,0,0,7,(uint8_t)type,0,1,0,1,3,0xE7};
    uint8_t del[]={0,1,55,0,0,8,(uint8_t)type,0,1,0,1,0,14,1};
    lock_app_init(&a,&h);verify_pid(&a);writes=0;lock_app_ef00_rx(&a,0,add,sizeof add);
-   assert((writes>0)==(type<=3 || a.profile->face_credentials));
+   assert((writes>0)==(type<=3 || lock_capability_has(a.binding->capability_profile, LOCK_CAP_FACE_CREDENTIALS)));
    lock_app_init(&a,&h);verify_pid(&a);writes=0;lock_app_ef00_rx(&a,0,del,sizeof del);
-   assert((writes>0)==(type<=3 || a.profile->face_credentials));
+   assert((writes>0)==(type<=3 || lock_capability_has(a.binding->capability_profile, LOCK_CAP_FACE_CREDENTIALS)));
  }
  lock_app_init(&a,&h);verify_pid(&a);writes=0;const uint8_t freeze[]={0,1,27,0,0,6,0,1,0,2,0,0};
- lock_app_ef00_rx(&a,0,freeze,sizeof freeze);assert((writes>0)==a.profile->temporary_passwords);
- lock_app_init(&a,&h);info(&a,"{\"p\":\"wrongpid\",\"v\":\"1.0.0\"}");assert(a.pid_mismatch);assert(strcmp(a.observed_pid,"wrongpid")==0);assert(a.observed_ota);
+ lock_app_ef00_rx(&a,0,freeze,sizeof freeze);assert((writes>0)==lock_capability_has(a.binding->capability_profile, LOCK_CAP_TEMPORARY_PASSWORDS));
+ lock_app_init(&a,&h);info(&a,"{\"p\":\"wrongpid\",\"v\":\"1.0.0\"}");assert(a.pid_mismatch);assert(strcmp(a.observation.pid,"wrongpid")==0);assert(a.observation.ota_capable);
  writes=0;send21(&a);assert(writes==0);assert(!a.tls.pend_active);reports=0;const uint8_t battery[]={10,2,0,4,0,0,0,80};feed(&a,5,battery,sizeof battery);assert(reports==1);
- lock_app_init(&a,&h);char json[100];snprintf(json,sizeof json,"{\"p\":\"%s\",\"v\":\"1.0.0\"}",a.profile->expected_pid);info(&a,json);assert(!a.pid_mismatch);assert(strcmp(a.mcu_version,"1.0.0")==0);writes=0;send21(&a);assert(writes>0);
+ lock_app_init(&a,&h);char json[100];snprintf(json,sizeof json,"{\"p\":\"%s\",\"v\":\"1.0.0\"}",a.binding->pid);info(&a,json);assert(!a.pid_mismatch);assert(strcmp(a.observation.mcu_version,"1.0.0")==0);writes=0;send21(&a);assert(writes>0);
  assert(a.tls.pend_active);info(&a,"{\"p\":\"wrongpid\",\"v\":\"1\"}");assert(!a.tls.pend_active);info(&a,json);assert(a.pid_mismatch); /* mismatch cancels queued writes and latches until reboot */
- lock_app_init(&a,&h);info(&a,"{broken");assert(a.observed_pid[0]==0);info(&a,"{\"p\":\"this-pid-is-too-long-for-the-bounded-store\"}");assert(a.pid_mismatch);
+ lock_app_init(&a,&h);info(&a,"{broken");assert(a.observation.pid[0]==0);info(&a,"{\"p\":\"this-pid-is-too-long-for-the-bounded-store\"}");assert(a.pid_mismatch);
  const char *invalid_info[]={"{}","{\"v\":\"1.0.0\"}","{broken","{\"p\":\"wrongpid\"}"};
  for(size_t i=0;i<sizeof invalid_info/sizeof invalid_info[0];i++){
    lock_app_init(&a,&h);verify_pid(&a);send21(&a);assert(a.tls.pend_active);
