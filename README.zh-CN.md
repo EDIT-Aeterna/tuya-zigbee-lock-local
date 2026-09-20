@@ -85,3 +85,13 @@ TYZS3 只允许通过 PID 验证后的 DP21 远程密码开锁、DP54 录入、D
 - [许可证状态](docs/LICENSE_RECOMMENDATION.md)
 
 保留原作者 Nicki Eftekhari 的代码、历史与归属声明。upstream 派生代码许可状态仍待明确，本次不新增统一 MIT/GPL/Apache 许可证。
+
+
+## 社区与安全
+
+- [安全策略](SECURITY.md)
+- [贡献指南](CONTRIBUTING.md)
+- [兼容性矩阵](docs/supported-locks.md)
+- [兼容性反馈模板](docs/compatibility-report-template.md)
+
+提交 Issue / 日志前请移除真实密码、Zigbee 网络密钥、私有原厂备份及其他家庭敏感信息。

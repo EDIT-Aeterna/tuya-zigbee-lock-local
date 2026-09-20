@@ -70,3 +70,13 @@ TYZS3 initial support does not expose periodic/one-time temporary passwords, fre
 Maintainer hardware validation passed for both Control targets and both Monitor firmware + converter combinations in Zigbee2MQTT/Home Assistant. Automated checks are recorded separately; Codex did not perform hardware tests. DP8 is diagnostic, not a reliable independent physical door-contact sensor. Dynamic password/SecKey remains unsupported; OTA and unresolved bootloader/layout work remain outside this release.
 
 Original upstream code and history are preserved. © 2026 Nicki Eftekhari; original rights notices remain applicable. No new blanket license is assigned to upstream-derived code.
+
+
+## Community and security
+
+- [Security policy](SECURITY.md)
+- [Contributing guide](CONTRIBUTING.md)
+- [Compatibility matrix](docs/supported-locks.md)
+- [Compatibility report template](docs/compatibility-report-template.md)
+
+Please remove passwords, network keys, private stock backups and other household-sensitive values before posting logs or issues.

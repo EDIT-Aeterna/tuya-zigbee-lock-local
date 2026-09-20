@@ -30,3 +30,10 @@ Future work should prefer passive observation of reported datapoints and known-m
 - Refresh Home Assistant and Zigbee2MQTT user guides for Control/Monitor.
 - Add SECURITY.md, contribution/compatibility issue templates and current-policy CI.
 - Continue the compatibility matrix with additional tested Product Bindings and lock samples.
+
+
+## Repository hardening
+
+- Add current-policy GitHub CI while preserving historical reviewer tests separately.
+- Add security/contribution guidance and structured bug/compatibility issue templates.
+- Follow-up repository hygiene will remove previously tracked generated Studio build outputs in a separate reviewable change.
