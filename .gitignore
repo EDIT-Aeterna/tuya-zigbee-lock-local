@@ -6,3 +6,6 @@ selftest
 # editor / OS
 .DS_Store
 *.swp
+
+# Reproducible generated edition projects; inputs stay in the original projects.
+/studio/tzll-*-generated/
