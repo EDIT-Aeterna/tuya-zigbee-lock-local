@@ -2,9 +2,9 @@
 
 ## Access editions
 
-- T3-4A: firmware-only Control/Monitor access policy and four candidate builds; implemented for maintainer hardware regression, not public release.
-- T3-4B: matching Control/Monitor converter layer; not implemented in T3-4A. Canonical converters remain unchanged.
-- Planned v1.2.0-alpha.1: four-edition release only after hardware validation and T3-4B review. Not prepared, tagged or published by T3-4A.
+- T3-4A: compile-time Control/Monitor policy and four builds; maintainer hardware regression PASS.
+- T3-4B: both independent Monitor converters integrated; matching firmware/converter Zigbee2MQTT/HA validation PASS. Existing Control definitions remain unchanged.
+- v1.2.0-alpha.1: four-edition release preparation and final audit; publication remains a separate manual maintainer step.
 
 See [Access Editions](ACCESS_EDITIONS.md).
 

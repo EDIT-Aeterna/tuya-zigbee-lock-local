@@ -256,7 +256,8 @@ def main():
                   '', '## Stop condition', '',
                   'Ready for maintainer review and manual GitHub v1.2.0-alpha.1 publication.', '']
         (package / 'FINAL_AUDIT_REPORT.md').write_text('\n'.join(audit), encoding='utf8', newline='\n')
-        files = sorted(p for p in package.rglob('*') if p.is_file())
+        files = sorted((p for p in package.rglob('*') if p.is_file()),
+                       key=lambda p: p.relative_to(package).as_posix())
         checks = ''.join(digest(p) + '  ' + p.relative_to(package).as_posix() + '\n' for p in files)
         (package / 'SHA256SUMS.txt').write_text(checks, encoding='utf8', newline='\n')
         verify_package(package)
