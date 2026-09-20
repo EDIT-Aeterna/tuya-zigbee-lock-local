@@ -1,3 +1,6 @@
+> [!WARNING]
+> **Historical upstream bootloader recipe — not a supported TZLL flashing procedure.** Current TZLL releases disable OTA and do not require or support installing this standalone bootloader. See [FLASHING.md](FLASHING.md) for the supported cable-flash/rollback procedure.
+
 # TYZS3 Lock — OTA bootloader recipe (one-time Studio build)
 
 The only OTA piece that needs Studio generation. Everything else (OTA-client
