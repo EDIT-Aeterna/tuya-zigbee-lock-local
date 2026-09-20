@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.2.0-alpha.1] - 2026-09-20
+
+Prepared for maintainer review and manual publication.
+
+- Added TYZS5 and TYZS3 Monitor Edition, with independent hardware-validated read-only Zigbee2MQTT definitions.
+- Added compile-time CONTROL / MONITOR policy; Monitor has an empty external writable-DP surface.
+- Preserved Control behavior and exact validated write policies.
+- Separated Product Binding from neutral Capability Profile and added orthogonal Access Edition.
+- Added four-variant shared-source builds, edition documentation and tests.
+- Maintainer real-device validation passed for both Control targets and both Monitor firmware/converter combinations. Release preparation checks byte identity against those artifacts.
+- Monitor is recommended for status/events-only use; capabilities remain lock-dependent. Dynamic password/SecKey unsupported; OTA disabled; this remains alpha.
+
 ## [1.1.0-alpha.1] - 2026-09-17
 
 Prepared for maintainer review; not automatically tagged or published.

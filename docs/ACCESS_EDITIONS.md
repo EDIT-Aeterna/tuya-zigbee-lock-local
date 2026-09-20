@@ -1,6 +1,6 @@
-# Access Editions — T3-4A firmware candidates
+# Access Editions — Control and Monitor
 
-T3-4A adds a compile-time access policy, independent of module target, product binding and capability profile. These are candidates for maintainer hardware regression, not a public release. Production converters and README release claims remain unchanged.
+The compile-time access policy is independent of module target, product binding and capability profile. The maintainer has validated all four firmware variants, including both Monitor converters in Zigbee2MQTT/Home Assistant. v1.2.0-alpha.1 is prepared for manual release review. Monitor is recommended for status/events-only use; Control is for intentional remote lock control.
 
 ## Control Edition / 可控制版
 
@@ -50,10 +50,14 @@ Existing `build_stage2br.ps1` and `build_tyzs3.ps1` still build Control by defau
 
 Normal original Studio inputs are not temporarily rewritten. Matrix outputs do not overwrite the previous T3-3 Studio HEX files or release package. Use the explicitly named T3-4 artifacts, not an older canonical build left in a different directory. See [four-build report](T3_4A_ACCESS_POLICY_REPORT.md) for exact paths and hashes.
 
-## Security scope and next phase
+## Matching converters and security scope
 
-Monitor Edition reduces the remote-control attack surface by removing lock-control writes at both the integration and firmware policy layers once the matching read-only converter is added in T3-4B. T3-4A implements the firmware layer only. Current Control converters intentionally do not fingerprint `-MON`, so normal Monitor HA/Z2M installation is not complete in this phase. Do not broaden Control fingerprints as a workaround.
+Monitor Edition removes the normal integration-layer lock-control writers and firmware-side externally-originated lock-control permissions, reducing the remote-control attack surface.
+
+只读监控版同时移除 Zigbee2MQTT 控制写入入口，并在固件层拒绝外部发起的门锁控制写入，从而缩小远程控制攻击面。
+
+Use `zigbee2mqtt/TYZS5/tuya_ty0a01_tyzs5_monitor.js` or `zigbee2mqtt/TYZS3/tuya_ty0a01_tyzs3_monitor.js`. Both are validated v0.1.0 definitions with empty toZigbee and read-only exposes. Never reuse Control definitions for Monitor. Switching requires reflashing; the changed modelIdentifier may require re-interview or deleting/re-pairing in Zigbee2MQTT.
 
 No claim of being unhackable, certified or guaranteed secure is made. Physical access, implementation defects and other system threats remain outside the narrow firmware access-policy claim. OTA stays disabled in all four. TYZS3 retains EM1/EM2-disabled operation; TYZS5 retains its existing power policy.
 
-Maintainer hardware regression must confirm Monitor telemetry and time/ACK traffic while intentional external writes produce no MCU lock-control command. Do not confuse an ACK/time frame with a forbidden DP command. Use DHO924 where helpful. No test sender is installed automatically; coordinator-level test tools must be explicitly operated by the maintainer.
+Maintainer hardware validation is reported in the release taskbook. Automated tests independently check external denial and preserved internal traces; Codex performed no hardware testing. Do not confuse an ACK/time frame with a forbidden DP command. Use DHO924 where helpful. No test sender is installed automatically; coordinator-level test tools must be explicitly operated by the maintainer.

@@ -1,4 +1,4 @@
-# TZLL platform architecture — T3-3
+# TZLL platform architecture — Control and Monitor
 
 T3-4A extension: [Access Editions](ACCESS_EDITIONS.md) adds an independent compile-time Control/Monitor gate after the product capability allowlist. Module Target, Product Binding, Capability Profile and Runtime Product Observation retain their ownership below. Access Edition owns only effective external write permission; it does not redefine product capabilities or internal protocol traffic.
 
@@ -19,6 +19,7 @@ PID is a Tuya Product ID / product definition binding. It is not a Zigbee module
 | Module Target | Basic model, adapter/pins/peripherals, Studio target, EM1/EM2, diagnostic version, flashing target | firmware/TYZS3, firmware/TYZS5, KAGEL_PROFILE, Studio projects |
 | Product Binding | Expected PID, tested MCU evidence, quirks, PID write-verification policy, capability reference | firmware/common/lock_product_binding.c/h |
 | Capability Profile | Feature flags and separate explicit writable-DP allowlist | firmware/common/lock_capability_profile.c/h |
+| Access Edition | Compile-time effective external-write permission, orthogonal to capability | firmware/common/tzll_access_policy.c/h |
 | Runtime Product Observation | Received/valid state, observed PID/MCU, OTA flag presence/value | lock_product_observation_t inside lock_app_t |
 
 ```text
@@ -29,7 +30,9 @@ MCU Product Info    -> runtime observation -> verify expected binding -> existin
 
 The build selects a module and an expected binding independently. Production configurations remain TYZS5+srptwvak and TYZS3+ujcjk46o. Host matrix tests intentionally combine both bindings with both module identities to prove independence; these combinations are not new supported products. Product observation never changes the selected binding or module identity.
 
-## Current policy
+Access Edition is orthogonal to capability: `srptwvak -> EXTENDED_V1 -> CONTROL or MONITOR`; `ujcjk46o -> CORE_V1 -> CONTROL or MONITOR`.
+
+## Current policy (before the Access Edition gate)
 
 | Product binding | Tested MCU evidence | Capability profile | Exact writable DPs | PID required before writes | Quirks |
 |---|---|---|---|---|---|
@@ -48,7 +51,7 @@ The serial dispatcher accepts full pure JSON by default. It removes one trailing
 
 The existing `pid_verified` and sticky `pid_mismatch` gate remain in lock_app. Wrong/missing/malformed/empty identity information cancels pending writes and blocks until reinitialization. A later matching reply cannot clear the latch. Read/report processing continues. `product_info_seen` means any valid JSON has been received, independent of the latest observation's validity; this preserves the one-time deferred retry after complete MCU activity. No response alone does not latch mismatch.
 
-Only the product-binding layer performs raw PID comparison. General control code follows the selected binding's capability profile and explicit allowlist, with product quirks copied to the serial context at initialization. The retained `kagel_control_dp_allowed(dp)` API delegates to `lock_binding_default()->capability_profile`; it remains on the real control path and defined in both ELFs. The app is initialized with that same static binding; runtime rebinding is not supported. The old lock_profile.c/h policy was removed, not retained as a second authority. The historical compile define `LOCK_PROFILE_UJCJK46O` is retained as a binding selector for existing build commands; it does not choose a radio model or power policy. The module header no longer requires a particular PID selector.
+Only the product-binding layer performs raw PID comparison. General control code follows the selected binding's capability profile and explicit allowlist, with product quirks copied to the serial context at initialization. The retained `kagel_control_dp_allowed(dp)` API delegates through Access Edition to `lock_binding_default()->capability_profile`; it remains on the real control path and defined in both ELFs. The app is initialized with that same static binding; runtime rebinding is not supported. The old lock_profile.c/h policy was removed, not retained as a second authority. The historical compile define `LOCK_PROFILE_UJCJK46O` is retained as a binding selector for existing build commands; it does not choose a radio model or power policy. The module header no longer requires a particular PID selector.
 
 ## Preserved module policy and limits
 
