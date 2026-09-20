@@ -1,0 +1,67 @@
+name: Bug report
+description: Report a reproducible TZLL firmware, converter, Zigbee2MQTT, or Home Assistant problem
+title: "[Bug] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Keep the door open and a physical fallback available while testing. Remove passwords, network keys, private stock dumps, and household-sensitive data from logs.
+  - type: dropdown
+    id: module
+    attributes:
+      label: Module
+      options:
+        - TYZS5
+        - TYZS3
+        - Other / unknown
+    validations:
+      required: true
+  - type: dropdown
+    id: edition
+    attributes:
+      label: Access Edition
+      options:
+        - Control
+        - Monitor
+        - Unknown
+    validations:
+      required: true
+  - type: input
+    id: release
+    attributes:
+      label: TZLL release / firmware filename
+      placeholder: v1.2.0-alpha.1 / tzll_tyzs5_monitor_v1.2.0-alpha.1.hex
+    validations:
+      required: true
+  - type: input
+    id: identity
+    attributes:
+      label: Zigbee identity
+      placeholder: Tuya / TY0A01-TYZS5-MON
+  - type: input
+    id: pid
+    attributes:
+      label: Product ID (PID) / lock MCU version
+      placeholder: srptwvak / 1.0.8
+  - type: textarea
+    id: problem
+    attributes:
+      label: What happened?
+      description: Include expected behavior, actual behavior, and exact steps to reproduce.
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Sanitized logs / datapoints
+      description: Remove credentials, Zigbee keys, IEEE/home identifiers if sensitive, and private stock data.
+      render: text
+  - type: checkboxes
+    id: safety
+    attributes:
+      label: Safety / privacy checklist
+      options:
+        - label: I removed passwords, network keys, private stock backups, and other sensitive values.
+          required: true
+        - label: I am not treating a converter dispatch/ACK alone as proof that the lock MCU physically executed a command.
+          required: true

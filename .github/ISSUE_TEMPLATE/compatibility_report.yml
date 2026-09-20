@@ -1,0 +1,76 @@
+name: Lock compatibility report
+description: Add a tested lock / Product Binding result to the TZLL compatibility matrix
+title: "[Compatibility] "
+body:
+  - type: input
+    id: brand_model
+    attributes:
+      label: Brand / model
+      placeholder: Brand + exact model, or Unknown if genuinely unknown
+    validations:
+      required: true
+  - type: dropdown
+    id: module
+    attributes:
+      label: Module
+      options:
+        - TYZS5
+        - TYZS3
+        - Other / unknown
+    validations:
+      required: true
+  - type: input
+    id: pid_mcu
+    attributes:
+      label: Product ID (PID) / lock MCU version
+      placeholder: ujcjk46o / 1.0.0
+  - type: dropdown
+    id: edition
+    attributes:
+      label: Tested Access Edition
+      options:
+        - Control
+        - Monitor
+        - Both
+    validations:
+      required: true
+  - type: input
+    id: identity
+    attributes:
+      label: Zigbee modelIdentifier
+      placeholder: TY0A01-TYZS3-MON
+  - type: input
+    id: versions
+    attributes:
+      label: TZLL release / converter version
+      placeholder: v1.2.0-alpha.1 / Monitor v0.1.0
+    validations:
+      required: true
+  - type: textarea
+    id: features
+    attributes:
+      label: Tested feature matrix
+      description: Mark pairing, battery, unlock events, DP58/59/60/93 lists, alarm, and Control-only operations where applicable.
+      placeholder: |
+        Pairing: ✅
+        Battery: ✅
+        Fingerprint event: ✅
+        Password event: ✅
+        Card event: ✅
+        Face event: ✅
+        DP58/59/60/93: ...
+        Remote unlock (Control): ...
+        Credential enrollment/deletion (Control): ...
+    validations:
+      required: true
+  - type: textarea
+    id: quirks
+    attributes:
+      label: Unknown / unusual datapoints or behavior
+  - type: checkboxes
+    id: privacy
+    attributes:
+      label: Privacy checklist
+      options:
+        - label: I removed real credentials, dynamic passwords, Zigbee network keys, private stock dumps, and other household-sensitive data.
+          required: true

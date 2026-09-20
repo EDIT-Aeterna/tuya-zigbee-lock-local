@@ -1,5 +1,6 @@
 """Run all available C host tests against the shared core; retain every result."""
 import os
+import shutil
 from pathlib import Path
 import subprocess
 import tempfile

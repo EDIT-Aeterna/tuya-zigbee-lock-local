@@ -1,5 +1,5 @@
 """Four-way host access tests, including edition-independent internal wire traces."""
-import argparse,json,os,subprocess,tempfile
+import argparse,json,os,shutil,subprocess,tempfile
 from pathlib import Path
 root=Path(__file__).resolve().parents[1]
 p=argparse.ArgumentParser()
