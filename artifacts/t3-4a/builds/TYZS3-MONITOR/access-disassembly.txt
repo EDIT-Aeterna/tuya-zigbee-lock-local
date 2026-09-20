@@ -1,0 +1,182 @@
+
+D:\project\tyzs5-lock-port\Door-Lock-TY0A01-with-TYZS3-to-Z2M-firmware\artifacts\t3-4a\builds\TYZS3-MONITOR\TYZS3-T3-4-MONITOR-REGRESSION.out:     file format elf32-littlearm
+
+
+Disassembly of section .text:
+
+00021a1e <tzll_access_mode>:
+   21a1e:	2001      	movs	r0, #1
+   21a20:	4770      	bx	lr
+
+Disassembly of section .data:
+
+D:\project\tyzs5-lock-port\Door-Lock-TY0A01-with-TYZS3-to-Z2M-firmware\artifacts\t3-4a\builds\TYZS3-MONITOR\TYZS3-T3-4-MONITOR-REGRESSION.out:     file format elf32-littlearm
+
+
+Disassembly of section .text:
+
+00021a22 <tzll_access_external_dp_writable>:
+   21a22:	b508      	push	{r3, lr}
+   21a24:	4603      	mov	r3, r0
+   21a26:	f7ff fffa 	bl	21a1e <tzll_access_mode>
+   21a2a:	b930      	cbnz	r0, 21a3a <tzll_access_external_dp_writable+0x18>
+   21a2c:	b13b      	cbz	r3, 21a3e <tzll_access_external_dp_writable+0x1c>
+   21a2e:	68d8      	ldr	r0, [r3, #12]
+   21a30:	f7ff fcc9 	bl	213c6 <lock_capability_dp_writable>
+   21a34:	f000 0001 	and.w	r0, r0, #1
+   21a38:	bd08      	pop	{r3, pc}
+   21a3a:	2000      	movs	r0, #0
+   21a3c:	e7fa      	b.n	21a34 <tzll_access_external_dp_writable+0x12>
+   21a3e:	4618      	mov	r0, r3
+   21a40:	e7f8      	b.n	21a34 <tzll_access_external_dp_writable+0x12>
+
+Disassembly of section .data:
+
+D:\project\tyzs5-lock-port\Door-Lock-TY0A01-with-TYZS3-to-Z2M-firmware\artifacts\t3-4a\builds\TYZS3-MONITOR\TYZS3-T3-4-MONITOR-REGRESSION.out:     file format elf32-littlearm
+
+
+Disassembly of section .text:
+
+000210f8 <kagel_control_dp_allowed>:
+   210f8:	b510      	push	{r4, lr}
+   210fa:	4604      	mov	r4, r0
+   210fc:	f7e6 f90a 	bl	7314 <lock_binding_default>
+   21100:	4621      	mov	r1, r4
+   21102:	e8bd 4010 	ldmia.w	sp!, {r4, lr}
+   21106:	f000 bc8c 	b.w	21a22 <tzll_access_external_dp_writable>
+
+Disassembly of section .data:
+
+D:\project\tyzs5-lock-port\Door-Lock-TY0A01-with-TYZS3-to-Z2M-firmware\artifacts\t3-4a\builds\TYZS3-MONITOR\TYZS3-T3-4-MONITOR-REGRESSION.out:     file format elf32-littlearm
+
+
+Disassembly of section .text:
+
+00007e2c <kagel_app_init>:
+    7e2c:	b530      	push	{r4, r5, lr}
+    7e2e:	4b42      	ldr	r3, [pc, #264]	; (7f38 <kagel_app_init+0x10c>)
+    7e30:	4a42      	ldr	r2, [pc, #264]	; (7f3c <kagel_app_init+0x110>)
+    7e32:	601a      	str	r2, [r3, #0]
+    7e34:	b08d      	sub	sp, #52	; 0x34
+    7e36:	f7ff fe83 	bl	7b40 <em1_hold>
+    7e3a:	4841      	ldr	r0, [pc, #260]	; (7f40 <kagel_app_init+0x114>)
+    7e3c:	4d41      	ldr	r5, [pc, #260]	; (7f44 <kagel_app_init+0x118>)
+    7e3e:	f7fd fa9f 	bl	5380 <emberAfGetEui64>
+    7e42:	4841      	ldr	r0, [pc, #260]	; (7f48 <kagel_app_init+0x11c>)
+    7e44:	2101      	movs	r1, #1
+    7e46:	f7f8 fc4d 	bl	6e4 <CMU_ClockEnable>
+    7e4a:	4840      	ldr	r0, [pc, #256]	; (7f4c <kagel_app_init+0x120>)
+    7e4c:	2101      	movs	r1, #1
+    7e4e:	f7f8 fc49 	bl	6e4 <CMU_ClockEnable>
+    7e52:	2100      	movs	r1, #0
+    7e54:	4608      	mov	r0, r1
+    7e56:	2301      	movs	r3, #1
+    7e58:	2204      	movs	r2, #4
+    7e5a:	f7f9 fcb9 	bl	17d0 <GPIO_PinModeSet>
+    7e5e:	2300      	movs	r3, #0
+    7e60:	2201      	movs	r2, #1
+    7e62:	4611      	mov	r1, r2
+    7e64:	4618      	mov	r0, r3
+    7e66:	f7f9 fcb3 	bl	17d0 <GPIO_PinModeSet>
+    7e6a:	cd0f      	ldmia	r5!, {r0, r1, r2, r3}
+    7e6c:	ac05      	add	r4, sp, #20
+    7e6e:	c40f      	stmia	r4!, {r0, r1, r2, r3}
+    7e70:	e895 0007 	ldmia.w	r5, {r0, r1, r2}
+    7e74:	e884 0007 	stmia.w	r4, {r0, r1, r2}
+    7e78:	4c35      	ldr	r4, [pc, #212]	; (7f50 <kagel_app_init+0x124>)
+    7e7a:	a905      	add	r1, sp, #20
+    7e7c:	4620      	mov	r0, r4
+    7e7e:	f016 fd1f 	bl	1e8c0 <USART_InitAsync>
+    7e82:	2300      	movs	r3, #0
+    7e84:	67a3      	str	r3, [r4, #120]	; 0x78
+    7e86:	2303      	movs	r3, #3
+    7e88:	6763      	str	r3, [r4, #116]	; 0x74
+    7e8a:	6ce3      	ldr	r3, [r4, #76]	; 0x4c
+    7e8c:	f043 0304 	orr.w	r3, r3, #4
+    7e90:	64e3      	str	r3, [r4, #76]	; 0x4c
+    7e92:	4b30      	ldr	r3, [pc, #192]	; (7f54 <kagel_app_init+0x128>)
+    7e94:	f44f 5280 	mov.w	r2, #4096	; 0x1000
+    7e98:	601a      	str	r2, [r3, #0]
+    7e9a:	492f      	ldr	r1, [pc, #188]	; (7f58 <kagel_app_init+0x12c>)
+    7e9c:	482f      	ldr	r0, [pc, #188]	; (7f5c <kagel_app_init+0x130>)
+    7e9e:	f7ff f95d 	bl	715c <lock_app_init>
+    7ea2:	482e      	ldr	r0, [pc, #184]	; (7f5c <kagel_app_init+0x130>)
+    7ea4:	f7ff f9a2 	bl	71ec <lock_app_start>
+    7ea8:	2304      	movs	r3, #4
+    7eaa:	f88d 300c 	strb.w	r3, [sp, #12]
+    7eae:	2310      	movs	r3, #16
+    7eb0:	f88d 3014 	strb.w	r3, [sp, #20]
+    7eb4:	4b2a      	ldr	r3, [pc, #168]	; (7f60 <kagel_app_init+0x134>)
+    7eb6:	681b      	ldr	r3, [r3, #0]
+    7eb8:	f8cd 300d 	str.w	r3, [sp, #13]
+    7ebc:	4b29      	ldr	r3, [pc, #164]	; (7f64 <kagel_app_init+0x138>)
+    7ebe:	f10d 0215 	add.w	r2, sp, #21
+    7ec2:	f103 0110 	add.w	r1, r3, #16
+    7ec6:	f853 0b04 	ldr.w	r0, [r3], #4
+    7eca:	f842 0b04 	str.w	r0, [r2], #4
+    7ece:	428b      	cmp	r3, r1
+    7ed0:	d1f9      	bne.n	7ec6 <kagel_app_init+0x9a>
+    7ed2:	2442      	movs	r4, #66	; 0x42
+    7ed4:	9400      	str	r4, [sp, #0]
+    7ed6:	ab03      	add	r3, sp, #12
+    7ed8:	2204      	movs	r2, #4
+    7eda:	2100      	movs	r1, #0
+    7edc:	2001      	movs	r0, #1
+    7ede:	f018 f83e 	bl	1ff5e <emberAfWriteServerAttribute>
+    7ee2:	4b21      	ldr	r3, [pc, #132]	; (7f68 <kagel_app_init+0x13c>)
+    7ee4:	2205      	movs	r2, #5
+    7ee6:	7018      	strb	r0, [r3, #0]
+    7ee8:	2100      	movs	r1, #0
+    7eea:	9400      	str	r4, [sp, #0]
+    7eec:	ab05      	add	r3, sp, #20
+    7eee:	2001      	movs	r0, #1
+    7ef0:	f018 f835 	bl	1ff5e <emberAfWriteServerAttribute>
+    7ef4:	4b1d      	ldr	r3, [pc, #116]	; (7f6c <kagel_app_init+0x140>)
+    7ef6:	7018      	strb	r0, [r3, #0]
+    7ef8:	2330      	movs	r3, #48	; 0x30
+    7efa:	9300      	str	r3, [sp, #0]
+    7efc:	2207      	movs	r2, #7
+    7efe:	4b1c      	ldr	r3, [pc, #112]	; (7f70 <kagel_app_init+0x144>)
+    7f00:	2100      	movs	r1, #0
+    7f02:	2001      	movs	r0, #1
+    7f04:	f018 f82b 	bl	1ff5e <emberAfWriteServerAttribute>
+    7f08:	4b1a      	ldr	r3, [pc, #104]	; (7f74 <kagel_app_init+0x148>)
+    7f0a:	4a1b      	ldr	r2, [pc, #108]	; (7f78 <kagel_app_init+0x14c>)
+    7f0c:	7018      	strb	r0, [r3, #0]
+    7f0e:	2400      	movs	r4, #0
+    7f10:	4623      	mov	r3, r4
+    7f12:	e9cd 4400 	strd	r4, r4, [sp]
+    7f16:	f241 7170 	movw	r1, #6000	; 0x1770
+    7f1a:	4818      	ldr	r0, [pc, #96]	; (7f7c <kagel_app_init+0x150>)
+    7f1c:	f7fb fcd6 	bl	38cc <sl_sleeptimer_start_periodic_timer_ms>
+    7f20:	e9cd 4400 	strd	r4, r4, [sp]
+    7f24:	4a16      	ldr	r2, [pc, #88]	; (7f80 <kagel_app_init+0x154>)
+    7f26:	4817      	ldr	r0, [pc, #92]	; (7f84 <kagel_app_init+0x158>)
+    7f28:	4623      	mov	r3, r4
+    7f2a:	f44f 61fa 	mov.w	r1, #2000	; 0x7d0
+    7f2e:	f7fb fccd 	bl	38cc <sl_sleeptimer_start_periodic_timer_ms>
+    7f32:	b00d      	add	sp, #52	; 0x34
+    7f34:	bd30      	pop	{r4, r5, pc}
+    7f36:	bf00      	nop
+    7f38:	20003118 	.word	0x20003118
+    7f3c:	000261c4 	.word	0x000261c4
+    7f40:	200040ab 	.word	0x200040ab
+    7f44:	000261e8 	.word	0x000261e8
+    7f48:	000a3500 	.word	0x000a3500
+    7f4c:	00043200 	.word	0x00043200
+    7f50:	40010000 	.word	0x40010000
+    7f54:	e000e100 	.word	0xe000e100
+    7f58:	000261a4 	.word	0x000261a4
+    7f5c:	2000311c 	.word	0x2000311c
+    7f60:	00026182 	.word	0x00026182
+    7f64:	00026187 	.word	0x00026187
+    7f68:	20001408 	.word	0x20001408
+    7f6c:	20001407 	.word	0x20001407
+    7f70:	000261a1 	.word	0x000261a1
+    7f74:	20001406 	.word	0x20001406
+    7f78:	000078c5 	.word	0x000078c5
+    7f7c:	20002c54 	.word	0x20002c54
+    7f80:	000076d9 	.word	0x000076d9
+    7f84:	200033c0 	.word	0x200033c0
+
+Disassembly of section .data:

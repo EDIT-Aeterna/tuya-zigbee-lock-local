@@ -1,0 +1,208 @@
+
+D:\project\tyzs5-lock-port\Door-Lock-TY0A01-with-TYZS3-to-Z2M-firmware\artifacts\t3-4a\builds\TYZS5-CONTROL\TYZS5-T3-4-CONTROL-REGRESSION.out:     file format elf32-littlearm
+
+
+Disassembly of section .text:
+
+00021bf2 <tzll_access_mode>:
+   21bf2:	2000      	movs	r0, #0
+   21bf4:	4770      	bx	lr
+
+Disassembly of section .data:
+
+D:\project\tyzs5-lock-port\Door-Lock-TY0A01-with-TYZS3-to-Z2M-firmware\artifacts\t3-4a\builds\TYZS5-CONTROL\TYZS5-T3-4-CONTROL-REGRESSION.out:     file format elf32-littlearm
+
+
+Disassembly of section .text:
+
+00021bf6 <tzll_access_external_dp_writable>:
+   21bf6:	b508      	push	{r3, lr}
+   21bf8:	4603      	mov	r3, r0
+   21bfa:	f7ff fffa 	bl	21bf2 <tzll_access_mode>
+   21bfe:	b930      	cbnz	r0, 21c0e <tzll_access_external_dp_writable+0x18>
+   21c00:	b13b      	cbz	r3, 21c12 <tzll_access_external_dp_writable+0x1c>
+   21c02:	68d8      	ldr	r0, [r3, #12]
+   21c04:	f7ff fcc9 	bl	2159a <lock_capability_dp_writable>
+   21c08:	f000 0001 	and.w	r0, r0, #1
+   21c0c:	bd08      	pop	{r3, pc}
+   21c0e:	2000      	movs	r0, #0
+   21c10:	e7fa      	b.n	21c08 <tzll_access_external_dp_writable+0x12>
+   21c12:	4618      	mov	r0, r3
+   21c14:	e7f8      	b.n	21c08 <tzll_access_external_dp_writable+0x12>
+
+Disassembly of section .data:
+
+D:\project\tyzs5-lock-port\Door-Lock-TY0A01-with-TYZS3-to-Z2M-firmware\artifacts\t3-4a\builds\TYZS5-CONTROL\TYZS5-T3-4-CONTROL-REGRESSION.out:     file format elf32-littlearm
+
+
+Disassembly of section .text:
+
+000212cc <kagel_control_dp_allowed>:
+   212cc:	b510      	push	{r4, lr}
+   212ce:	4604      	mov	r4, r0
+   212d0:	f7e6 f87e 	bl	73d0 <lock_binding_default>
+   212d4:	4621      	mov	r1, r4
+   212d6:	e8bd 4010 	ldmia.w	sp!, {r4, lr}
+   212da:	f000 bc8c 	b.w	21bf6 <tzll_access_external_dp_writable>
+
+Disassembly of section .data:
+
+D:\project\tyzs5-lock-port\Door-Lock-TY0A01-with-TYZS3-to-Z2M-firmware\artifacts\t3-4a\builds\TYZS5-CONTROL\TYZS5-T3-4-CONTROL-REGRESSION.out:     file format elf32-littlearm
+
+
+Disassembly of section .text:
+
+00007ef4 <kagel_app_init>:
+    7ef4:	b570      	push	{r4, r5, r6, lr}
+    7ef6:	4b4f      	ldr	r3, [pc, #316]	; (8034 <kagel_app_init+0x140>)
+    7ef8:	4a4f      	ldr	r2, [pc, #316]	; (8038 <kagel_app_init+0x144>)
+    7efa:	601a      	str	r2, [r3, #0]
+    7efc:	b08e      	sub	sp, #56	; 0x38
+    7efe:	f7ff fe7d 	bl	7bfc <em1_hold>
+    7f02:	484e      	ldr	r0, [pc, #312]	; (803c <kagel_app_init+0x148>)
+    7f04:	4d4e      	ldr	r5, [pc, #312]	; (8040 <kagel_app_init+0x14c>)
+    7f06:	f7fd fa99 	bl	543c <emberAfGetEui64>
+    7f0a:	484e      	ldr	r0, [pc, #312]	; (8044 <kagel_app_init+0x150>)
+    7f0c:	2101      	movs	r1, #1
+    7f0e:	f7f8 fc03 	bl	718 <CMU_ClockEnable>
+    7f12:	484d      	ldr	r0, [pc, #308]	; (8048 <kagel_app_init+0x154>)
+    7f14:	2101      	movs	r1, #1
+    7f16:	f7f8 fbff 	bl	718 <CMU_ClockEnable>
+    7f1a:	2100      	movs	r1, #0
+    7f1c:	4608      	mov	r0, r1
+    7f1e:	2301      	movs	r3, #1
+    7f20:	2204      	movs	r2, #4
+    7f22:	f7f9 fcb3 	bl	188c <GPIO_PinModeSet>
+    7f26:	2300      	movs	r3, #0
+    7f28:	2201      	movs	r2, #1
+    7f2a:	4611      	mov	r1, r2
+    7f2c:	4618      	mov	r0, r3
+    7f2e:	f7f9 fcad 	bl	188c <GPIO_PinModeSet>
+    7f32:	cd0f      	ldmia	r5!, {r0, r1, r2, r3}
+    7f34:	ac07      	add	r4, sp, #28
+    7f36:	c40f      	stmia	r4!, {r0, r1, r2, r3}
+    7f38:	e895 0007 	ldmia.w	r5, {r0, r1, r2}
+    7f3c:	4d43      	ldr	r5, [pc, #268]	; (804c <kagel_app_init+0x158>)
+    7f3e:	e884 0007 	stmia.w	r4, {r0, r1, r2}
+    7f42:	a907      	add	r1, sp, #28
+    7f44:	4628      	mov	r0, r5
+    7f46:	f016 fda5 	bl	1ea94 <USART_InitAsync>
+    7f4a:	2400      	movs	r4, #0
+    7f4c:	2303      	movs	r3, #3
+    7f4e:	67ac      	str	r4, [r5, #120]	; 0x78
+    7f50:	676b      	str	r3, [r5, #116]	; 0x74
+    7f52:	6ceb      	ldr	r3, [r5, #76]	; 0x4c
+    7f54:	f043 0304 	orr.w	r3, r3, #4
+    7f58:	64eb      	str	r3, [r5, #76]	; 0x4c
+    7f5a:	4e3d      	ldr	r6, [pc, #244]	; (8050 <kagel_app_init+0x15c>)
+    7f5c:	f44f 5380 	mov.w	r3, #4096	; 0x1000
+    7f60:	6033      	str	r3, [r6, #0]
+    7f62:	2501      	movs	r5, #1
+    7f64:	9401      	str	r4, [sp, #4]
+    7f66:	9500      	str	r5, [sp, #0]
+    7f68:	4623      	mov	r3, r4
+    7f6a:	462a      	mov	r2, r5
+    7f6c:	4629      	mov	r1, r5
+    7f6e:	4620      	mov	r0, r4
+    7f70:	f7f9 fc48 	bl	1804 <GPIO_ExtIntConfig>
+    7f74:	f44f 2380 	mov.w	r3, #262144	; 0x40000
+    7f78:	6033      	str	r3, [r6, #0]
+    7f7a:	4936      	ldr	r1, [pc, #216]	; (8054 <kagel_app_init+0x160>)
+    7f7c:	4836      	ldr	r0, [pc, #216]	; (8058 <kagel_app_init+0x164>)
+    7f7e:	f7ff f94b 	bl	7218 <lock_app_init>
+    7f82:	4835      	ldr	r0, [pc, #212]	; (8058 <kagel_app_init+0x164>)
+    7f84:	f7ff f990 	bl	72a8 <lock_app_start>
+    7f88:	230c      	movs	r3, #12
+    7f8a:	f88d 301c 	strb.w	r3, [sp, #28]
+    7f8e:	4b33      	ldr	r3, [pc, #204]	; (805c <kagel_app_init+0x168>)
+    7f90:	4933      	ldr	r1, [pc, #204]	; (8060 <kagel_app_init+0x16c>)
+    7f92:	681b      	ldr	r3, [r3, #0]
+    7f94:	f8cd 300d 	str.w	r3, [sp, #13]
+    7f98:	680b      	ldr	r3, [r1, #0]
+    7f9a:	f8cd 301d 	str.w	r3, [sp, #29]
+    7f9e:	684b      	ldr	r3, [r1, #4]
+    7fa0:	f8cd 3021 	str.w	r3, [sp, #33]	; 0x21
+    7fa4:	2642      	movs	r6, #66	; 0x42
+    7fa6:	688b      	ldr	r3, [r1, #8]
+    7fa8:	f8cd 3025 	str.w	r3, [sp, #37]	; 0x25
+    7fac:	2204      	movs	r2, #4
+    7fae:	ab03      	add	r3, sp, #12
+    7fb0:	4621      	mov	r1, r4
+    7fb2:	9600      	str	r6, [sp, #0]
+    7fb4:	4628      	mov	r0, r5
+    7fb6:	f88d 200c 	strb.w	r2, [sp, #12]
+    7fba:	f018 f8ba 	bl	20132 <emberAfWriteServerAttribute>
+    7fbe:	4b29      	ldr	r3, [pc, #164]	; (8064 <kagel_app_init+0x170>)
+    7fc0:	2205      	movs	r2, #5
+    7fc2:	7018      	strb	r0, [r3, #0]
+    7fc4:	4621      	mov	r1, r4
+    7fc6:	ab07      	add	r3, sp, #28
+    7fc8:	9600      	str	r6, [sp, #0]
+    7fca:	4628      	mov	r0, r5
+    7fcc:	f018 f8b1 	bl	20132 <emberAfWriteServerAttribute>
+    7fd0:	4b25      	ldr	r3, [pc, #148]	; (8068 <kagel_app_init+0x174>)
+    7fd2:	7018      	strb	r0, [r3, #0]
+    7fd4:	2330      	movs	r3, #48	; 0x30
+    7fd6:	2207      	movs	r2, #7
+    7fd8:	4621      	mov	r1, r4
+    7fda:	9300      	str	r3, [sp, #0]
+    7fdc:	4628      	mov	r0, r5
+    7fde:	4b23      	ldr	r3, [pc, #140]	; (806c <kagel_app_init+0x178>)
+    7fe0:	f018 f8a7 	bl	20132 <emberAfWriteServerAttribute>
+    7fe4:	4b22      	ldr	r3, [pc, #136]	; (8070 <kagel_app_init+0x17c>)
+    7fe6:	7018      	strb	r0, [r3, #0]
+    7fe8:	f7f8 f9d8 	bl	39c <bootloader_init>
+    7fec:	a905      	add	r1, sp, #20
+    7fee:	4620      	mov	r0, r4
+    7ff0:	f7f8 f9fa 	bl	3e8 <bootloader_getStorageSlotInfo>
+    7ff4:	4b1f      	ldr	r3, [pc, #124]	; (8074 <kagel_app_init+0x180>)
+    7ff6:	6018      	str	r0, [r3, #0]
+    7ff8:	681b      	ldr	r3, [r3, #0]
+    7ffa:	b92b      	cbnz	r3, 8008 <kagel_app_init+0x114>
+    7ffc:	4b1e      	ldr	r3, [pc, #120]	; (8078 <kagel_app_init+0x184>)
+    7ffe:	9a05      	ldr	r2, [sp, #20]
+    8000:	601a      	str	r2, [r3, #0]
+    8002:	4b1e      	ldr	r3, [pc, #120]	; (807c <kagel_app_init+0x188>)
+    8004:	9a06      	ldr	r2, [sp, #24]
+    8006:	601a      	str	r2, [r3, #0]
+    8008:	2400      	movs	r4, #0
+    800a:	4623      	mov	r3, r4
+    800c:	e9cd 4400 	strd	r4, r4, [sp]
+    8010:	4a1b      	ldr	r2, [pc, #108]	; (8080 <kagel_app_init+0x18c>)
+    8012:	481c      	ldr	r0, [pc, #112]	; (8084 <kagel_app_init+0x190>)
+    8014:	f241 7170 	movw	r1, #6000	; 0x1770
+    8018:	f7fb fcb6 	bl	3988 <sl_sleeptimer_start_periodic_timer_ms>
+    801c:	e9cd 4400 	strd	r4, r4, [sp]
+    8020:	4a19      	ldr	r2, [pc, #100]	; (8088 <kagel_app_init+0x194>)
+    8022:	481a      	ldr	r0, [pc, #104]	; (808c <kagel_app_init+0x198>)
+    8024:	4623      	mov	r3, r4
+    8026:	f44f 61fa 	mov.w	r1, #2000	; 0x7d0
+    802a:	f7fb fcad 	bl	3988 <sl_sleeptimer_start_periodic_timer_ms>
+    802e:	b00e      	add	sp, #56	; 0x38
+    8030:	bd70      	pop	{r4, r5, r6, pc}
+    8032:	bf00      	nop
+    8034:	2000312c 	.word	0x2000312c
+    8038:	000263ac 	.word	0x000263ac
+    803c:	200040bf 	.word	0x200040bf
+    8040:	000263cc 	.word	0x000263cc
+    8044:	000a3500 	.word	0x000a3500
+    8048:	00043200 	.word	0x00043200
+    804c:	40010000 	.word	0x40010000
+    8050:	e000e100 	.word	0xe000e100
+    8054:	0002638c 	.word	0x0002638c
+    8058:	20003130 	.word	0x20003130
+    805c:	00026372 	.word	0x00026372
+    8060:	00026377 	.word	0x00026377
+    8064:	2000140c 	.word	0x2000140c
+    8068:	2000140b 	.word	0x2000140b
+    806c:	0002638a 	.word	0x0002638a
+    8070:	2000140a 	.word	0x2000140a
+    8074:	200010f0 	.word	0x200010f0
+    8078:	20002c80 	.word	0x20002c80
+    807c:	20002c7c 	.word	0x20002c7c
+    8080:	00007981 	.word	0x00007981
+    8084:	20002c5c 	.word	0x20002c5c
+    8088:	00007795 	.word	0x00007795
+    808c:	200033d4 	.word	0x200033d4
+
+Disassembly of section .data:

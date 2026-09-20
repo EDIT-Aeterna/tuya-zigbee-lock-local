@@ -1,0 +1,10 @@
+{
+  "module": "TYZS5",
+  "edition": "Control",
+  "stem": "kagel_tyzs5_srptwvak_clean",
+  "project": "studio\\tzll-tyzs5-control-generated",
+  "hex": "artifacts\\t3-4a\\builds\\TYZS5-CONTROL\\TYZS5-T3-4-CONTROL-REGRESSION.hex",
+  "hex_sha256": "64048dc7c165a560569b956fc8e0f6ba3e7cc6aa83408089c8359b74d8d3115f",
+  "commit": "4b49ff87b10ff06920997f5abf40485efc23225a",
+  "build": "Generate + Clean + Build PASS"
+}

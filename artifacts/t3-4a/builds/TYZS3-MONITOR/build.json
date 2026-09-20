@@ -1,0 +1,10 @@
+{
+  "module": "TYZS3",
+  "edition": "Monitor",
+  "stem": "kagel_tyzs3_ujcjk46o",
+  "project": "studio\\tzll-tyzs3-monitor-generated",
+  "hex": "artifacts\\t3-4a\\builds\\TYZS3-MONITOR\\TYZS3-T3-4-MONITOR-REGRESSION.hex",
+  "hex_sha256": "767dd797efbf8cef19874b6e521305f827457251e15deaa718b5b24c1ef26a14",
+  "commit": "4b49ff87b10ff06920997f5abf40485efc23225a",
+  "build": "Generate + Clean + Build PASS"
+}

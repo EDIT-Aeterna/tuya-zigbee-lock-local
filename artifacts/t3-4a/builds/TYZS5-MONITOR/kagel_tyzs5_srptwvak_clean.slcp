@@ -1,0 +1,71 @@
+# Silicon Labs Project Configuration Tools: slcp, v0, Component selection file.
+project_name: kagel_tyzs5_srptwvak_clean
+label: kagel_tyzs5_srptwvak_clean
+author: Silicon Laboratories, Inc.
+description: This is a Zigbee minimal SoC network-layer application suitable as a  starting
+  point for new application development.
+category: Zigbee Application
+filter:
+- name: Device Type
+  value: [SoC]
+- name: Project Difficulty
+  value: [Advanced]
+- name: Wireless Technology
+  value: [Zigbee]
+package: Zigbee
+quality: production
+readme:
+- {path: readme.html}
+- {path: readme.html}
+source:
+- {path: main.c}
+- {path: app.c}
+- {path: ../../firmware/TYZS5/efr32_app.c}
+- {path: ../../firmware/common/lock_app.c}
+- {path: ../../firmware/common/nicki_ek_lock_serial.c}
+- {path: ../../firmware/common/kagel_control_gate.c}
+- {path: ../../firmware/common/lock_product_binding.c}
+- {path: ../../firmware/common/lock_capability_profile.c}
+- {path: ../../firmware/common/tzll_access_policy.c}
+include:
+- {path: .}
+- {path: ../../firmware/TYZS5}
+- {path: ../../firmware/common}
+sdk: {id: gecko_sdk, version: 4.5.1}
+toolchain_settings: []
+component:
+- {id: EFR32MG13P732F512GM48}
+- {id: emlib_usart}
+- {id: zigbee_application_bootloader}
+- {id: zigbee_counters}
+- {id: zigbee_network_steering}
+- {id: zigbee_pro_leaf_stack}
+- {id: zigbee_scan_dispatch}
+- {id: zigbee_source_route}
+- {id: zigbee_update_tc_link_key}
+- {id: zigbee_zcl_framework_core}
+define:
+- {name: TZLL_ACCESS_EDITION, value: '1'}
+- {name: KAGEL_CONTROL_STAGE2G, value: '1'}
+- {name: KAGEL_TELEMETRY_ONLY, value: '1'}
+- {name: KAGEL_PROFILE, value: KAGEL_PROFILE_TYZS5_SRPTWVAK}
+- {name: KAGEL_REQUIRE_EXPLICIT_PROFILE, value: '1'}
+- {name: KAGEL_REQUIRE_TYZS5_PROFILE, value: '1'}
+config_file:
+- {path: config/zcl/zcl_config.zap, directory: zcl}
+configuration:
+- {name: SLI_ZIGBEE_PRIMARY_NETWORK_DEVICE_TYPE, value: SLI_ZIGBEE_NETWORK_DEVICE_TYPE_SLEEPY_END_DEVICE}
+- {name: SLI_ZIGBEE_PRIMARY_NETWORK_SECURITY_TYPE, value: SLI_ZIGBEE_NETWORK_SECURITY_TYPE_3_0}
+- {name: EMBER_BINDING_TABLE_SIZE, value: '10'}
+- condition: [device_series_1]
+  name: NVM3_DEFAULT_NVM_SIZE
+  value: '36864'
+- condition: [device_series_2]
+  name: NVM3_DEFAULT_NVM_SIZE
+  value: '32768'
+- {name: SL_PSA_ITS_SUPPORT_V1_DRIVER, value: '0'}
+- {name: SL_PSA_ITS_SUPPORT_V2_DRIVER, value: '0'}
+- {name: SL_PSA_ITS_SUPPORT_V3_DRIVER, value: '1'}
+ui_hints:
+  highlight:
+  - {path: readme.html}
