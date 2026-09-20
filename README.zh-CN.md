@@ -82,6 +82,7 @@ TYZS3 只允许通过 PID 验证后的 DP21 远程密码开锁、DP54 录入、D
 - [Home Assistant 指南](docs/home-assistant-guide.md)
 - [兼容性反馈模板](docs/compatibility-report-template.md)
 - [原始项目与版权归属](NOTICE.md)
+- [与上游项目的关系](docs/UPSTREAM_AND_PROVENANCE.md)
 - [许可证状态](docs/LICENSE_RECOMMENDATION.md)
 
 保留原作者 Nicki Eftekhari 的代码、历史与归属声明。upstream 派生代码许可状态仍待明确，本次不新增统一 MIT/GPL/Apache 许可证。
