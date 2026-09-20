@@ -12,6 +12,7 @@ p=argparse.ArgumentParser()
 p.add_argument('--module',choices=['TYZS5','TYZS3'],required=True)
 p.add_argument('--edition',choices=['Control','Monitor'],required=True)
 p.add_argument('--sdk',required=True)
+p.add_argument('--output',default='artifacts/t3-4a/builds')
 a=p.parse_args()
 folder,stem=('tyzs5-telemetry','kagel_tyzs5_srptwvak_clean') if a.module=='TYZS5' else ('tyzs3-candidate','kagel_tyzs3_ujcjk46o')
 source=root/'studio'/folder
@@ -41,7 +42,7 @@ def update(node):
         for value in node:update(value)
 update(zap)
 zap_path.write_text(json.dumps(zap,indent=2)+'\n',encoding='utf8')
-out=root/'artifacts/t3-4a/builds'/(a.module+'-'+a.edition.upper())
+out=root/a.output/(a.module+'-'+a.edition.upper())
 out.mkdir(parents=True,exist_ok=True)
 env=os.environ.copy()
 env['PATH']=r'C:\SiliconLabs\SimplicityStudio\v5\support\common\build\msys\1.0\bin'+os.pathsep+env['PATH']

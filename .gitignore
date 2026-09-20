@@ -9,3 +9,8 @@ selftest
 
 # Reproducible generated edition projects; inputs stay in the original projects.
 /studio/tzll-*-generated/
+
+# Reproducible release outputs and local test/build evidence.
+/artifacts/release/v1.2.0-alpha.1/
+/artifacts/release-work/v1.2.0-alpha.1/
+/artifacts/release/TZLL-v1.2.0-alpha.1.zip

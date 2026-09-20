@@ -1,8 +1,11 @@
 """Four-way host access tests, including edition-independent internal wire traces."""
-import json,os,subprocess,tempfile
+import argparse,json,os,subprocess,tempfile
 from pathlib import Path
 root=Path(__file__).resolve().parents[1]
-out=root/'artifacts/t3-4a/access-tests';out.mkdir(parents=True,exist_ok=True)
+p=argparse.ArgumentParser()
+p.add_argument('--output',default='artifacts/t3-4a/access-tests')
+a=p.parse_args()
+out=root/a.output;out.mkdir(parents=True,exist_ok=True)
 env=os.environ.copy();env['PATH']=r'C:\msys64\ucrt64\bin'+os.pathsep+env['PATH']
 gcc=r'C:\msys64\ucrt64\bin\gcc.exe'
 results={}

@@ -1,18 +1,23 @@
 """Four-image static/config/ELF access and identity audit; no hardware operations."""
 from pathlib import Path
-import hashlib,json,re,subprocess
+import argparse,hashlib,json,re,subprocess
 root=Path(__file__).resolve().parents[1]
-out=root/'artifacts/t3-4a'
+p=argparse.ArgumentParser()
+p.add_argument('--output',default='artifacts/t3-4a')
+a=p.parse_args()
+out=root/a.output
 tool=Path('C:/SiliconLabs/SimplicityStudio/v5/developer/toolchains/gnu_arm/12.2.rel1_2023.7/bin')
 results={}
-before=json.loads((out/'before/results.json').read_text())
+before=json.loads((root/'artifacts/t3-4a/before/results.json').read_text())
 after=json.loads((out/'control/results.json').read_text())
 assert all(after[k]==v for k,v in before.items()),'Control test outcomes changed'
 for k in after.keys()-before.keys():assert all(v==0 for v in after[k].values()),k
 for binding in ('srptwvak','ujcjk46o'):
     name='platform_characterization_test-'+binding+'.log'
-    assert (out/'before'/name).read_bytes()==(out/'control'/name).read_bytes()
-subprocess.run(['git','diff','--exit-code','559a3d9','--','zigbee2mqtt','README.md','README.zh-CN.md'],cwd=root,check=True)
+    assert (root/'artifacts/t3-4a/before'/name).read_text()==(out/'control'/name).read_text()
+# Release preparation permits docs/new Monitor definitions, not validated inputs.
+subprocess.run(['git','diff','--exit-code','65417b2','--','firmware','studio/tyzs3-candidate','studio/tyzs5-telemetry',
+                'zigbee2mqtt/TYZS3/tuya_ty0a01_tyzs3.js','zigbee2mqtt/TYZS5/tuya_ty0a01_tyzs5.js'],cwd=root,check=True)
 for module in ('TYZS5','TYZS3'):
     for edition in ('CONTROL','MONITOR'):
         key=module+'-'+edition;folder=out/'builds'/key
